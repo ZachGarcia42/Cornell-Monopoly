@@ -24,8 +24,8 @@ finalcheck:
 	@bash check.sh final
 
 zip:
-	rm -f adventure.zip
-	zip -r adventure.zip . -x@exclude.lst
+	rm -f CS3110FINALPROJECT.zip
+	zip -r CS3110FINALPROJECT.zip . -x@exclude.lst
 
 clean:
 	dune clean
