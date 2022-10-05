@@ -16,18 +16,21 @@ pm:
 # Set to false if you don't want your gallery entry to be public.
 publish: true
 # Pithy title
-title: "The Complete Caml Calculator (CCC)"
+title: "Cornellopoly"
 # OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
-git-repo: "https://github.com/cs3110/textbook"
+git-repo: "https://github.coecis.cornell.edu/zag7/Cornell-Monopoly"
 # If you have no demo screencast, replace the url string with an empty string ""
-demo-video-url: "https://www.youtube.com/watch?v=eSBybJGZoCU"
+demo-video-url: ""
 # Write a short, attention-grabbing description of your project.
 desc: >
-  Our project is an interactive calculator. It supports standard mathematical
-  operations like addition, multiplication, negation, and division on both
-  integers and floating-point numbers. The interface is completely
-  programmable--new functions can easily be defined and assigned to new "keys"
-  in the visual interface.
-
-  Standard visual I/O is supported, but the calculator can also emit sound. By
-  pressing down a special key, it can play a little melody.
+  This project is an online version of the famous game, Monopoly, themed around
+  Cornell locations, landmarks, and inside jokes. The interface shows the user
+  the entire board, their location on the board, and relevant features of the
+  board (houses, cards, property ownership). The user will choose possible
+  actions such as rolling dice, building houses, and paying tax. The user will
+  be able to move their piece around the board, view property details, and view
+  community chest style cards. After the user's turn, other players will take
+  their turn. We could also implement basic AI opponents. Playing against
+  Computer players, the user(s) will see what the computer chooses to do in real
+  time. All of this interface will be created using a terminal library. As a
+  stretch goal we might implement a GUI at the end of the project.
