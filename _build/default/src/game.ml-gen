@@ -1,0 +1,2 @@
+(** @canonical Game.Main *)
+module Main = Game__Main
