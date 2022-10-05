@@ -29,4 +29,4 @@ zip:
 
 clean:
 	dune clean
-	rm -f adventure.zip
+	rm -f CS3110FINALPROJECT.zip
