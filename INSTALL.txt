@@ -1,0 +1,1 @@
+Our project only depends on the libraries already on the default cs3110 fall, 2022 switch
