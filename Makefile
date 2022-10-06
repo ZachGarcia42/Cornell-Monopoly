@@ -15,7 +15,7 @@ test:
 	OCAMLRUNPARAM=b dune exec test/main.exe
 
 play:
-	OCAMLRUNPARAM=b dune exec bin/main.exe
+	OCAMLRUNPARAM=b dune exec src/main.exe
 
 check:
 	@bash check.sh
@@ -24,9 +24,9 @@ finalcheck:
 	@bash check.sh final
 
 zip:
-	rm -f CS3110FINALPROJECT.zip
-	zip -r CS3110FINALPROJECT.zip . -x@exclude.lst
+	rm -f Cornell-Monopoly.zip
+	zip -r Cornell-Monopoly.zip . -x@exclude.lst
 
 clean:
 	dune clean
-	rm -f CS3110FINALPROJECT.zip
+	rm -f Cornell-Monopoly.zip
