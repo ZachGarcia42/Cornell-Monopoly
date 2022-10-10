@@ -7,5 +7,5 @@ val is_player_turn: board -> bool
    player's turn*)
 
 val square_landed: board -> int -> int -> string
-(* Returns the particular square of the board that the player landed on 
+(* Returns the name of the particular square of the board that the player landed on 
    depending on their dice roll and their initial position*)

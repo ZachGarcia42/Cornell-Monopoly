@@ -1,1 +1,1 @@
-src/monopoly.ml:
+src/monopoly.ml: List
