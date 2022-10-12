@@ -1,4 +1,5 @@
 open OUnit2
+open Game
 open Property
 
 let board_tests = []
@@ -11,9 +12,9 @@ let boardwalk = init_property "Boardwalk" Blue 400
 
 let property_tests =
   [
-    property_test "Boardwalk name" "Boardwalk" boardwalk.name;
-    property_test "Boardwalk color" Blue boardwalk.color;
-    property_test "Boardwalk price" 400 boardwalk.price;
+    property_test "Boardwalk name" "Boardwalk" (name boardwalk);
+    property_test "Boardwalk color" Blue (color boardwalk);
+    property_test "Boardwalk price" 400 (price boardwalk);
   ]
 
 let player_tests = []
