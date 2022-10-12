@@ -2,7 +2,7 @@ type t
 (** The abstract type of values representing a single monopoly property. *)
 
 (** The type representing the color of a property. *)
-type color =
+type set =
   | Red
   | Yellow
   | Green
@@ -11,14 +11,16 @@ type color =
   | LightBlue
   | Magenta
   | Orange
+  | Railroad
+  | Utility
 
-val init_property : string -> color -> int -> t
+val init_property : string -> set -> int -> t
 (** [init_property name color price] is the initial state of a property. *)
 
 val name : t -> string
 (** [name p] is the name of property [p].*)
 
-val color : t -> color
+val color : t -> set
 (** [color p] is the color of property [p]. *)
 
 val price : t -> int
