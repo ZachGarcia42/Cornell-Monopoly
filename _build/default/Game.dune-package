@@ -12,10 +12,10 @@
    game.cmx
    game.cmxa
    game.ml
-   game__Main.cmi
-   game__Main.cmt
-   game__Main.cmx
-   main.ml
+   game__Monopoly.cmi
+   game__Monopoly.cmt
+   game__Monopoly.cmx
+   monopoly.ml
    opam))
  (libexec (game.cmxs))
  (doc (README.md)))
@@ -31,7 +31,8 @@
  (modules
   (wrapped
    (main_module_name Game)
-   (modules ((name Main) (obj_name game__Main) (visibility public) (impl)))
+   (modules
+    ((name Monopoly) (obj_name game__Monopoly) (visibility public) (impl)))
    (alias_module
     (name Game)
     (obj_name game)

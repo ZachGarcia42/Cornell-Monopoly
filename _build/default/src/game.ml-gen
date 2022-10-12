@@ -1,2 +1,2 @@
-(** @canonical Game.Main *)
-module Main = Game__Main
+(** @canonical Game.Monopoly *)
+module Monopoly = Game__Monopoly
