@@ -10,9 +10,17 @@ lib: [
   "_build/install/default/lib/Game/game.ml"
   "_build/install/default/lib/Game/game__Monopoly.cmi"
   "_build/install/default/lib/Game/game__Monopoly.cmt"
+  "_build/install/default/lib/Game/game__Monopoly.cmti"
   "_build/install/default/lib/Game/game__Monopoly.cmx"
+  "_build/install/default/lib/Game/game__Player.cmi"
+  "_build/install/default/lib/Game/game__Player.cmt"
+  "_build/install/default/lib/Game/game__Player.cmti"
+  "_build/install/default/lib/Game/game__Player.cmx"
   "_build/install/default/lib/Game/monopoly.ml"
+  "_build/install/default/lib/Game/monopoly.mli"
   "_build/install/default/lib/Game/opam"
+  "_build/install/default/lib/Game/player.ml"
+  "_build/install/default/lib/Game/player.mli"
 ]
 libexec: [
   "_build/install/default/lib/Game/game.cmxs"

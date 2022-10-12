@@ -13,6 +13,8 @@ type board = {
   is_player_turn: bool;
 }
 
+
+
 let is_player_turn (board) = board.is_player_turn
 
 (* Accounts for the fact that positions may need to wrap around 

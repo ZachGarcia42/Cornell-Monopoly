@@ -14,9 +14,17 @@
    game.ml
    game__Monopoly.cmi
    game__Monopoly.cmt
+   game__Monopoly.cmti
    game__Monopoly.cmx
+   game__Player.cmi
+   game__Player.cmt
+   game__Player.cmti
+   game__Player.cmx
    monopoly.ml
-   opam))
+   monopoly.mli
+   opam
+   player.ml
+   player.mli))
  (libexec (game.cmxs))
  (doc (README.md)))
 (library
@@ -32,7 +40,12 @@
   (wrapped
    (main_module_name Game)
    (modules
-    ((name Monopoly) (obj_name game__Monopoly) (visibility public) (impl)))
+    ((name Monopoly)
+     (obj_name game__Monopoly)
+     (visibility public)
+     (impl)
+     (intf))
+    ((name Player) (obj_name game__Player) (visibility public) (impl) (intf)))
    (alias_module
     (name Game)
     (obj_name game)

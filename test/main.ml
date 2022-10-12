@@ -1,4 +1,5 @@
 open OUnit2
+
 open Game.Monopoly
 
 let test_is_player_turn(name: string)(expected_output: bool)(board) = 
