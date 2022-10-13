@@ -3,12 +3,21 @@ open Game
 open Monopoly
 open Property
 open Player
+open Board
 
 
 
+let board = Board.board
 
+let identity s = s 
 
-let monopoly_tests = []
+let square_landed_test (name: string) expected_output board init_pos dice_roll : test = 
+  name >:: fun _ -> 
+  assert_equal expected_output (square_landed board init_pos dice_roll)
+  ~printer: identity
+
+let monopoly_tests = [square_landed_test "testing square landed" "Baltic Avenue" board 1 2;
+square_landed_test "testing square landed" "Vermont Avenue" board ((List.length board) - 1) 9]
 let board_tests = []
 
 (* Property tests *)

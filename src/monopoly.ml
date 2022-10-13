@@ -8,7 +8,7 @@ let rec convert (new_pos : int) (square_list_length : int) =
     convert (new_pos - square_list_length) square_list_length
   else convert (new_pos + square_list_length) square_list_length
 
-
+  
 (* init_pos is the initial position in the board where they are at. fin_pos is the 
    roll on the dice that they got*)
 let square_landed board init_pos dice_roll =
