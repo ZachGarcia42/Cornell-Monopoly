@@ -1,7 +1,7 @@
 type t
 (** The abstract type of values representing a single monopoly property. *)
 
-(** The type representing the color of a property. *)
+(** The type representing the set of a property. *)
 type set =
   | Red
   | Yellow
