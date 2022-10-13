@@ -1,6 +1,0 @@
-(** @canonical Game.Monopoly *)
-module Monopoly = Game__Monopoly
-
-
-(** @canonical Game.Player *)
-module Player = Game__Player
