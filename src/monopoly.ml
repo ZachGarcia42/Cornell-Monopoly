@@ -8,7 +8,10 @@ let rec convert (new_pos : int) (square_list_length : int) =
     convert (new_pos - square_list_length) square_list_length
   else convert (new_pos + square_list_length) square_list_length
 
-let square_landed board init_pos fin_pos =
-  let new_pos = convert (init_pos + fin_pos) (List.length board) in
+
+(* init_pos is the initial position in the board where they are at. fin_pos is the 
+   roll on the dice that they got*)
+let square_landed board init_pos dice_roll =
+  let new_pos = convert (init_pos + dice_roll) (List.length board) in
   let sq = List.nth board new_pos in
   Tile.tileName sq
