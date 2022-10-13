@@ -4,9 +4,6 @@ open Monopoly
 open Property
 open Player
 
-let test_is_player_turn (name : string) (expected_output : bool) board =
-  name >:: fun _ -> assert_equal expected_output (is_player_turn board)
-
 let monopoly_tests = []
 let board_tests = []
 
