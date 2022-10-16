@@ -17,7 +17,9 @@ let square_landed_test (name: string) expected_output board init_pos dice_roll :
   ~printer: identity
 
 let monopoly_tests = [square_landed_test "testing square landed" "Baltic Avenue" board 1 2;
-square_landed_test "testing square landed" "Vermont Avenue" board ((List.length board) - 1) 9]
+square_landed_test "testing square landed" "Vermont Avenue" board ((List.length board) - 1) 9;
+square_landed_test "testing square landed" "Community Chest" board ((List.length board) - 1) 3;
+square_landed_test "testing square landed" "Luxury Tax" board ((List.length board) - 3) 1]
 let board_tests = []
 
 (* Property tests *)

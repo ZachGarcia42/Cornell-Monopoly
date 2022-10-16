@@ -1,5 +1,6 @@
 open Game
 open Monopoly
+open Random
 
 
 let rec main () = 
@@ -10,6 +11,10 @@ let rec main () =
   print_endline "Please enter your name: ";
   print_string "> ";
   match read_line () with 
-  | name -> ()
+  | name -> 
+    print_endline "Hello! ";
+    let roll = string_of_int ((Random.int 5) + 1) in 
+    let tell_roll = "Your roll is " ^ roll in 
+    print_endline tell_roll
 
 let () = main () 
