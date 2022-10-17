@@ -4,11 +4,12 @@ open Random
 open Player
 open Tile
 
-let play_order = 0
+(** The default starting money for each player. *)
 let starting_money = 1500
 
-(** Informs players at the beginning of each turn with how much money they have
-    and the property they are currently at. *)
+(** [inform_player playerinfo] prints a terminal output that informs players of
+    essential information they need to begin each turn, including how much money
+    they have and the property they are currently at. *)
 let inform_player (playerinfo : player) =
   let money = cash playerinfo in
   let position = position playerinfo in
@@ -37,8 +38,8 @@ let rec init_players players_lst =
           print_endline "I didn't understand that";
           updated_players)
 
-(** A single player's turn. Returns the updated player record after turn has
-    been completed.*)
+(** [one_turn player] represents a single turn for [player]. Returns the updated
+    player record after turn has been completed. *)
 let rec one_turn (player : player) =
   print_endline
     ("---------------------Starting turn for player " ^ name player
@@ -56,6 +57,7 @@ let rec one_turn (player : player) =
   match read_line () with
   | "P" ->
       print_endline "Placeholder";
+      (* TODO: create helper function to handle purchasing a property. *)
       player
   | _ ->
       print_endline ("End of turn for " ^ name player);
@@ -68,10 +70,11 @@ let rec take_turns (players : player list) : player list =
 
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
-let end_conditions = false
+let end_conditions = false (* TODO: check game ending conditions. *)
 
-(** Repeatedly rotates through players' turns until the game ends. The majority
-    of the game will be spent in this state.*)
+(** [game_loop players turn] repeatedly rotates through players' turns until the
+    game ends, where [turn] represents which round of turns the game is on. The
+    majority of the game will be spent in this state.*)
 let rec game_loop (players : player list) (turn : int) =
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn
@@ -98,10 +101,9 @@ let rec main () =
      Cornell University!\n";
   print_endline " ";
   let players_lst = init_players [] in
-  print_endline "Done initializing";
   print_string "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
   game_loop players_lst 1;
-  print_endline "End of game."
+  ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
 
 let () = main ()
