@@ -3,9 +3,15 @@ open Monopoly
 open Random
 open Player
 open Tile
+open Board
+
+
+
 
 (** The default starting money for each player. *)
 let starting_money = 1500
+
+
 
 (** [inform_player playerinfo] prints a terminal output that informs players of
     essential information they need to begin each turn, including how much money
@@ -48,6 +54,18 @@ let rec init_players players_lst =
           print_endline "I didn't understand that";
           updated_players)
 
+
+let rec is_in_list a lst = 
+  match lst with 
+  |[] -> false 
+  |h :: t -> if h = a then true else is_in_list a t
+
+
+(* Purchases the property and updates the player's values*)
+let purchase_property 
+(player: player)(property_val : int) = 
+charge player property_val
+  
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player record after turn has been completed. *)
 let rec one_turn (player : player) =
@@ -67,7 +85,12 @@ let rec one_turn (player : player) =
   match read_line () with
   | "P" ->
       print_endline "Placeholder";
-      (* TODO: create helper function to handle purchasing a property. *)
+
+      (* TODO: I have only inserted a default value for the price of the property. 
+         We should try to get the value of the property given the name of the property (as a string) *)
+      let player = purchase_property player 50 in 
+      print_endline "Congratulations, you have just bought a property! ";
+      print_endline ("End of turn for " ^ name player);
       player
   | _ ->
       print_endline ("End of turn for " ^ name player);
@@ -88,9 +111,11 @@ let end_conditions = false (* TODO: check game ending conditions. *)
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
 let rec game_loop (players : player list) (turn : int) =
+  print_endline "";
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
+  print_endline "";
   let updated_players = take_turns players in
   if end_conditions then () else game_loop updated_players (turn + 1)
 
