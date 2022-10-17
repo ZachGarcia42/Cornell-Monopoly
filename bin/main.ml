@@ -10,11 +10,15 @@ let starting_money = 1500
 (** Informs players at the beginning of each turn with how much money they have
     and the property they are currently at. *)
 let inform_player (playerinfo : player) =
+
   print_endline ("Starting turn for player " ^ name playerinfo);
+
   let money = cash playerinfo in
   let position = position playerinfo in
+
   print_endline ("You currently have $" ^ string_of_int money);
   print_endline ("You are currently at " ^ tileName (List.nth board position));
+
   ()
 
 (** [init_players ()] instantiates the number of desired players and adds them
@@ -22,15 +26,19 @@ let inform_player (playerinfo : player) =
 let rec init_players players_lst =
   print_endline "Please enter your name: ";
   print_string "> ";
+
   match read_line () with
   | name -> (
+
       let new_player =
         init_player name (List.length players_lst) starting_money
       in
+
       let updated_players = players_lst @ [ new_player ] in
       print_endline
         ("Successfully created new player named " ^ Player.name new_player);
       print_endline "Enter another player? Enter 'Yes' or 'No'";
+      
       match read_line () with
       | "Yes" -> init_players updated_players
       | "No" -> updated_players
@@ -59,6 +67,8 @@ let rec one_turn (player : player) =
   | _ ->
       print_endline "Placeholder";
       player
+
+
 
 let rec take_turns (players : player list) : player list =
   match players with
