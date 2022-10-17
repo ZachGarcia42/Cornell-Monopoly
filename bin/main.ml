@@ -5,13 +5,8 @@ open Player
 open Tile
 open Board
 
-
-
-
 (** The default starting money for each player. *)
 let starting_money = 1500
-
-
 
 (** [inform_player playerinfo] prints a terminal output that informs players of
     essential information they need to begin each turn, including how much money
