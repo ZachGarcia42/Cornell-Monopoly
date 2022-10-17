@@ -10,6 +10,7 @@ let starting_money = 1500
 (** Informs players at the beginning of each turn with how much money they have
     and the property they are currently at. *)
 let inform_player (playerinfo : player) =
+  print_endline ("Starting turn for player " ^ name playerinfo);
   let money = cash playerinfo in
   let position = position playerinfo in
   print_endline ("You currently have $" ^ string_of_int money);
@@ -44,7 +45,20 @@ let rec one_turn (player : player) =
   let roll = string_of_int (Random.int 5 + 1) in
   let tell_roll = "Your roll is " ^ roll in
   print_endline tell_roll;
-  player
+  print_endline "Your new position after moving is now ";
+  let updated_player = move_to player (location player + int_of_string roll) in
+  inform_player updated_player;
+  print_endline
+    "What would you like to do? Purchase this property (enter 'P') or do \
+     nothing (enter any other key) ";
+  print_string "> ";
+  match read_line () with
+  | "P" ->
+      print_endline "Placeholder";
+      player
+  | _ ->
+      print_endline "Placeholder";
+      player
 
 let rec take_turns (players : player list) : player list =
   match players with
