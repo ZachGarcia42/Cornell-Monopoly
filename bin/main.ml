@@ -10,7 +10,9 @@ let starting_money = 1500
 (** Informs players at the beginning of each turn with how much money they have
     and the property they are currently at. *)
 let inform_player (playerinfo : player) =
-  print_endline ("Starting turn for player " ^ name playerinfo);
+  print_endline
+    ("---------------------Starting turn for player " ^ name playerinfo
+   ^ "---------------------");
   let money = cash playerinfo in
   let position = position playerinfo in
   print_endline ("You currently have $" ^ string_of_int money);
@@ -41,7 +43,6 @@ let rec init_players players_lst =
 (** A single player's turn. Returns the updated player record after turn has
     been completed.*)
 let rec one_turn (player : player) =
-  inform_player player;
   let roll = string_of_int (Random.int 5 + 1) in
   let tell_roll = "Your roll is " ^ roll in
   print_endline tell_roll;
@@ -71,9 +72,11 @@ let end_conditions = true
 
 (** Repeatedly rotates through players' turns until the game ends. The majority
     of the game will be spent in this state.*)
-let rec game_loop (players : player list) =
+let rec game_loop (players : player list) (turn : int) =
+  print_endline
+    ("Starting turn number " ^ string_of_int turn ^ " for all players...");
   let updated_players = take_turns players in
-  if end_conditions then () else game_loop updated_players
+  if end_conditions then () else game_loop updated_players (turn + 1)
 
 (** For testing *)
 let rec print_player_names players =
@@ -96,7 +99,7 @@ let rec main () =
   print_endline "Done initializing";
   print_endline (string_of_int (List.length players_lst));
   print_player_names players_lst;
-  game_loop players_lst;
+  game_loop players_lst 1;
   print_endline "End of game."
 
 let () = main ()
