@@ -4,6 +4,8 @@ open Random
 open Player
 open Tile
 open Board
+open Property
+
 
 (** The default starting money for each player. *)
 let starting_money = 1500
@@ -14,7 +16,7 @@ let starting_money = 1500
 let inform_player (playerinfo : player) =
 
 
-  print_endline ("Starting turn for player " ^ name playerinfo);
+  print_endline ("Starting turn for player " ^ Player.name playerinfo);
 
   let money = cash playerinfo in
   let position = position playerinfo in
@@ -65,7 +67,7 @@ charge player property_val
     player record after turn has been completed. *)
 let rec one_turn (player : player) =
   print_endline
-    ("---------------------Starting turn for player " ^ name player
+    ("---------------------Starting turn for player " ^ Player.name player
    ^ "---------------------");
   let roll = string_of_int (Random.int 5 + 1) in
   let tell_roll = "Your roll is " ^ roll in
@@ -85,10 +87,10 @@ let rec one_turn (player : player) =
          We should try to get the value of the property given the name of the property (as a string) *)
       let player = purchase_property player 50 in 
       print_endline "Congratulations, you have just bought a property! ";
-      print_endline ("End of turn for " ^ name player);
+      print_endline ("End of turn for " ^ Player.name player);
       player
   | _ ->
-      print_endline ("End of turn for " ^ name player);
+      print_endline ("End of turn for " ^ Player.name player);
       player
 
 
@@ -118,9 +120,9 @@ let rec game_loop (players : player list) (turn : int) =
 let rec print_player_names players =
   match players with
   | [] -> ()
-  | [ h ] -> print_endline (name h)
+  | [ h ] -> print_endline (Player.name h)
   | h :: t ->
-      print_string (name h ^ ", ");
+      print_string (Player.name h ^ ", ");
       print_player_names t
 
 (** Entry point of the monopoly game. Calls helper functions to manage game

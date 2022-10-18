@@ -25,7 +25,7 @@ finalcheck:
 
 zip:
 	rm -f Cornell-Monopoly.zip
-	zip -r Cornell-Monopoly.zip . -x@exclude.lst
+	zip -r Cornell-Monopoly.zip . 
 
 clean:
 	dune clean
