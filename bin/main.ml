@@ -11,6 +11,8 @@ open Property
 (** The default starting money for each player. *)
 let starting_money = 1500
 
+let list_players = ref []
+
 (** [inform_player playerinfo] prints a terminal output that informs players of
     essential information they need to begin each turn, including how much money
     they have and the property they are currently at. *)
@@ -63,7 +65,44 @@ let rec is_in_list a lst =
 let purchase_property 
 (player: player)(property_val : int) = 
 charge player property_val
+
+
+(* Checks whether the player can actually buy a property, and if the player can, 
+   the property is bought.*)
+let purchase_property_revised (player_list: player list)(player: player)(property_name: string) = 
   
+
+  (* Checks whether the property exists in the list of properties for a player *)
+  let rec player_has_property (player_prop_list: Property.t list)
+  (property_name: string) = 
+    match player_prop_list with 
+    |[] -> (false, 0)
+    |h :: t -> 
+      if Property.name h = property_name 
+        then (true, Property.price h) else player_has_property t property_name
+  
+  in
+  
+  (* Checks whether the property exists at all in the list of the properties in the list 
+     of players*)
+  let rec property_exist(player_list: player list)(property_name: string) = 
+    match player_list with 
+    |[] -> (false, 0)
+    |h :: t -> 
+      if (fst (player_has_property (properties h) property_name)) 
+        then (true, snd (player_has_property (properties h) property_name)) else 
+          property_exist t property_name
+
+  in 
+
+  let property_exists = fst (property_exist player_list property_name) in 
+  let property_value = snd (property_exist player_list property_name) in 
+  if property_exists then charge player property_value 
+  else     
+    charge player 0
+  
+  
+
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player record after turn has been completed. *)
 let rec one_turn (player : player) =
@@ -82,11 +121,17 @@ let rec one_turn (player : player) =
   print_string "> ";
   match read_line () with
   | "P" ->
-      print_endline "Placeholder";
+
+      (* print_endline "Placeholder"; *)
 
       (* TODO: I have only inserted a default value for the price of the property. 
          We should try to get the value of the property given the name of the property (as a string) *)
+      
+      
       let player = purchase_property player 50 in 
+      
+      (* let player = purchase_property_revised list_players player "mED" in *)
+
       print_endline "Congratulations, you have just bought a property! ";
       print_endline ("End of turn for " ^ Player.name player);
       player
@@ -136,6 +181,7 @@ let rec main () =
      Cornell University!\n";
   print_endline " ";
   let players_lst = init_players [] in
+  list_players := players_lst;
   print_string "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
   game_loop players_lst 1;
