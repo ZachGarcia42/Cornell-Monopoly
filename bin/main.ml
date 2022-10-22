@@ -6,28 +6,39 @@ open Tile
 open Board
 open Property
 
-
-
 (** The default starting money for each player. *)
 let starting_money = 1500
 
 let list_players = ref []
 
-(** [inform_player playerinfo] prints a terminal output that informs players of
+(** [end_conditions] is true if at least one of the game-ending conditions is
+    true, false otherwise. (PLACEHOLDER) *)
+let end_conditions = false (* TODO: check game ending conditions. *)
+
+
+let get_price t = 
+  match t with 
+  |Property x -> Property.price x
+  |_ -> 0
+
+
+(** [inform_player playerinfo roll] prints a terminal output that informs players of
     essential information they need to begin each turn, including how much money
     they have and the property they are currently at. *)
-let inform_player (playerinfo : player) =
-
+let inform_player (playerinfo : player)(roll: int) =
 
   print_endline ("Starting turn for player " ^ Player.name playerinfo);
 
   let money = cash playerinfo in
   let position = position playerinfo in
+  let landed = List.nth board ((position + roll) mod 40) in 
 
   print_endline ("You currently have $" ^ string_of_int money);
-  print_endline ("You are currently at " ^ tileName (List.nth board position));
+  print_endline ("You are currently at " ^ tileName landed);
+  print_endline("This property costs " ^ "$ " ^ string_of_int (get_price landed));
 
-  ()
+  landed
+
 
 (** [init_players ()] instantiates the number of desired players and adds them
     to the players list *)
@@ -55,53 +66,13 @@ let rec init_players players_lst =
           updated_players)
 
 
-let rec is_in_list a lst = 
-  match lst with 
-  |[] -> false 
-  |h :: t -> if h = a then true else is_in_list a t
-
-
 (* Purchases the property and updates the player's values*)
 let purchase_property 
-(player: player)(property_val : int) = 
-charge player property_val
+(player: player)(property)(roll: int)= 
+match property with 
+|Property x -> buy_property player x roll
+|_ -> charge player 0 roll
 
-
-(* Checks whether the player can actually buy a property, and if the player can, 
-   the property is bought.*)
-let purchase_property_revised (player_list: player list)(player: player)(property_name: string) = 
-  
-
-  (* Checks whether the property exists in the list of properties for a player *)
-  let rec player_has_property (player_prop_list: Property.t list)
-  (property_name: string) = 
-    match player_prop_list with 
-    |[] -> (false, 0)
-    |h :: t -> 
-      if Property.name h = property_name 
-        then (true, Property.price h) else player_has_property t property_name
-  
-  in
-  
-  (* Checks whether the property exists at all in the list of the properties in the list 
-     of players*)
-  let rec property_exist(player_list: player list)(property_name: string) = 
-    match player_list with 
-    |[] -> (false, 0)
-    |h :: t -> 
-      if (fst (player_has_property (properties h) property_name)) 
-        then (true, snd (player_has_property (properties h) property_name)) else 
-          property_exist t property_name
-
-  in 
-
-  let property_exists = fst (property_exist player_list property_name) in 
-  let property_value = snd (property_exist player_list property_name) in 
-  if property_exists then charge player property_value 
-  else     
-    charge player 0
-  
-  
 
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player record after turn has been completed. *)
@@ -112,30 +83,23 @@ let rec one_turn (player : player) =
   let roll = string_of_int (Random.int 5 + 1) in
   let tell_roll = "Your roll is " ^ roll in
   print_endline tell_roll;
-  print_endline "Your new position after moving is now ";
+
   let updated_player = move_to player (location player + int_of_string roll) in
-  inform_player updated_player;
+  let x = inform_player updated_player (int_of_string roll) in
   print_endline
     "What would you like to do? Purchase this property (enter 'P') or do \
      nothing (enter any other key) ";
   print_string "> ";
-  match read_line () with
+  match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
-
-      (* print_endline "Placeholder"; *)
-
-      (* TODO: I have only inserted a default value for the price of the property. 
-         We should try to get the value of the property given the name of the property (as a string) *)
       
-      
-      let player = purchase_property player 50 in 
-      
-      (* let player = purchase_property_revised list_players player "mED" in *)
+      let player = purchase_property player x (int_of_string roll) in 
 
       print_endline "Congratulations, you have just bought a property! ";
       print_endline ("End of turn for " ^ Player.name player);
       player
   | _ ->
+      let player = charge player 0 (int_of_string roll) in 
       print_endline ("End of turn for " ^ Player.name player);
       player
 
@@ -146,9 +110,6 @@ let rec take_turns (players : player list) : player list =
   | [] -> []
   | h :: t -> one_turn h :: take_turns t
 
-(** [end_conditions] is true if at least one of the game-ending conditions is
-    true, false otherwise. (PLACEHOLDER) *)
-let end_conditions = false (* TODO: check game ending conditions. *)
 
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The

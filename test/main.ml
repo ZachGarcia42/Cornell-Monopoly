@@ -16,10 +16,21 @@ let square_landed_test (name: string) expected_output board init_pos dice_roll :
   assert_equal expected_output (square_landed board init_pos dice_roll)
   ~printer: identity
 
+let parse_user_input_test(name: string) (expected_output: string) (input:string) : test = 
+  name >:: fun _ -> 
+  assert_equal expected_output (parse_user_input input)
+  ~printer: identity
+
+
 let monopoly_tests = [square_landed_test "testing square landed" "Baltic Avenue" board 1 2;
 square_landed_test "testing square landed" "Vermont Avenue" board ((List.length board) - 1) 9;
 square_landed_test "testing square landed" "Community Chest" board ((List.length board) - 1) 3;
-square_landed_test "testing square landed" "Luxury Tax" board ((List.length board) - 3) 1]
+square_landed_test "testing square landed" "Luxury Tax" board ((List.length board) - 3) 1; 
+parse_user_input_test "testing parse user input" "P" "   P"; 
+parse_user_input_test "testing parse user input" "P" "    p         "; 
+parse_user_input_test "testing parse user input" "" "      "; 
+]
+
 let board_tests = []
 
 (* Property tests *)
@@ -52,10 +63,10 @@ let player_tests =
     player_test "go to jail" true (zach |> go_to_jail |> in_jail);
     player_test "move to 10" 10 (move_to zach 10 |> location);
     player_test "pay 50" 1550 (pay zach 50 |> cash);
-    player_test "charge 50" 1450 (charge zach 50 |> cash);
+    player_test "charge 50" 1450 (charge zach 50 2|> cash);
     player_test "has boardwalk" true
-      (has_property (buy_property zach boardwalk) boardwalk);
-    player_test "paid for boardwalk" 1100 (buy_property zach boardwalk |> cash);
+      (has_property (buy_property zach boardwalk 2) boardwalk);
+    player_test "paid for boardwalk" 1100 (buy_property zach boardwalk 2|> cash);
   ]
 
 let chance_tests = []

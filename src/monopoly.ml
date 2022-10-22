@@ -17,3 +17,9 @@ let square_landed board init_pos dice_roll =
   Tile.tileName sq
 
 
+(* Parses the user's input properly*)
+let parse_user_input (input: string): string = 
+  let upperc_input = String.uppercase_ascii input in 
+    let new_str = String.trim upperc_input in 
+      new_str
+

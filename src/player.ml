@@ -25,18 +25,22 @@ let cards player = player.get_out_cards
 let location player = player.tile
 let in_jail player = player.in_jail
 let go_to_jail player = { player with in_jail = true }
-let move_to player ind = { player with tile = ind }
+let move_to player ind = { player with tile = ind}
 let cash player = player.cash
 let pay player amt = { player with cash = player.cash + amt }
-let charge player amt = { player with cash = player.cash - amt }
+let charge player amt roll= { player with cash = player.cash - amt; 
+position = (player.position + roll) mod 40; }
+
 let properties player = player.properties
 let has_property player prop = List.mem prop player.properties
 
-let buy_property player prop =
+
+let buy_property player prop roll=
   {
     player with
     cash = player.cash - Property.price prop;
     properties = prop :: player.properties;
+    position = (player.position + roll) mod 40;
   }
 
 let net_worth p =
