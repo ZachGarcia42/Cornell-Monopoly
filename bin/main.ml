@@ -146,6 +146,36 @@ let rec print_player_names players =
       print_string (Player.name h ^ ", ");
       print_player_names t
 
+(* Displays the Cornellopoly Board on the terminal for the players to see.*)
+let display_board (board: Tile.t list) = 
+  let rec print_8 (board: Tile.t list)(count: int)= 
+    match count with 
+    |0 -> " | "
+    |n -> 
+      let tl = List.nth board (8 - n) in 
+      " | " ^ tileName tl ^ print_8 board (count - 1) 
+  in 
+  let x = print_8 board 8  in
+  let filler = String.make (String.length x - 10) ' ' in 
+  let rec print_next_12(board: Tile.t list)(count: int) = 
+    match count with 
+    |8 -> print_endline "";
+    
+    (* (filler ^ "-----------") *)
+    |n -> 
+      let tl = List.nth board (29 - n) in 
+      print_endline (filler ^ "-----------"); 
+      print_endline (filler ^ (tileName tl));
+      print_next_12 board (count - 1) ;
+  
+  in
+
+  print_endline "Here is your Cornellopoly Board: ";
+  print_endline "";
+  print_string x;
+  print_next_12 board 20 ;
+  ()
+
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
     itself. *)
@@ -159,6 +189,8 @@ let rec main () =
   list_players := players_lst;
   print_string "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
+  print_endline "";
+  display_board Board.board;
   game_loop players_lst 1;
   ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
 

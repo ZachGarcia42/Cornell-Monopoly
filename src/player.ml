@@ -11,7 +11,7 @@ type player = {
 let init_player name pos amt =
   {
     name;
-    position = pos;
+    position = 0;
     get_out_cards = 0;
     tile = 0;
     properties = [];
