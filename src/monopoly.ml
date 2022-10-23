@@ -23,3 +23,6 @@ let parse_user_input (input: string): string =
     let new_str = String.trim upperc_input in 
       new_str
 
+(* Returns whether a player passed Go or not*)
+let player_passed_go(init_pos: int)(fin_pos: int) = 
+init_pos > 0 && fin_pos >= 0 && init_pos > fin_pos

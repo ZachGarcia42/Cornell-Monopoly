@@ -8,3 +8,7 @@ val square_landed : Tile.t list -> int -> int -> string
 val parse_user_input: string -> string 
 (* Parses a string, removing white space and converting 
    all inputs to strings with capital letters*)
+
+val player_passed_go: int -> int -> bool
+(* Returns true or false depending on whether
+   a player passed Go or not*)

@@ -19,6 +19,7 @@ let end_conditions = false (* TODO: check game ending conditions. *)
 let get_price t = 
   match t with 
   |Property x -> Property.price x
+  |IncomeTax -> -200
   |_ -> 0
 
 
@@ -84,8 +85,21 @@ let rec one_turn (player : player) =
   let tell_roll = "Your roll is " ^ roll in
   print_endline tell_roll;
 
-  let updated_player = move_to player (location player + int_of_string roll) in
-  let x = inform_player updated_player (int_of_string roll) in
+  let old_position = location player in 
+  let new_position = (old_position + int_of_string roll) mod 40 in 
+
+  let updated_player = move_to player (new_position) in
+
+  if Monopoly.player_passed_go old_position new_position then 
+    print_endline "You have passed Go! You win $200";
+
+  let if_player_passed_go =
+     if Monopoly.player_passed_go old_position new_position 
+      then (pay updated_player 200) 
+      else updated_player 
+  in
+  
+  let x = inform_player if_player_passed_go (int_of_string roll) in
   print_endline
     "What would you like to do? Purchase this property (enter 'P') or do \
      nothing (enter any other key) ";

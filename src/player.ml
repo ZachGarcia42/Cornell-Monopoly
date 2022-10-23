@@ -29,7 +29,8 @@ let move_to player ind = { player with tile = ind}
 let cash player = player.cash
 let pay player amt = { player with cash = player.cash + amt }
 let charge player amt roll= { player with cash = player.cash - amt; 
-position = (player.position + roll) mod 40; }
+position = (player.position + roll) mod 40; 
+tile = (player.tile + roll) mod 40;}
 
 let properties player = player.properties
 let has_property player prop = List.mem prop player.properties
@@ -41,6 +42,7 @@ let buy_property player prop roll=
     cash = player.cash - Property.price prop;
     properties = prop :: player.properties;
     position = (player.position + roll) mod 40;
+    tile = (player.tile + roll) mod 40;
   }
 
 let net_worth p =

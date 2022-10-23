@@ -21,6 +21,10 @@ let parse_user_input_test(name: string) (expected_output: string) (input:string)
   assert_equal expected_output (parse_user_input input)
   ~printer: identity
 
+let player_passed_go_test(name: string)(expected_output: bool)(input: int)(input2: int): test = 
+  name >:: fun _ -> 
+  assert_equal expected_output (player_passed_go input input2)
+  
 
 let monopoly_tests = [square_landed_test "testing square landed" "Baltic Avenue" board 1 2;
 square_landed_test "testing square landed" "Vermont Avenue" board ((List.length board) - 1) 9;
@@ -29,6 +33,9 @@ square_landed_test "testing square landed" "Luxury Tax" board ((List.length boar
 parse_user_input_test "testing parse user input" "P" "   P"; 
 parse_user_input_test "testing parse user input" "P" "    p         "; 
 parse_user_input_test "testing parse user input" "" "      "; 
+player_passed_go_test "testing player passed go" true 3 2;
+player_passed_go_test "testing player passed go" false 4 7;
+player_passed_go_test "testing player passed go" true 38 0;
 ]
 
 let board_tests = []
