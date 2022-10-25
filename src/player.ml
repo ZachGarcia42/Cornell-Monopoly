@@ -1,6 +1,5 @@
 type player = {
   name : string;
-  position : int;
   get_out_cards : int;
   tile : int;
   properties : Property.t list;
@@ -8,10 +7,9 @@ type player = {
   in_jail : bool;
 }
 
-let init_player name pos amt =
+let init_player name amt =
   {
     name;
-    position = 0;
     get_out_cards = 0;
     tile = 0;
     properties = [];
@@ -20,28 +18,25 @@ let init_player name pos amt =
   }
 
 let name player = player.name
-let position player = player.position
 let cards player = player.get_out_cards
 let location player = player.tile
 let in_jail player = player.in_jail
 let go_to_jail player = { player with in_jail = true }
-let move_to player ind = { player with tile = ind}
+let move_to player ind = { player with tile = ind }
 let cash player = player.cash
 let pay player amt = { player with cash = player.cash + amt }
-let charge player amt roll= { player with cash = player.cash - amt; 
-position = (player.position + roll) mod 40; 
-tile = (player.tile + roll) mod 40;}
+
+let charge player amt roll =
+  { player with cash = player.cash - amt; tile = (player.tile + roll) mod 40 }
 
 let properties player = player.properties
 let has_property player prop = List.mem prop player.properties
 
-
-let buy_property player prop roll=
+let buy_property player prop roll =
   {
     player with
     cash = player.cash - Property.price prop;
     properties = prop :: player.properties;
-    position = (player.position + roll) mod 40;
     tile = (player.tile + roll) mod 40;
   }
 
