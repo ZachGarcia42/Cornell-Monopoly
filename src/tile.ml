@@ -1,4 +1,4 @@
-type t =
+type tile =
   | Property of Property.t
   | Go
   | CommunityChest
@@ -19,3 +19,9 @@ let tileName = function
   | FreeParking -> "Free Parking"
   | GoToJail -> "Go To Jail"
   | LuxuryTax -> "Luxury Tax"
+
+let get_price = function
+  | Property p -> Property.price p
+  | IncomeTax -> -200
+  | LuxuryTax -> -100
+  | _ -> 0

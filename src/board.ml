@@ -1,4 +1,4 @@
-let board : Tile.t list =
+let board : Tile.tile list =
   [
     Go;
     Property (Property.init_property "Mediterranean Avenue" Brown 60);
