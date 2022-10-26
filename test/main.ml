@@ -79,6 +79,7 @@ let player_tests =
     player_test "has boardwalk" true
       (has_property (buy_property zach boardwalk 2) boardwalk);
     player_test "paid for boardwalk" 1100 (buy_property zach boardwalk 2 |> cash);
+    
   ]
 
 let chance_tests = []
