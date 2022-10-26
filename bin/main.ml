@@ -15,7 +15,6 @@ let list_players = ref []
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions = false (* TODO: check game ending conditions. *)
 
-
 let get_price t = 
   match t with 
   |Property x -> Property.price x
@@ -150,14 +149,14 @@ let rec print_player_names players =
 let display_board (board: Tile.t list) = 
   let rec print_8 (board: Tile.t list)(count: int)= 
     match count with 
-    |0 -> " | "
+    |0-> " | "
     |n -> 
       let tl = List.nth board (8 - n) in 
-      " | " ^ tileName tl ^ print_8 board (count - 1) 
+      " | " ^ tileName tl ^ print_8 board (count - 1)
   in 
-  let x = print_8 board 8  in
+  let x = print_8 board 8 in
   let filler = String.make (String.length x - 10) ' ' in 
-  let rec print_next_12(board: Tile.t list)(count: int) = 
+  let rec print_next_12 (board: Tile.t list)(count: int) = 
     match count with 
     |8 -> print_endline "";
     
@@ -167,13 +166,23 @@ let display_board (board: Tile.t list) =
       print_endline (filler ^ "-----------"); 
       print_endline (filler ^ (tileName tl));
       print_next_12 board (count - 1) ;
-  
+  in
+
+  let rec print_third_side(board: Tile.t list)(count: int) = 
+    match count with 
+    |21  -> " | "
+    | n -> 
+      let tl = List.nth board (50 - n) in 
+      " | " ^ tileName tl ^ print_third_side board (count - 1)
+
   in
 
   print_endline "Here is your Cornellopoly Board: ";
   print_endline "";
   print_string x;
   print_next_12 board 20 ;
+  let y = print_third_side board 29 in 
+  print_string y;
   ()
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
