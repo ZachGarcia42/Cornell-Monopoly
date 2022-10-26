@@ -16,14 +16,14 @@ let end_conditions = false (* TODO: check game ending conditions. *)
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
-let rec game_loop (game : state) (turn : int) =
+let rec game_loop (game : state) (turn : int) purchased =
   print_endline "";
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  let updated_game = take_turns game in
-  if end_conditions then () else game_loop updated_game (turn + 1)
+  let updated_game = take_turns purchased game in
+  if end_conditions then () else game_loop updated_game (turn + 1) purchased
 
 (** [print_player_names players] prints out the names of all players in order. *)
 let rec print_player_names players =
@@ -35,7 +35,10 @@ let rec print_player_names players =
       print_player_names t
 
 (* Displays the Cornellopoly Board on the terminal for the players to see.*)
-let display_board (board : Tile.tile list) =
+
+
+let display_board_revised (board: Tile.tile list) = 
+  print_endline "Here is your Cornellopoly Board: ";
   let rec print_8 (board : Tile.tile list) (count : int) =
     match count with
     | 0 -> " | "
@@ -43,24 +46,20 @@ let display_board (board : Tile.tile list) =
         let tl = List.nth board (8 - n) in
         " | " ^ tileName tl ^ print_8 board (count - 1)
   in
-  let x = print_8 board 8 in
-  let filler = String.make (String.length x - 10) ' ' in
-  let rec print_next_12 (board : Tile.tile list) (count : int) =
-    match count with
-    | 8 -> print_endline ""
-    (* (filler ^ "-----------") *)
-    | n ->
-        let tl = List.nth board (29 - n) in
-        print_endline (filler ^ "-----------");
-        print_endline (filler ^ tileName tl);
-        print_next_12 board (count - 1)
-  in
+  print_endline (print_8 board 8);
+  
+  let print_sides(board: Tile.tile list)(idx: int) = 
+    let tl = tileName (List.nth board (47 - idx)) in 
+     
+    let tl2 = tileName (List.nth board (idx)) in 
+    tl ^ "                           " ^ tl2
+  in  
+  
+  for i = 8 to 19 do 
+  print_endline (print_sides board i);
+  print_endline "------";
+  done
 
-  print_endline "Here is your Cornellopoly Board: ";
-  print_endline "";
-  print_string x;
-  print_next_12 board 20;
-  ()
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
@@ -78,8 +77,8 @@ let rec main () =
   print_string "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
   print_endline "";
-  display_board Board.board;
-  game_loop game_state 1;
+  display_board_revised Board.board;
+  game_loop game_state 1 [];
   ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
 
 let () = main ()

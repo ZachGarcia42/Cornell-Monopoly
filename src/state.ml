@@ -8,6 +8,8 @@ let starting_money = 1500
 type state = { players : player list }
 
 let init_state (players : player list) : state = { players }
+let check_properties purchased location = List.mem location purchased
+let update_properties purchased location = location :: purchased
 
 let inform_player (s : state) (player_info : player) : unit =
   print_endline ("Starting turn for player " ^ Player.name player_info);
@@ -46,7 +48,7 @@ let purchase_property (player : player) property (roll : int) =
   | Property x -> buy_property player x roll
   | _ -> charge player 0 roll
 
-let rec one_turn (s : state) (player : player) =
+let rec one_turn (s : state) (player : player) purchased =
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
    ^ "---------------------");
@@ -75,21 +77,30 @@ let rec one_turn (s : state) (player : player) =
   print_string "> ";
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
-      let player =
-        purchase_property player
-          (List.nth board (location updated_player))
-          (int_of_string roll)
-      in
-
-      print_endline "Congratulations, you have just bought a property! ";
-      print_endline ("End of turn for " ^ Player.name player);
-      player
+      if check_properties purchased new_position then (
+        print_endline "ERROR: This property has already been purchased.";
+        print_endline ("End of turn for " ^ Player.name player);
+        (player, purchased))
+      else
+        let player =
+          purchase_property player
+            (List.nth board (location updated_player))
+            (int_of_string roll)
+        in
+        print_endline "Congratulations, you have just bought a property! ";
+        print_endline ("End of turn for " ^ Player.name player);
+        (player, update_properties purchased new_position)
   | _ ->
       let player = charge player 0 (int_of_string roll) in
       print_endline ("End of turn for " ^ Player.name player);
-      player
+      (player, purchased)
 
-let rec take_turns (s : state) : state =
+let rec take_turns purchased (s : state) : state =
   match s.players with
   | [] -> { players = [] }
-  | h :: t -> { players = one_turn s h :: (take_turns { players = t }).players }
+  | h :: t ->
+      {
+        players =
+          (match one_turn s h purchased with
+          | p, s -> p :: (take_turns s { players = t }).players);
+      }
