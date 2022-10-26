@@ -19,10 +19,10 @@ val init_players : Player.player list -> Player.player list
 val purchase_property : Player.player -> Tile.tile -> int -> Player.player
 (* Purchases the property and updates the player's values*)
 
-val one_turn : state -> Player.player -> Player.player
+val one_turn : state -> Player.player -> int list -> Player.player * int list
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player record after turn has been completed. *)
 
-val take_turns : state -> state
+val take_turns : int list -> state -> state
 (** [take_turns players] represents the new player states after each player
     takes one turn*)

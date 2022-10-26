@@ -41,3 +41,5 @@ let board : Tile.tile list =
     LuxuryTax;
     Property (Property.init_property "Boardwalk" Blue 400);
   ]
+
+let purchased int list = []

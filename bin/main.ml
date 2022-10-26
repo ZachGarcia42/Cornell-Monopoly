@@ -16,14 +16,14 @@ let end_conditions = false (* TODO: check game ending conditions. *)
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
-let rec game_loop (game : state) (turn : int) =
+let rec game_loop (game : state) (turn : int) purchased =
   print_endline "";
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  let updated_game = take_turns game in
-  if end_conditions then () else game_loop updated_game (turn + 1)
+  let updated_game = take_turns purchased game in
+  if end_conditions then () else game_loop updated_game (turn + 1) purchased
 
 (** [print_player_names players] prints out the names of all players in order. *)
 let rec print_player_names players =
@@ -78,7 +78,7 @@ let rec main () =
   print_player_names players_lst;
   print_endline "";
   display_board Board.board;
-  game_loop game_state 1;
+  game_loop game_state 1 [];
   ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
 
 let () = main ()
