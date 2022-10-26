@@ -1,15 +1,12 @@
 type player
 (** The abstract type of values representing a monopoly player. *)
 
-val init_player : string -> int -> int -> player
+val init_player : string -> int -> player
 (** [init_player name pos amt] is a player initialized at Go with name [name],
     play order [pos], and [amt] cash*)
 
 val name : player -> string
 (** [name player] is the name of the player*)
-
-val position : player -> int
-(** [position player] is the player's position in play order*)
 
 val cards : player -> int
 (** [cards player] is the number of get out of jail free cards the player has*)
