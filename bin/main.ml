@@ -71,6 +71,7 @@ let rec main () =
     \  version of the popular board game Monopoly while learning a lot about \
      Cornell University!\n";
   print_endline " ";
+  Random.init (int_of_float (Unix.time ()));
   let players_lst = init_players [] in
   let game_state = init_state players_lst in
   list_players := players_lst;
