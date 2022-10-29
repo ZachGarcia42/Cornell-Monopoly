@@ -1,3 +1,4 @@
+
 let board : Tile.tile list =
   [
     Go;
@@ -46,3 +47,12 @@ let board : Tile.tile list =
   ]
 
 let purchased int list = []
+
+let chance_names: string list = ["Chance: Advancement";
+ "Chance: Payment Required"; "Chance: Get out of Jail Free"; ]
+
+(*TODO: Add chance commands for the chance names above. Then randomly pick a chance name and 
+   command correspondingly for the above board list*)
+let chance_commands: string list = []
+
+
