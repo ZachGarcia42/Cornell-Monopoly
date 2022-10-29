@@ -2,13 +2,21 @@ open Player
 open Property
 open Tile
 open Board
+open Chance
 
 let starting_money = 1500
 
 type state = { players : player list }
 
 let init_state (players : player list) : state = { players }
-let check_properties purchased location = List.mem location purchased
+
+let check_properties purchased location = 
+  match (List.nth board location) with 
+  |Property x -> List.mem location purchased
+
+  |_ -> false 
+  (*List.mem location purchased *)
+
 let update_properties purchased location = location :: purchased
 
 let inform_player (s : state) (player_info : player) : unit =
@@ -46,6 +54,7 @@ let rec init_players players_lst =
 let purchase_property (player : player) property (roll : int) =
   match property with
   | Property x -> buy_property player x roll
+  | IncomeTax -> charge player (-200) roll
   | _ -> charge player 0 roll
 
 let rec one_turn (s : state) (player : player) purchased =

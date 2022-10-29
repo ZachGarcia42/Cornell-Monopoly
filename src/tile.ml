@@ -3,7 +3,7 @@ type tile =
   | Go
   | CommunityChest
   | IncomeTax
-  | Chance
+  | Chance of Chance.t
   | JustVisiting
   | FreeParking
   | GoToJail
@@ -14,7 +14,7 @@ let tileName = function
   | Go -> "Go"
   | CommunityChest -> "Community Chest"
   | IncomeTax -> "Income Tax"
-  | Chance -> "Chance"
+  | Chance c -> Chance.name c
   | JustVisiting -> "Just Visiting"
   | FreeParking -> "Free Parking"
   | GoToJail -> "Go To Jail"
@@ -24,4 +24,5 @@ let get_price = function
   | Property p -> Property.price p
   | IncomeTax -> -200
   | LuxuryTax -> -100
+  | Chance c -> Chance.price c
   | _ -> 0

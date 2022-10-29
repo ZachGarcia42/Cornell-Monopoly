@@ -5,6 +5,7 @@ open Property
 open Player
 open Board
 
+
 let board = Board.board
 let identity s = s
 
@@ -82,6 +83,7 @@ let player_tests =
     
   ]
 
+let state_tests = []
 let chance_tests = []
 
 let test_suite =
@@ -92,6 +94,7 @@ let test_suite =
            board_tests;
            property_tests;
            player_tests;
+           state_tests;
            chance_tests;
          ]
 

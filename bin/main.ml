@@ -35,8 +35,6 @@ let rec print_player_names players =
       print_player_names t
 
 (* Displays the Cornellopoly Board on the terminal for the players to see.*)
-
-
 let display_board_revised (board: Tile.tile list) = 
   print_endline "Here is your Cornellopoly Board: ";
   let rec print_8 (board : Tile.tile list) (count : int) =
@@ -54,10 +52,10 @@ let display_board_revised (board: Tile.tile list) =
     let tl2 = tileName (List.nth board (idx)) in 
     tl ^ "                           " ^ tl2
   in  
-  
+  print_endline "";
   for i = 8 to 19 do 
   print_endline (print_sides board i);
-  print_endline "------";
+  print_endline ("------");
   done
 
 

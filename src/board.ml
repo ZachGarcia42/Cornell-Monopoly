@@ -7,7 +7,8 @@ let board : Tile.tile list =
     IncomeTax;
     Property (Property.init_property "Reading Railroad" Railroad 200);
     Property (Property.init_property "Oriental Avenue" LightBlue 100);
-    Chance;
+    Chance (Chance.init_chance "Chance: Advancement" 0 
+    "Advance to Boardwalk! Collect $200 if passing Go.");
     Property (Property.init_property "Vermont Avenue" LightBlue 100);
     Property (Property.init_property "Connecticut Avenue" LightBlue 120);
     JustVisiting;
@@ -22,7 +23,8 @@ let board : Tile.tile list =
     Property (Property.init_property "New York Avenue" Orange 200);
     FreeParking;
     Property (Property.init_property "Kentucky Avenue" Red 220);
-    Chance;
+    Chance (Chance.init_chance "Chance: Advancement" 0 
+    "Advance to Boardwalk! Collect $200 if passing Go.");
     Property (Property.init_property "Indiana Avenue" Red 220);
     Property (Property.init_property "Illinois Avenue" Red 240);
     Property (Property.init_property "B. & O. Railroad" Railroad 200);
@@ -36,7 +38,8 @@ let board : Tile.tile list =
     CommunityChest;
     Property (Property.init_property "Pennsylvania Avenue" Green 320);
     Property (Property.init_property "Short Line" Railroad 200);
-    Chance;
+    Chance (Chance.init_chance "Chance: Advancement" 0 
+    "Advance to Boardwalk! Collect $200 if passing Go.");
     Property (Property.init_property "Park Place" Blue 350);
     LuxuryTax;
     Property (Property.init_property "Boardwalk" Blue 400);
