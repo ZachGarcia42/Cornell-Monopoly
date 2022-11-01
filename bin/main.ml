@@ -7,8 +7,6 @@ open Tile
 open Board
 open Property
 
-let list_players = ref []
-
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions = false (* TODO: check game ending conditions. *)
@@ -22,7 +20,7 @@ let rec game_loop (game : state) (turn : int) purchased =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  let updated_game = take_turns purchased game in
+  let updated_game = take_turns game in
   if end_conditions then () else game_loop updated_game (turn + 1) purchased
 
 (** [print_player_names players] prints out the names of all players in order. *)
@@ -35,7 +33,7 @@ let rec print_player_names players =
       print_player_names t
 
 (* Displays the Cornellopoly Board on the terminal for the players to see.*)
-let display_board_revised (board: Tile.tile list) = 
+let display_board_revised (board : Tile.tile list) =
   print_endline "Here is your Cornellopoly Board: ";
   let rec print_8 (board : Tile.tile list) (count : int) =
     match count with
@@ -45,19 +43,18 @@ let display_board_revised (board: Tile.tile list) =
         " | " ^ tileName tl ^ print_8 board (count - 1)
   in
   print_endline (print_8 board 8);
-  
-  let print_sides(board: Tile.tile list)(idx: int) = 
-    let tl = tileName (List.nth board (47 - idx)) in 
-     
-    let tl2 = tileName (List.nth board (idx)) in 
-    tl ^ "                           " ^ tl2
-  in  
-  print_endline "";
-  for i = 8 to 19 do 
-  print_endline (print_sides board i);
-  print_endline ("------");
-  done
 
+  let print_sides (board : Tile.tile list) (idx : int) =
+    let tl = tileName (List.nth board (47 - idx)) in
+
+    let tl2 = tileName (List.nth board idx) in
+    tl ^ "                           " ^ tl2
+  in
+  print_endline "";
+  for i = 8 to 19 do
+    print_endline (print_sides board i);
+    print_endline "------"
+  done
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
@@ -71,7 +68,6 @@ let rec main () =
   Random.init (int_of_float (Unix.time ()));
   let players_lst = init_players [] in
   let game_state = init_state players_lst in
-  list_players := players_lst;
   print_string "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
   print_endline "";

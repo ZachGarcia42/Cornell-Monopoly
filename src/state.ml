@@ -6,16 +6,19 @@ open Chance
 
 let starting_money = 1500
 
-type state = { players : player list }
+type state = {
+  players : player list;
+  purchased_properties : int list;
+}
 
-let init_state (players : player list) : state = { players }
+let init_state (players : player list) : state =
+  { players; purchased_properties = [] }
 
-let check_properties purchased location = 
-  match (List.nth board location) with 
-  |Property x -> List.mem location purchased
-
-  |_ -> false 
-  (*List.mem location purchased *)
+let check_properties purchased location =
+  match List.nth board location with
+  | Property x -> List.mem location purchased
+  | _ -> false
+(*List.mem location purchased *)
 
 let update_properties purchased location = location :: purchased
 
@@ -57,7 +60,7 @@ let purchase_property (player : player) property (roll : int) =
   | IncomeTax -> charge player (-200) roll
   | _ -> charge player 0 roll
 
-let rec one_turn (s : state) (player : player) purchased =
+let rec one_turn (s : state) (player : player) =
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
    ^ "---------------------");
@@ -86,30 +89,36 @@ let rec one_turn (s : state) (player : player) purchased =
   print_string "> ";
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
-      if check_properties purchased new_position then (
+      if check_properties s.purchased_properties new_position then (
         print_endline "ERROR: This property has already been purchased.";
-        print_endline ("End of turn for " ^ Player.name player);
-        (player, purchased))
+        print_endline ("End of turn for " ^ Player.name if_player_passed_go);
+        (if_player_passed_go, s.purchased_properties))
       else
-        let player =
-          purchase_property player
-            (List.nth board (location updated_player))
+        let player_purchased =
+          purchase_property if_player_passed_go
+            (List.nth board (location if_player_passed_go))
             (int_of_string roll)
         in
         print_endline "Congratulations, you have just bought a property! ";
-        print_endline ("End of turn for " ^ Player.name player);
-        (player, update_properties purchased new_position)
+        print_endline ("End of turn for " ^ Player.name player_purchased);
+        (player_purchased, update_properties s.purchased_properties new_position)
   | _ ->
-      let player = charge player 0 (int_of_string roll) in
-      print_endline ("End of turn for " ^ Player.name player);
-      (player, purchased)
+      let player_no_purchase =
+        charge if_player_passed_go 0 (int_of_string roll)
+      in
+      print_endline ("End of turn for " ^ Player.name player_no_purchase);
+      (player_no_purchase, s.purchased_properties)
 
-let rec take_turns purchased (s : state) : state =
+let rec take_turns (s : state) : state =
   match s.players with
-  | [] -> { players = [] }
-  | h :: t ->
-      {
-        players =
-          (match one_turn s h purchased with
-          | p, s -> p :: (take_turns s { players = t }).players);
-      }
+  | [] -> { players = []; purchased_properties = [] }
+  | h :: t -> (
+      match one_turn s h with
+      | p, new_s ->
+          {
+            players =
+              p
+              :: (take_turns { players = t; purchased_properties = new_s })
+                   .players;
+            purchased_properties = new_s;
+          })
