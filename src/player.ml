@@ -25,11 +25,11 @@ let go_to_jail player = { player with in_jail = true }
 let move_to player ind = { player with tile = ind }
 let cash player = player.cash
 let pay player amt = { player with cash = player.cash + amt }
-let charge player amt roll = { player with cash = player.cash - amt }
+let charge player amt = { player with cash = player.cash - amt }
 let properties player = player.properties
 let has_property player prop = List.mem prop player.properties
 
-let buy_property player prop roll =
+let buy_property player prop =
   {
     player with
     cash = player.cash - Property.price prop;

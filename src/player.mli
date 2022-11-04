@@ -30,7 +30,7 @@ val cash : player -> int
 val pay : player -> int -> player
 (** [pay player amt] is an updated player with cash now more than before by amt*)
 
-val charge : player -> int -> int -> player
+val charge : player -> int -> player
 (** [charge player amt] is an updated player with cash now less than before by
     amt*)
 
@@ -41,7 +41,7 @@ val has_property : player -> Property.t -> bool
 (** [has_property player prop] is true if prop is in the player's properties
     list and false otherwise*)
 
-val buy_property : player -> Property.t -> int -> player
+val buy_property : player -> Property.t -> player
 (** [buy_property player prop roll] is an updated player with prop added to the
     property list and the cost of prop subtracted from their cash*)
 

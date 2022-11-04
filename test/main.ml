@@ -5,7 +5,6 @@ open Property
 open Player
 open Board
 
-
 let board = Board.board
 let identity s = s
 
@@ -76,11 +75,10 @@ let player_tests =
     player_test "go to jail" true (zach |> go_to_jail |> in_jail);
     player_test "move to 10" 10 (move_to zach 10 |> location);
     player_test "pay 50" 1550 (pay zach 50 |> cash);
-    player_test "charge 50" 1450 (charge zach 50 2 |> cash);
+    player_test "charge 50" 1450 (charge zach 50 |> cash);
     player_test "has boardwalk" true
-      (has_property (buy_property zach boardwalk 2) boardwalk);
-    player_test "paid for boardwalk" 1100 (buy_property zach boardwalk 2 |> cash);
-    
+      (has_property (buy_property zach boardwalk) boardwalk);
+    player_test "paid for boardwalk" 1100 (buy_property zach boardwalk |> cash);
   ]
 
 let state_tests = []

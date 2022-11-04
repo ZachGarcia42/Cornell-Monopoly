@@ -56,9 +56,9 @@ let rec init_players players_lst =
 
 let purchase_property (player : player) property (roll : int) =
   match property with
-  | Property x -> buy_property player x roll
-  | IncomeTax -> charge player (-200) roll
-  | _ -> charge player 0 roll
+  | Property x -> buy_property player x
+  | IncomeTax -> charge player (-200)
+  | _ -> charge player 0
 
 let rec one_turn (s : state) (player : player) =
   print_endline
@@ -101,11 +101,8 @@ let rec one_turn (s : state) (player : player) =
         print_endline ("End of turn for " ^ Player.name player_purchased);
         (player_purchased, update_properties s.purchased_properties new_position)
   | _ ->
-      let player_no_purchase =
-        charge if_player_passed_go 0 (int_of_string roll)
-      in
-      print_endline ("End of turn for " ^ Player.name player_no_purchase);
-      (player_no_purchase, s.purchased_properties)
+      print_endline ("End of turn for " ^ Player.name if_player_passed_go);
+      (if_player_passed_go, s.purchased_properties)
 
 let rec take_turns (s : state) : state =
   match s.players with
