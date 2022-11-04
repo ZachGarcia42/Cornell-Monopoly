@@ -64,7 +64,7 @@ let rec one_turn (s : state) (player : player) =
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
    ^ "---------------------");
-  let roll = string_of_int (Random.int 5 + 1) in
+  let roll = string_of_int (Random.int 6 + 1 + (Random.int 6 + 1)) in
   let tell_roll = "Your roll is " ^ roll in
   print_endline tell_roll;
 
@@ -73,12 +73,10 @@ let rec one_turn (s : state) (player : player) =
 
   let updated_player = move_to player new_position in
 
-  if Monopoly.player_passed_go old_position new_position then
-    print_endline "You have passed Go! You win $200";
-
   let if_player_passed_go =
-    if Monopoly.player_passed_go old_position new_position then
-      pay updated_player 200
+    if Monopoly.player_passed_go old_position new_position then (
+      print_endline "You have passed Go! You win $200";
+      pay updated_player 200)
     else updated_player
   in
 
