@@ -56,13 +56,17 @@ let rec init_players players_lst =
 
 let purchase_property (player : player) property (roll : int) =
   match property with
+  |Go -> 
+    print_endline "Collect $200 here! You can't purchase this";
+    charge player 0
+  
   | Property x -> 
     print_endline "Congratulations, you have just bought a property";
     buy_property player x
   | IncomeTax | LuxuryTax-> 
     print_endline "Sorry, this is a tax! You cannot purchase 
-    this property! Please enter 'T' to pay this tax. ";
-    charge player (0)
+    this property! Deducting 200 to pay the tax! ";
+    charge player (200)
   | _ -> charge player 0
 
 let pay_tax (player: player) property = 
@@ -72,6 +76,14 @@ let pay_tax (player: player) property =
   |_ -> 
     print_endline "You don't have to pay any tax :) !";
     charge player 0
+
+let unlock_chance_card(player: player) property = 
+  match property with 
+  |Chance c -> player
+  |_ -> 
+    print_endline "This is not a Chance Card!";
+    charge player 0
+
 
 let rec one_turn (s : state) (player : player) =
   print_endline
@@ -95,7 +107,9 @@ let rec one_turn (s : state) (player : player) =
 
   inform_player s if_player_passed_go;
   print_endline
-    "What would you like to do? Purchase this property (enter 'P') or do \
+    "What would you like to do? Attempt to purchase this property (enter 'P') or 
+    pay a tax (enter 'T'), unlock a Chance or Community Chest Card (enter 'C'), or quit 
+    ('enter Q') do \
      nothing (enter any other key) ";
   print_string "> ";
   match Monopoly.parse_user_input (read_line ()) with
@@ -110,7 +124,6 @@ let rec one_turn (s : state) (player : player) =
             (List.nth board (location if_player_passed_go))
             (int_of_string roll)
         in
-        print_endline "Congratulations, you have just bought a property! ";
         print_endline ("End of turn for " ^ Player.name player_purchased);
         (player_purchased, update_properties s.purchased_properties new_position)
   |"T" -> 
@@ -118,7 +131,9 @@ let rec one_turn (s : state) (player : player) =
     let player_payed = pay_tax player tax in
     print_endline ("End of turn for " ^ Player.name player_payed);
     (player_payed, s.purchased_properties)
-
+  |"Q" -> 
+    print_endline "Thank you for playing Cornellopoly! We hope you had fun!";
+    exit 0
   | _ ->
       print_endline ("End of turn for " ^ Player.name if_player_passed_go);
       (if_player_passed_go, s.purchased_properties)

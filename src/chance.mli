@@ -1,7 +1,7 @@
 type t 
 (* The abstract type representing a Chance Card*)
 
-val init_chance : string -> int -> string -> t
+val init_chance : string -> int -> string-> string -> t
 (** [init_chance name price command] is the initial state of a chance card. *)
 
 val name : t -> string
@@ -12,5 +12,9 @@ val price : t -> int
 
 val command : t -> string 
 (** [command c] is the command of chance [c]. *)
+
+val destination: t -> string 
+(** [destination c] is the destination of chance [c]. *)
+
 
 (* TODO: implement different player movements/actions based on commands*)
