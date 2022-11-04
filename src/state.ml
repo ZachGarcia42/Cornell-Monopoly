@@ -56,9 +56,22 @@ let rec init_players players_lst =
 
 let purchase_property (player : player) property (roll : int) =
   match property with
-  | Property x -> buy_property player x
-  | IncomeTax -> charge player (-200)
+  | Property x -> 
+    print_endline "Congratulations, you have just bought a property";
+    buy_property player x
+  | IncomeTax | LuxuryTax-> 
+    print_endline "Sorry, this is a tax! You cannot purchase 
+    this property! Please enter 'T' to pay this tax. ";
+    charge player (0)
   | _ -> charge player 0
+
+let pay_tax (player: player) property = 
+  match property with 
+  |IncomeTax -> charge player 200 
+  |LuxuryTax -> charge player 100 
+  |_ -> 
+    print_endline "You don't have to pay any tax :) !";
+    charge player 0
 
 let rec one_turn (s : state) (player : player) =
   print_endline
@@ -100,6 +113,12 @@ let rec one_turn (s : state) (player : player) =
         print_endline "Congratulations, you have just bought a property! ";
         print_endline ("End of turn for " ^ Player.name player_purchased);
         (player_purchased, update_properties s.purchased_properties new_position)
+  |"T" -> 
+    let tax = List.nth board (location if_player_passed_go) in 
+    let player_payed = pay_tax player tax in
+    print_endline ("End of turn for " ^ Player.name player_payed);
+    (player_payed, s.purchased_properties)
+
   | _ ->
       print_endline ("End of turn for " ^ Player.name if_player_passed_go);
       (if_player_passed_go, s.purchased_properties)
