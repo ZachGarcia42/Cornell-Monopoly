@@ -77,9 +77,36 @@ let pay_tax (player: player) property =
     print_endline "You don't have to pay any tax :) !";
     charge player 0
 
+let unlock_destination (dest: string) property= 
+  let rec helper (dest: string) = 
+    match board with 
+    |[] -> None 
+    |h :: t -> 
+      if tileName h = dest then Some h else helper dest
+  in 
+  match helper dest with 
+  |None -> property 
+  |Some tile -> tile
+
+let rec get_index_of_dest (dest) acc= 
+  match board with 
+  |[] -> 0
+  |h :: t -> 
+    if List.nth board acc = dest then acc else get_index_of_dest (dest) (acc + 1)
+
 let unlock_chance_card(player: player) property = 
   match property with 
-  |Chance c -> player
+  |Chance c -> 
+    (* TODO: Pattern match against destinations to see where the player should be moved 
+       to, if at all*)
+    let dest = Chance.destination c in 
+    if dest = "Current" then player
+    else 
+      let new_dest = unlock_destination dest property in 
+      let idx = get_index_of_dest new_dest 0 in 
+      Player.move_to player idx
+
+    (*player *)
   |_ -> 
     print_endline "This is not a Chance Card!";
     charge player 0
@@ -126,6 +153,9 @@ let rec one_turn (s : state) (player : player) =
         in
         print_endline ("End of turn for " ^ Player.name player_purchased);
         (player_purchased, update_properties s.purchased_properties new_position)
+  |"C" -> 
+    print_endline ("End of turn for " ^ Player.name if_player_passed_go);
+    (if_player_passed_go, s.purchased_properties)
   |"T" -> 
     let tax = List.nth board (location if_player_passed_go) in 
     let player_payed = pay_tax player tax in
