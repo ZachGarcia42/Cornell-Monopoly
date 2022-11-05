@@ -1,25 +1,31 @@
-open Chance 
+open Chance
 
-let chance_commands = [
-init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go";
-init_chance "Chance: Advancement" 0 "Advance to Illinois Avenue! 
-Collect $200 if you pass Go!" "Illinois Avenue";
-init_chance "Chance: Advancement" 0 "Advance to St.Charles Place! 
-Collect $200 if you pass Go!" "St. Charles Place";
-init_chance "Chance: Advancement" 0 "Take a trip to Reading Railroad!
-Collect $200 if you pass Go" "Reading Railroad";
-init_chance "Chance: Advancement" 0 "Go directly to Jail!
-Do not $200 if you pass Go" "Just Visiting";
-init_chance "Chance: Money Made" 150 "Your building loan matures. Collect $150" "Current";
-init_chance "Chance: Payment Required" 15 "Speeding Fine! Pay $15" "Current";
-init_chance "Chance: Payment Required" 150 "Pay School Tax of $150" "Current";
-init_chance "Chance: Move Backwards" 0 "Move backwards 3 spaces" "3";
-init_chance "Get out of Jail Free" 0 "Acquire a Get of Jail Free Card" "Current";
+let chance_commands =
+  [
+    init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go";
+    init_chance "Chance: Advancement" 0
+      "Advance to Illinois Avenue! \nCollect $200 if you pass Go!"
+      "Illinois Avenue";
+    init_chance "Chance: Advancement" 0
+      "Advance to St.Charles Place! \nCollect $200 if you pass Go!"
+      "St. Charles Place";
+    init_chance "Chance: Advancement" 0
+      "Take a trip to Reading Railroad!\nCollect $200 if you pass Go"
+      "Reading Railroad";
+    init_chance "Chance: Advancement" 0
+      "Go directly to Jail!\nDo not $200 if you pass Go" "Just Visiting";
+    init_chance "Chance: Money Made" 150
+      "Your building loan matures. Collect $150" "Current";
+    init_chance "Chance: Payment Required" 15 "Speeding Fine! Pay $15" "Current";
+    init_chance "Chance: Payment Required" 150 "Pay School Tax of $150"
+      "Current";
+    init_chance "Chance: Move Backwards" 0 "Move backwards 3 spaces" "3";
+    init_chance "Get out of Jail Free" 0 "Acquire a Get of Jail Free Card"
+      "Current";
+  ]
 
-]
-
-let draw_chance_card (chance_cards) = 
-  let idx = Random.int (List.length chance_cards) + 1 in 
+let draw_chance_card chance_cards =
+  let idx = Random.int (List.length chance_cards) + 1 in
   List.nth chance_cards idx
 
 let board : Tile.tile list =
@@ -68,10 +74,13 @@ let board : Tile.tile list =
 
 let purchased int list = []
 
-let chance_names: string list = ["Chance: Advancement";
- "Chance: Payment Required"; "Chance: Money Made"; 
- "Chance: Get out of Jail Free"; ]
+let chance_names : string list =
+  [
+    "Chance: Advancement";
+    "Chance: Payment Required";
+    "Chance: Money Made";
+    "Chance: Get out of Jail Free";
+  ]
 
-(*TODO: Add chance commands for the chance names above. Then randomly pick a chance name and 
-   command correspondingly for the above board list*)
-
+(*TODO: Add chance commands for the chance names above. Then randomly pick a
+  chance name and command correspondingly for the above board list*)

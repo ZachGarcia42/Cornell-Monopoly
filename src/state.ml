@@ -11,6 +11,8 @@ type state = {
   purchased_properties : int list;
 }
 
+let player_list state = state.players
+
 let init_state (players : player list) : state =
   { players; purchased_properties = [] }
 
@@ -56,61 +58,58 @@ let rec init_players players_lst =
 
 let purchase_property (player : player) property (roll : int) =
   match property with
-  |Go -> 
-    print_endline "Collect $200 here! You can't purchase this";
-    charge player 0
-  
-  | Property x -> 
-    print_endline "Congratulations, you have just bought a property";
-    buy_property player x
-  | IncomeTax | LuxuryTax-> 
-    print_endline "Sorry, this is a tax! You cannot purchase 
-    this property! Deducting 200 to pay the tax! ";
-    charge player (200)
+  | Go ->
+      print_endline "Collect $200 here! You can't purchase this";
+      charge player 0
+  | Property x ->
+      print_endline "Congratulations, you have just bought a property";
+      buy_property player x
+  | IncomeTax | LuxuryTax ->
+      print_endline
+        "Sorry, this is a tax! You cannot purchase \n\
+        \    this property! Deducting 200 to pay the tax! ";
+      charge player 200
   | _ -> charge player 0
 
-let pay_tax (player: player) property = 
-  match property with 
-  |IncomeTax -> charge player 200 
-  |LuxuryTax -> charge player 100 
-  |_ -> 
-    print_endline "You don't have to pay any tax :) !";
-    charge player 0
+let pay_tax (player : player) property =
+  match property with
+  | IncomeTax -> charge player 200
+  | LuxuryTax -> charge player 100
+  | _ ->
+      print_endline "You don't have to pay any tax :) !";
+      charge player 0
 
-let unlock_destination (dest: string) property= 
-  let rec helper (dest: string) = 
-    match board with 
-    |[] -> None 
-    |h :: t -> 
-      if tileName h = dest then Some h else helper dest
-  in 
-  match helper dest with 
-  |None -> property 
-  |Some tile -> tile
+let unlock_destination (dest : string) property =
+  let rec helper (dest : string) =
+    match board with
+    | [] -> None
+    | h :: t -> if tileName h = dest then Some h else helper dest
+  in
+  match helper dest with
+  | None -> property
+  | Some tile -> tile
 
-let rec get_index_of_dest (dest) acc= 
-  match board with 
-  |[] -> 0
-  |h :: t -> 
-    if List.nth board acc = dest then acc else get_index_of_dest (dest) (acc + 1)
+let rec get_index_of_dest dest acc =
+  match board with
+  | [] -> 0
+  | h :: t ->
+      if List.nth board acc = dest then acc else get_index_of_dest dest (acc + 1)
 
-let unlock_chance_card(player: player) property = 
-  match property with 
-  |Chance c -> 
-    (* TODO: Pattern match against destinations to see where the player should be moved 
-       to, if at all*)
-    let dest = Chance.destination c in 
-    if dest = "Current" then player
-    else 
-      let new_dest = unlock_destination dest property in 
-      let idx = get_index_of_dest new_dest 0 in 
-      Player.move_to player idx
-
-    (*player *)
-  |_ -> 
-    print_endline "This is not a Chance Card!";
-    charge player 0
-
+let unlock_chance_card (player : player) property =
+  match property with
+  | Chance c ->
+      (* TODO: Pattern match against destinations to see where the player should
+         be moved to, if at all*)
+      let dest = Chance.destination c in
+      if dest = "Current" then player
+      else
+        let new_dest = unlock_destination dest property in
+        let idx = get_index_of_dest new_dest 0 in
+        Player.move_to player idx
+      (*player *)
+  | _ ->
+      print_endline "This is not a Chance Card!";
+      charge player 0
 
 let rec one_turn (s : state) (player : player) =
   print_endline
@@ -134,10 +133,11 @@ let rec one_turn (s : state) (player : player) =
 
   inform_player s if_player_passed_go;
   print_endline
-    "What would you like to do? Attempt to purchase this property (enter 'P') or 
-    pay a tax (enter 'T'), unlock a Chance or Community Chest Card (enter 'C'), or quit 
-    ('enter Q') do \
-     nothing (enter any other key) ";
+    "What would you like to do? Attempt to purchase this property (enter 'P') \
+     or \n\
+    \    pay a tax (enter 'T'), unlock a Chance or Community Chest Card (enter \
+     'C'), or quit \n\
+    \    ('enter Q') do nothing (enter any other key) ";
   print_string "> ";
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
@@ -151,19 +151,28 @@ let rec one_turn (s : state) (player : player) =
             (List.nth board (location if_player_passed_go))
             (int_of_string roll)
         in
-        print_endline ("End of turn for " ^ Player.name player_purchased);
+        if Player.cash player_purchased < 0 then
+          print_endline
+            ("SORRY, " ^ Player.name player_purchased ^ " has gone bankrupt!")
+        else print_endline ("End of turn for " ^ Player.name player_purchased);
         (player_purchased, update_properties s.purchased_properties new_position)
-  |"C" -> 
-    print_endline ("End of turn for " ^ Player.name if_player_passed_go);
-    (if_player_passed_go, s.purchased_properties)
-  |"T" -> 
-    let tax = List.nth board (location if_player_passed_go) in 
-    let player_payed = pay_tax player tax in
-    print_endline ("End of turn for " ^ Player.name player_payed);
-    (player_payed, s.purchased_properties)
-  |"Q" -> 
-    print_endline "Thank you for playing Cornellopoly! We hope you had fun!";
-    exit 0
+  | "C" ->
+      if Player.cash player < 0 then
+        print_endline
+          ("SORRY, " ^ Player.name if_player_passed_go ^ " has gone bankrupt!")
+      else print_endline ("End of turn for " ^ Player.name if_player_passed_go);
+      (if_player_passed_go, s.purchased_properties)
+  | "T" ->
+      let tax = List.nth board (location if_player_passed_go) in
+      let player_payed = pay_tax player tax in
+      if Player.cash player < 0 then
+        print_endline
+          ("SORRY, " ^ Player.name player_payed ^ " has gone bankrupt!")
+      else print_endline ("End of turn for " ^ Player.name player_payed);
+      (player_payed, s.purchased_properties)
+  | "Q" ->
+      print_endline "Thank you for playing Cornellopoly! We hope you had fun!";
+      exit 0
   | _ ->
       print_endline ("End of turn for " ^ Player.name if_player_passed_go);
       (if_player_passed_go, s.purchased_properties)
@@ -174,10 +183,18 @@ let rec take_turns (s : state) : state =
   | h :: t -> (
       match one_turn s h with
       | p, new_s ->
-          {
-            players =
-              p
-              :: (take_turns { players = t; purchased_properties = new_s })
-                   .players;
-            purchased_properties = new_s;
-          })
+          if Player.cash p < 0 then
+            {
+              players =
+                (take_turns { players = t; purchased_properties = new_s })
+                  .players;
+              purchased_properties = new_s;
+            }
+          else
+            {
+              players =
+                p
+                :: (take_turns { players = t; purchased_properties = new_s })
+                     .players;
+              purchased_properties = new_s;
+            })

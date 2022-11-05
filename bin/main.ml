@@ -1,7 +1,6 @@
 open Game
 open State
 open Monopoly
-open Random
 open Player
 open Tile
 open Board
@@ -14,14 +13,17 @@ let end_conditions = false (* TODO: check game ending conditions. *)
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
-let rec game_loop (game : state) (turn : int) purchased =
-  print_endline "";
+let rec game_loop (game : state) (turn : int) purchased playerlst =
+  print_int (List.length playerlst);
+  if List.length playerlst = 0 then exit 0 else print_endline "";
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
   let updated_game = take_turns game in
-  if end_conditions then () else game_loop updated_game (turn + 1) purchased
+  let updated_playerlst = State.player_list updated_game in
+  if end_conditions then ()
+  else game_loop updated_game (turn + 1) purchased updated_playerlst
 
 (** [print_player_names players] prints out the names of all players in order. *)
 let rec print_player_names players =
@@ -65,6 +67,7 @@ let rec main () =
     \  version of the popular board game Monopoly while learning a lot about \
      Cornell University!\n";
   print_endline " ";
+  let open Random in
   Random.self_init ();
   let players_lst = init_players [] in
   let game_state = init_state players_lst in
@@ -72,7 +75,7 @@ let rec main () =
   print_player_names players_lst;
   print_endline "";
   display_board_revised Board.board;
-  game_loop game_state 1 [];
+  game_loop game_state 1 [] players_lst;
   ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
 
 let () = main ()
