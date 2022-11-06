@@ -16,14 +16,20 @@ let player_list state = state.players
 let init_state (players : player list) : state =
   { players; purchased_properties = [] }
 
+(** [check_properties purchased location] returns true iff the property at index
+    [location] of the game board has been purchased. False otherwise. *)
 let check_properties purchased location =
   match List.nth board location with
   | Property x -> List.mem location purchased
   | _ -> false
 (*List.mem location purchased *)
 
+(** [update_properties purchased location] adds the property at index [location]
+    to the list of purchased properties. *)
 let update_properties purchased location = location :: purchased
 
+(** [inform_player s player_info] logs important information for a player
+    [player_info] based on data stored in state [s]. *)
 let inform_player (s : state) (player_info : player) : unit =
   print_endline ("Starting turn for player " ^ Player.name player_info);
 
@@ -132,13 +138,35 @@ let rec one_turn (s : state) (player : player) =
   in
 
   inform_player s if_player_passed_go;
-  print_endline
-    "What would you like to do? Attempt to purchase this property (enter 'P') \
-     or \n\
-    \    pay a tax (enter 'T'), unlock a Chance or Community Chest Card (enter \
-     'C'), or quit \n\
-    \    ('enter Q') do nothing (enter any other key) ";
-  print_string "> ";
+
+  let prompt_next_action =
+    match List.nth Board.board new_position with
+    | Go -> print_endline "You are on the Go tile"
+    | Property _ ->
+        print_endline
+          "Attempt to purchase this property? Enter 'P' if you wish to do so"
+    | CommunityChest ->
+        print_endline
+          "You can draw a Community Chest Card. Press 'C' to proceed"
+    | IncomeTax ->
+        print_endline "You need to pay your taxes! Enter 'T' to continue."
+    | Chance _ ->
+        print_endline
+          "You have landed on a Chance Square! Enter 'C' to proceed."
+    | JustVisiting ->
+        print_endline
+          "You are just visiting your old Dyson pal (who recently committed \n\
+          \    financial fraud) in jail. No action needs to be taken – enter \
+           any other key to continue. "
+    | FreeParking ->
+        print_endline
+          "You have landed on free parking! Enter 'Collect' to collect your \
+           rewards!"
+    | _ ->
+        print_endline
+          "Enter 'Q' to quit the game, or do nothing (enter any other key)."
+  in
+  prompt_next_action;
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
       if check_properties s.purchased_properties new_position then (
