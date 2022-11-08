@@ -117,6 +117,29 @@ let unlock_chance_card (player : player) property =
       print_endline "This is not a Chance Card!";
       charge player 0
 
+(** [check_player_properties prop properties] is true iff one of the properties
+    matches [prop]. *)
+let rec check_player_properties prop = function
+  | [] -> false
+  | property :: t -> property = prop || check_player_properties prop t
+
+(** [is_property_owned property] is true iff [property] is owned by one of the
+    players. *)
+let rec is_property_owned (property : Property.t) (s : state) =
+  match s.players with
+  | [] -> false
+  | player :: t ->
+      check_player_properties property (properties player)
+      || is_property_owned property s
+
+let charge_inform (p : Property.t) (player : Player.player) =
+  print_endline ("You are being charged " ^ string_of_int (Property.price p))
+
+(** [charged_player player property] is the updated player after they've been
+    charged for landing on [property]*)
+let charged_player (player : Player.player) (property : Property.t) =
+  Player.charge player (Property.price property)
+
 let rec one_turn (s : state) (player : player) =
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
@@ -138,11 +161,25 @@ let rec one_turn (s : state) (player : player) =
   in
 
   inform_player s if_player_passed_go;
-
+  (* TODO: This is a temporary function to charge players for landing on a
+     property as needed. Future refactoring will be needed for a more organized
+     way of charging the player in general for all reasons and updating the
+     player (change if_player_passed_go to something more meaningful)*)
+  let if_player_passed_go =
+    match List.nth Board.board new_position with
+    | Property p ->
+        if is_property_owned p s then charged_player if_player_passed_go p
+        else if_player_passed_go
+    | _ -> if_player_passed_go
+  in
   let prompt_next_action =
     match List.nth Board.board new_position with
     | Go -> print_endline "You are on the Go tile"
-    | Property _ ->
+    | Property p ->
+        if is_property_owned p s then charge_inform p player
+        else
+          print_endline
+            ("This property costs $ " ^ string_of_int (Property.price p));
         print_endline
           "Attempt to purchase this property? Enter 'P' if you wish to do so"
     | CommunityChest ->
