@@ -149,7 +149,9 @@ let rec one_turn (s : state) (player : player) =
   print_endline tell_roll;
 
   let old_position = location player in
-  let new_position = (old_position + int_of_string roll) mod 40 in
+  let new_position =
+    (old_position + int_of_string roll) mod List.length Board.board
+  in
 
   let updated_player = move_to player new_position in
 
@@ -160,17 +162,20 @@ let rec one_turn (s : state) (player : player) =
     else updated_player
   in
 
-  inform_player s if_player_passed_go;
+  let updated_player = if_player_passed_go in
+
+  inform_player s updated_player;
+
   (* TODO: This is a temporary function to charge players for landing on a
      property as needed. Future refactoring will be needed for a more organized
      way of charging the player in general for all reasons and updating the
-     player (change if_player_passed_go to something more meaningful)*)
-  let if_player_passed_go =
+     player *)
+  let updated_player =
     match List.nth Board.board new_position with
     | Property p ->
-        if is_property_owned p s then charged_player if_player_passed_go p
-        else if_player_passed_go
-    | _ -> if_player_passed_go
+        if is_property_owned p s then charged_player updated_player p
+        else updated_player
+    | _ -> updated_player
   in
   let prompt_next_action =
     match List.nth Board.board new_position with
@@ -204,16 +209,17 @@ let rec one_turn (s : state) (player : player) =
           "Enter 'Q' to quit the game, or do nothing (enter any other key)."
   in
   prompt_next_action;
+  print_endline "woierjqowareawoijwe";
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
       if check_properties s.purchased_properties new_position then (
         print_endline "ERROR: This property has already been purchased.";
-        print_endline ("End of turn for " ^ Player.name if_player_passed_go);
-        (if_player_passed_go, s.purchased_properties))
+        print_endline ("End of turn for " ^ Player.name updated_player);
+        (updated_player, s.purchased_properties))
       else
         let player_purchased =
-          purchase_property if_player_passed_go
-            (List.nth board (location if_player_passed_go))
+          purchase_property updated_player
+            (List.nth board (location updated_player))
             (int_of_string roll)
         in
         if Player.cash player_purchased < 0 then
@@ -224,11 +230,11 @@ let rec one_turn (s : state) (player : player) =
   | "C" ->
       if Player.cash player < 0 then
         print_endline
-          ("SORRY, " ^ Player.name if_player_passed_go ^ " has gone bankrupt!")
-      else print_endline ("End of turn for " ^ Player.name if_player_passed_go);
-      (if_player_passed_go, s.purchased_properties)
+          ("SORRY, " ^ Player.name updated_player ^ " has gone bankrupt!")
+      else print_endline ("End of turn for " ^ Player.name updated_player);
+      (updated_player, s.purchased_properties)
   | "T" ->
-      let tax = List.nth board (location if_player_passed_go) in
+      let tax = List.nth board (location updated_player) in
       let player_payed = pay_tax player tax in
       if Player.cash player < 0 then
         print_endline
@@ -239,8 +245,8 @@ let rec one_turn (s : state) (player : player) =
       print_endline "Thank you for playing Cornellopoly! We hope you had fun!";
       exit 0
   | _ ->
-      print_endline ("End of turn for " ^ Player.name if_player_passed_go);
-      (if_player_passed_go, s.purchased_properties)
+      print_endline ("End of turn for " ^ Player.name updated_player);
+      (updated_player, s.purchased_properties)
 
 let rec take_turns (s : state) : state =
   match s.players with
