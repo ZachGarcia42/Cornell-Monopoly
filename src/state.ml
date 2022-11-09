@@ -219,21 +219,29 @@ let rec one_turn (s : state) (player : player) =
         print_endline ("End of turn for " ^ Player.name updated_player);
         (updated_player, s.purchased_properties))
       else
-        let player_purchased =
-          purchase_property updated_player
-            (List.nth board (location updated_player))
-            (int_of_string roll)
+        let property_price =
+          match List.nth board (location updated_player) with
+          | Property p -> Property.price p
+          | _ -> 0
         in
-        if Player.cash player_purchased < 0 then
+        if Player.cash updated_player < property_price then (
           print_endline
-            ("SORRY, " ^ Player.name player_purchased ^ " has gone bankrupt!")
-        else print_endline ("End of turn for " ^ Player.name player_purchased);
-        (player_purchased, update_properties s.purchased_properties new_position)
+            "Sorry, you do not have enough money to purchase this property!";
+          (updated_player, s.purchased_properties))
+        else
+          let player_purchased =
+            purchase_property updated_player
+              (List.nth board (location updated_player))
+              (int_of_string roll)
+          in
+          print_endline
+            "Congratulations! You have successfully purchased this property.";
+          print_endline ("End of turn for " ^ Player.name player_purchased);
+          ( player_purchased,
+            update_properties s.purchased_properties new_position )
   | "C" ->
-      if Player.cash player < 0 then
-        print_endline
-          ("SORRY, " ^ Player.name updated_player ^ " has gone bankrupt!")
-      else print_endline ("End of turn for " ^ Player.name updated_player);
+      print_endline "Drawing a chance card...";
+      (* TODO: Implement drawing a chance card. *)
       (updated_player, s.purchased_properties)
   | "T" ->
       let tax = List.nth board (location updated_player) in
