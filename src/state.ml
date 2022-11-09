@@ -125,12 +125,12 @@ let rec check_player_properties prop = function
 
 (** [is_property_owned property] is true iff [property] is owned by one of the
     players. *)
-let rec is_property_owned (property : Property.t) (s : state) =
-  match s.players with
+let rec is_property_owned (property : Property.t) players =
+  match players with
   | [] -> false
   | player :: t ->
       check_player_properties property (properties player)
-      || is_property_owned property s
+      || is_property_owned property t
 
 let charge_inform (p : Property.t) (player : Player.player) =
   print_endline ("You are being charged " ^ string_of_int (Property.price p))
@@ -173,20 +173,23 @@ let rec one_turn (s : state) (player : player) =
   let updated_player =
     match List.nth Board.board new_position with
     | Property p ->
-        if is_property_owned p s then charged_player updated_player p
+        if is_property_owned p s.players then charged_player updated_player p
         else updated_player
     | _ -> updated_player
   in
+
+  print_endline "Prompting next action...";
   let prompt_next_action =
     match List.nth Board.board new_position with
     | Go -> print_endline "You are on the Go tile"
     | Property p ->
-        if is_property_owned p s then charge_inform p player
+        if is_property_owned p s.players then charge_inform p player
         else
           print_endline
-            ("This property costs $ " ^ string_of_int (Property.price p));
-        print_endline
-          "Attempt to purchase this property? Enter 'P' if you wish to do so"
+            ("This property costs $ "
+            ^ string_of_int (Property.price p)
+            ^ "Attempt to purchase this property? Enter 'P' if you wish to do \
+               so")
     | CommunityChest ->
         print_endline
           "You can draw a Community Chest Card. Press 'C' to proceed"
@@ -198,8 +201,8 @@ let rec one_turn (s : state) (player : player) =
     | JustVisiting ->
         print_endline
           "You are just visiting your old Dyson pal (who recently committed \n\
-          \    financial fraud) in jail. No action needs to be taken – enter \
-           any other key to continue. "
+           financial fraud) in jail. No action needs to be taken – enter any \
+           other key to continue. "
     | FreeParking ->
         print_endline
           "You have landed on free parking! Enter 'Collect' to collect your \
@@ -209,7 +212,6 @@ let rec one_turn (s : state) (player : player) =
           "Enter 'Q' to quit the game, or do nothing (enter any other key)."
   in
   prompt_next_action;
-  print_endline "woierjqowareawoijwe";
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
       if check_properties s.purchased_properties new_position then (
@@ -217,21 +219,29 @@ let rec one_turn (s : state) (player : player) =
         print_endline ("End of turn for " ^ Player.name updated_player);
         (updated_player, s.purchased_properties))
       else
-        let player_purchased =
-          purchase_property updated_player
-            (List.nth board (location updated_player))
-            (int_of_string roll)
+        let property_price =
+          match List.nth board (location updated_player) with
+          | Property p -> Property.price p
+          | _ -> 0
         in
-        if Player.cash player_purchased < 0 then
+        if Player.cash updated_player < property_price then (
           print_endline
-            ("SORRY, " ^ Player.name player_purchased ^ " has gone bankrupt!")
-        else print_endline ("End of turn for " ^ Player.name player_purchased);
-        (player_purchased, update_properties s.purchased_properties new_position)
+            "Sorry, you do not have enough money to purchase this property!";
+          (updated_player, s.purchased_properties))
+        else
+          let player_purchased =
+            purchase_property updated_player
+              (List.nth board (location updated_player))
+              (int_of_string roll)
+          in
+          print_endline
+            "Congratulations! You have successfully purchased this property.";
+          print_endline ("End of turn for " ^ Player.name player_purchased);
+          ( player_purchased,
+            update_properties s.purchased_properties new_position )
   | "C" ->
-      if Player.cash player < 0 then
-        print_endline
-          ("SORRY, " ^ Player.name updated_player ^ " has gone bankrupt!")
-      else print_endline ("End of turn for " ^ Player.name updated_player);
+      print_endline "Drawing a chance card...";
+      (* TODO: Implement drawing a chance card. *)
       (updated_player, s.purchased_properties)
   | "T" ->
       let tax = List.nth board (location updated_player) in
