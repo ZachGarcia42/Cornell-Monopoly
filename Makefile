@@ -1,5 +1,10 @@
 .PHONY: test check
 
+bisect:
+	rm -f *.coverage
+	dune exec --instrument-with bisect_ppx test/main.exe
+	bisect-ppx-report html
+
 build:
 	dune build
 
@@ -29,4 +34,5 @@ zip:
 
 clean:
 	dune clean
+	rm -f *.coverage
 	rm -f Cornell-Monopoly.zip
