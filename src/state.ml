@@ -30,13 +30,43 @@ let check_properties state location =
     the list of purchased properties in [state]. *)
 let update_properties state location = location :: state.purchased_properties
 
+(** [check_player_properties prop properties] is true iff one of the properties
+    matches [prop]. *)
+let rec check_player_properties prop = function
+  | [] -> false
+  | property :: t -> property = prop || check_player_properties prop t
+
+(** [is_property_owned property] is true iff [property] is owned by one of the
+    players. *)
+let rec is_property_owned (property : Property.t) players =
+  match players with
+  | [] -> false
+  | player :: t ->
+      check_player_properties property (properties player)
+      || is_property_owned property t
+
+(** [find_owner p players] is the name of the owner of property [p] from the
+    [players] list *)
+let rec find_owner (p : Property.t) (players : Player.player list) =
+  match players with
+  | [] -> "No one"
+  | h :: t -> if Player.has_property h p then Player.name h else find_owner p t
+
+(** [make_line size line] is a string with horizontal dashes proportional to the
+    magnitude of [size]. Starts with [line]. *)
+let rec make_line (size : int) (line : string) =
+  if size = 0 then line else make_line (size - 1) (line ^ "_")
+
 (** [inform_player s player_info current] tells [player] important info at the
     beginning of their turn, including what they rolled, how much money they
     have, their new position, and if they're on a property, how much that
     property costs. *)
 let inform_player (s : state) (player : player) (current_tile : Tile.tile)
     (roll : int) : unit =
-  print_endline ("You rolled a " ^ string_of_int roll ^ "!");
+  print_endline
+    ("You take the pair of dice in your hands, take a deep breath, then cast \
+      them onto the table. Your heart hangs in your throat as you wait for the \
+      pair of numbers to settle...You rolled a " ^ string_of_int roll ^ "!");
 
   let money = cash player in
 
@@ -45,9 +75,26 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 
   match current_tile with
   | Property p ->
+      let top = "__________" in
+      let name_length = String.length (tileName current_tile) in
+      let top = top ^ make_line name_length top ^ top in
+      print_endline top;
       print_endline
-        ("This property is valued at $ "
-        ^ string_of_int (Tile.get_price current_tile))
+        ("|               " ^ tileName current_tile ^ "               |");
+      print_endline
+        ("|            Property value: $ "
+        ^ string_of_int (Tile.get_price current_tile)
+        ^ "           |");
+      print_endline
+        ("|                 Color: "
+        ^ Property.string_of_set (Property.color p)
+        ^ "                 |");
+      if is_property_owned p s.players then
+        print_endline
+          ("|               Owner: " ^ find_owner p s.players
+         ^ "               ")
+      else print_endline "|                Owner: None                 |";
+      print_endline top
   | _ -> ()
 
 let rec init_players players_lst =
@@ -127,28 +174,6 @@ let unlock_chance_card (player : player) property =
       print_endline "This is not a Chance Card!";
       charge player 0
 
-(** [check_player_properties prop properties] is true iff one of the properties
-    matches [prop]. *)
-let rec check_player_properties prop = function
-  | [] -> false
-  | property :: t -> property = prop || check_player_properties prop t
-
-(** [is_property_owned property] is true iff [property] is owned by one of the
-    players. *)
-let rec is_property_owned (property : Property.t) players =
-  match players with
-  | [] -> false
-  | player :: t ->
-      check_player_properties property (properties player)
-      || is_property_owned property t
-
-(** [find_owner p players] is the name of the owner of property [p] from the
-    [players] list *)
-let rec find_owner (p : Property.t) (players : Player.player list) =
-  match players with
-  | [] -> "No one"
-  | h :: t -> if Player.has_property h p then Player.name h else find_owner p t
-
 (** [rent_charge_inform s p player] informs the current player whose turn it of
     the owner of the property [p] they landed on and how much they are being
     charged as rent *)
@@ -166,6 +191,8 @@ let rent_charge_inform (s : state) (p : Property.t) =
 let charged_player (player : Player.player) (property : Property.t) =
   Player.charge player (Property.price property)
 
+(* [prompt_next_action] prompts the player's next key-press based on what tile
+   type they are currently on. *)
 let prompt_next_action state tile player =
   match tile with
   | Go -> print_endline "You are on the Go tile"
@@ -221,10 +248,8 @@ let rec one_turn (s : state) (player : player) =
 
   inform_player s player current_tile roll;
 
-  (* TODO: This is a temporary function to charge players for landing on a
-     property as needed. Future refactoring will be needed for a more organized
-     way of charging the player in general for all reasons and updating the
-     player *)
+  (* [updated_player] is the new player identifier after they have been charged
+     rent for landing on their current location property, if applicable. *)
   let updated_player =
     match List.nth Board.board new_position with
     | Property p ->
@@ -270,7 +295,6 @@ let rec one_turn (s : state) (player : player) =
       print_endline "Drawing a community chest card ...";
       (updated_player, s.purchased_properties, s.money_jar)
   | "T" ->
-      print_endline "TAXINGG";
       let taxable_tile = List.nth board (location updated_player) in
       let tax_amt = Tile.get_price (List.nth board (location updated_player)) in
       let player_paid = pay_tax player taxable_tile in

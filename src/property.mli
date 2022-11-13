@@ -23,5 +23,8 @@ val name : t -> string
 val color : t -> set
 (** [color p] is the color of property [p]. *)
 
+val string_of_set : set -> string
+(** [string_of_set set] is the same [set] but as a string. *)
+
 val price : t -> int
 (** [price p] is the price of property [p]. *)
