@@ -6,6 +6,7 @@ open MonopolyTest
 open TileTest
 open ChanceTest
 open StateTest
+open ChestTest
 
 let state_tests = []
 
@@ -19,6 +20,7 @@ let test_suite =
            TileTest.tests;
            StateTest.tests;
            ChanceTest.tests;
+           ChestTest.tests;
          ]
 
 let _ = run_test_tt_main test_suite
