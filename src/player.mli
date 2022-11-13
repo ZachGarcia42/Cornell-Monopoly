@@ -47,3 +47,6 @@ val buy_property : player -> Property.t -> player
 
 val net_worth : player -> int
 (** [net_worth player] is the cash value plus property value of this player*)
+
+val add_get_out_card: player -> player 
+(* [add_get_out_card player] adds another get_out card*)
