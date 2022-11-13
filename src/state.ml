@@ -1,8 +1,8 @@
 open Player
-open Property
 open Tile
 open Board
 open Chance
+open Property
 
 let starting_money = 1500
 
@@ -24,9 +24,21 @@ let check_properties purchased location =
   | _ -> false
 (*List.mem location purchased *)
 
-(** [update_properties purchased location] adds the property at index [location]
-    to the list of purchased properties. *)
-let update_properties purchased location = location :: purchased
+(** [add_properties purchased location] adds the property at index [location] to
+    the list of purchased properties. *)
+let add_properties purchased location = location :: purchased
+
+(**[remove_properties purchased property] removes the property [property] from
+   the list of purchased properties*)
+let remove_properties purchased property =
+  List.filter (fun p -> if p = property then false else true) purchased
+
+(**[string_list_properties players] converts the list of player properties into
+   a string*)
+let string_list_properties player =
+  List.fold_left
+    (fun (acc : string) (h : Property.t) -> acc ^ " | " ^ name h)
+    "" (properties player)
 
 (** [inform_player s player_info] logs important information for a player
     [player_info] based on data stored in state [s]. *)
@@ -62,6 +74,22 @@ let rec init_players players_lst =
           print_endline "I didn't understand that";
           updated_players)
 
+(*[player_name player str] matches a string [str] to a property that player
+  [player] has purchased. Returns None if [str] is not the name of a player's
+  property.*)
+let rec player_name_to_property (player : player) str =
+  match properties player with
+  | [] -> None
+  | h :: t ->
+      if Monopoly.parse_user_input (name h) = str then Some h
+      else player_name_to_property (sell_property player h) str
+
+(*[state_sell_prop player property] returns the new type player after the player
+  [player] has sold the property [property]*)
+let state_sell_prop (player : player) property = sell_property player property
+
+(*[purchase_property player property] returns the new type player after the
+  player [player] has bought the property [property]*)
 let purchase_property (player : player) property (roll : int) =
   match property with
   | Go ->
@@ -211,6 +239,8 @@ let rec one_turn (s : state) (player : player) =
         print_endline
           "Enter 'Q' to quit the game, or do nothing (enter any other key)."
   in
+  print_endline "Enter 'S' to sell a property";
+
   prompt_next_action;
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
@@ -237,8 +267,7 @@ let rec one_turn (s : state) (player : player) =
           print_endline
             "Congratulations! You have successfully purchased this property.";
           print_endline ("End of turn for " ^ Player.name player_purchased);
-          ( player_purchased,
-            update_properties s.purchased_properties new_position )
+          (player_purchased, add_properties s.purchased_properties new_position)
   | "C" ->
       print_endline "Drawing a chance card...";
       (* TODO: Implement drawing a chance card. *)
@@ -254,6 +283,34 @@ let rec one_turn (s : state) (player : player) =
   | "Q" ->
       print_endline "Thank you for playing Cornellopoly! We hope you had fun!";
       exit 0
+  | "S" ->
+      print_endline
+        "Pick from the following properties, or enter any other value to exit:";
+      print_endline (string_list_properties player);
+      let inp = Monopoly.parse_user_input (read_line ()) in
+      let propholder = player_name_to_property updated_player inp in
+      let playernow =
+        if
+          propholder != None
+          && has_property updated_player (Option.get propholder)
+        then begin
+          print_endline
+            (inp ^ " sold t. = End of turn for " ^ Player.name updated_player);
+          ignore
+            (remove_properties s.purchased_properties
+               (index (Option.get propholder)));
+
+          state_sell_prop updated_player (Option.get propholder)
+        end
+        else begin
+          print_endline
+            ("Invalid Selection. End of turn for " ^ Player.name updated_player);
+          updated_player
+        end
+      in
+      (* print_endline (string_of_int (location updated_player)); print_endline
+         (string_of_int (index (Option.get propholder)))*)
+      (playernow, s.purchased_properties)
   | _ ->
       print_endline ("End of turn for " ^ Player.name updated_player);
       (updated_player, s.purchased_properties)
