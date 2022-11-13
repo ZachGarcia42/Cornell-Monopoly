@@ -11,10 +11,10 @@ val player_list : state -> Player.player list
 val init_state : Player.player list -> state
 (** [init_state players] is the state containing [players]*)
 
-val inform_player : state -> Player.player -> unit
-(** [inform_player playerinfo roll] prints a terminal output that informs
-    players of essential information they need to begin each turn, including how
-    much money they have and the property they are currently at. *)
+val inform_player : state -> Player.player -> Tile.tile -> int -> unit
+(** [inform_player state player current_tile roll] prints a terminal output that
+    informs players of essential information they need to begin each turn,
+    including how much money they have and the property they are currently at. *)
 
 val init_players : Player.player list -> Player.player list
 (** [init_players ()] instantiates the number of desired players and adds them
@@ -23,7 +23,7 @@ val init_players : Player.player list -> Player.player list
 val purchase_property : Player.player -> Tile.tile -> Player.player
 (* Purchases the property and updates the player's values*)
 
-val one_turn : state -> Player.player -> Player.player * int list
+val one_turn : state -> Player.player -> Player.player * int list * int
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player record after turn has been completed. *)
 
