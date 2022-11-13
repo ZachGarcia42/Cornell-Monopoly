@@ -75,8 +75,6 @@ let board : Tile.tile list =
     Property (Property.init_property "Boardwalk" Blue 400);
   ]
 
-let purchased int list = []
-
 let chance_names : string list =
   [
     "Chance: Advancement";
