@@ -29,6 +29,8 @@ let charge player amt = { player with cash = player.cash - amt }
 let properties player = player.properties
 let has_property player prop = List.mem prop player.properties
 
+let add_get_out_card player = {player with get_out_cards = player.get_out_cards + 1}
+
 let buy_property player prop =
   {
     player with

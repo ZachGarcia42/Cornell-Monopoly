@@ -3,6 +3,7 @@ open Property
 open Tile
 open Board
 open Chance
+open Chest
 
 let starting_money = 1500
 
@@ -70,11 +71,15 @@ let purchase_property (player : player) property (roll : int) =
   | Property x ->
       print_endline "Congratulations, you have just bought a property";
       buy_property player x
-  | IncomeTax | LuxuryTax ->
+  | IncomeTax ->
       print_endline
         "Sorry, this is a tax! You cannot purchase \n\
         \    this property! Deducting 200 to pay the tax! ";
       charge player 200
+  |LuxuryTax -> 
+    print_endline "Sorry, this is a tax! You cannot purchase \n\
+        \    this property! Deducting 100 to pay the tax! ";
+    charge player 100
   | _ -> charge player 0
 
 let pay_tax (player : player) property =
@@ -85,37 +90,33 @@ let pay_tax (player : player) property =
       print_endline "You don't have to pay any tax :) !";
       charge player 0
 
-let unlock_destination (dest : string) property =
-  let rec helper (dest : string) =
-    match board with
-    | [] -> None
-    | h :: t -> if tileName h = dest then Some h else helper dest
-  in
-  match helper dest with
-  | None -> property
-  | Some tile -> tile
 
-let rec get_index_of_dest dest acc =
-  match board with
-  | [] -> 0
-  | h :: t ->
-      if List.nth board acc = dest then acc else get_index_of_dest dest (acc + 1)
+let rec get_pos bd dest acc = 
+  match bd with 
+  |[] -> acc 
+  |h :: t -> 
+    let sq = tileName h in 
+    if sq = dest then acc else get_pos t dest (acc + 1)
 
-let unlock_chance_card (player : player) property =
-  match property with
-  | Chance c ->
-      (* TODO: Pattern match against destinations to see where the player should
-         be moved to, if at all*)
-      let dest = Chance.destination c in
-      if dest = "Current" then player
-      else
-        let new_dest = unlock_destination dest property in
-        let idx = get_index_of_dest new_dest 0 in
-        Player.move_to player idx
-      (*player *)
-  | _ ->
-      print_endline "This is not a Chance Card!";
-      charge player 0
+let unlock_chance_card(player: player) property = 
+  match property with 
+  |Chance c -> 
+    let dest = Chance.destination c in 
+    let ctype = Chance.name c in 
+    let price = Chance.price c in 
+    if ctype = "Chance: Advancement" then 
+      let new_pos = get_pos board dest 0 in 
+      print_endline ("You have advanced to " ^ dest);
+      Player.move_to player new_pos
+    else 
+      if ctype = "Chance: Money Made" then pay player price 
+      else 
+        if ctype = "Chance: Payment Required" then charge player price 
+        else add_get_out_card player
+  |_ -> 
+    print_endline "This is not a Chance Card!";
+    charge player 0 
+
 
 (** [check_player_properties prop properties] is true iff one of the properties
     matches [prop]. *)
@@ -192,7 +193,7 @@ let rec one_turn (s : state) (player : player) =
                so")
     | CommunityChest ->
         print_endline
-          "You can draw a Community Chest Card. Press 'C' to proceed"
+          "You can draw a Community Chest Card. Press 'H' to proceed"
     | IncomeTax ->
         print_endline "You need to pay your taxes! Enter 'T' to continue."
     | Chance _ ->
@@ -242,7 +243,14 @@ let rec one_turn (s : state) (player : player) =
   | "C" ->
       print_endline "Drawing a chance card...";
       (* TODO: Implement drawing a chance card. *)
-      (updated_player, s.purchased_properties)
+
+      let next_update = unlock_chance_card updated_player (List.nth Board.board new_position) in 
+      (next_update, s.purchased_properties)
+
+  |"H" -> 
+    print_endline "Drawing a community chest card ...";
+    (updated_player, s.purchased_properties)
+
   | "T" ->
       let tax = List.nth board (location updated_player) in
       let player_payed = pay_tax player tax in
@@ -250,7 +258,8 @@ let rec one_turn (s : state) (player : player) =
         print_endline
           ("SORRY, " ^ Player.name player_payed ^ " has gone bankrupt!")
       else print_endline ("End of turn for " ^ Player.name player_payed);
-      (player_payed, s.purchased_properties)
+      let updated_player_position = Player.move_to player_payed (location updated_player) in 
+      (updated_player_position, s.purchased_properties)
   | "Q" ->
       print_endline "Thank you for playing Cornellopoly! We hope you had fun!";
       exit 0

@@ -1,4 +1,5 @@
 open Chance
+open Chest
 
 let chance_commands =
   [
@@ -25,7 +26,7 @@ let chance_commands =
   ]
 
 let draw_chance_card chance_cards =
-  let idx = Random.int (List.length chance_cards) + 1 in
+  let idx = Random.int (List.length chance_cards) + 1  in
   List.nth chance_cards idx
 
 let board : Tile.tile list =
