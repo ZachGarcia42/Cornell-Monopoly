@@ -9,7 +9,7 @@ open Chance
    our play testing also inherently tests these functions since they are an
    integral part of Monopoly. *)
 
-let boardwalk = Property (init_property "Boardwalk" Blue 400)
+let boardwalk = Property (init_property "Boardwalk" Blue 400 39)
 let go = Go
 let cc = CommunityChest
 let it = IncomeTax

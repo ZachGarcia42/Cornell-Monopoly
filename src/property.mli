@@ -14,7 +14,7 @@ type set =
   | Railroad
   | Utility
 
-val init_property : string -> set -> int -> t
+val init_property : string -> set -> int -> int -> t
 (** [init_property name color price] is the initial state of a property. *)
 
 val name : t -> string
@@ -28,3 +28,6 @@ val string_of_set : set -> string
 
 val price : t -> int
 (** [price p] is the price of property [p]. *)
+
+val index : t -> int
+(** [location player] is the index of the tile the property is on*)

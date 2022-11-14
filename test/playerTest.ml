@@ -11,7 +11,7 @@ let player_test (name : string) expected_output input : test =
   name >:: fun _ -> assert_equal expected_output input
 
 let zach = init_player "Zach" 1500
-let boardwalk = init_property "Boardwalk" Blue 400
+let boardwalk = init_property "Boardwalk" Blue 400 39
 
 let tests =
   [

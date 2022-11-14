@@ -14,9 +14,10 @@ type t = {
   name : string;
   set : set;
   price : int;
+  index : int;
 }
 
-let init_property name set price = { name; set; price }
+let init_property name set price index = { name; set; price; index }
 let name t = t.name
 let color t = t.set
 
@@ -33,3 +34,4 @@ let string_of_set = function
   | Utility -> "Utility"
 
 let price t = t.price
+let index t = t.index
