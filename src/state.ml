@@ -7,6 +7,14 @@ open Chest
 
 let starting_money = 1500
 
+let command_list = [
+  "Press P to attempt to purchase a property"; 
+  
+
+
+
+]
+
 type state = {
   players : player list;
   purchased_properties : int list;
@@ -191,6 +199,11 @@ let rent_charge_inform (s : state) (p : Property.t) =
     charged for landing on [property]*)
 let charged_player (player : Player.player) (property : Property.t) =
   Player.charge player (Property.price property)
+
+let display_commands cmdlist = ()
+
+
+
 
 let rec one_turn (s : state) (player : player) =
   print_endline

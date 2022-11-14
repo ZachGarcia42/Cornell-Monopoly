@@ -57,11 +57,12 @@ let display_board_revised (board : Tile.tile list) =
     print_endline "------"
   done
 
+
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
     itself. *)
 let rec main () =
-  ANSITerminal.print_string [ ANSITerminal.green ]
+  ANSITerminal.print_string [ ANSITerminal.red ]
     "Welcome to Cornellopoly! In this game, you'll get to play a\n\
     \  version of the popular board game Monopoly while learning a lot about \
      Cornell University!\n";
