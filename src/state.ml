@@ -39,7 +39,7 @@ let remove_properties purchased property =
    a string*)
 let string_list_properties player =
   List.fold_left
-    (fun (acc : string) (h : Property.t) -> acc ^ " | " ^ name h)
+    (fun (acc : string) (h : Property.t) -> acc ^ " | " ^ Property.name h)
     "" (properties player)
 
 (** [inform_player s player_info current] tells [player] important info at the
@@ -89,7 +89,7 @@ let rec player_name_to_property (player : player) str =
   match properties player with
   | [] -> None
   | h :: t ->
-      if Monopoly.parse_user_input (name h) = str then Some h
+      if Monopoly.parse_user_input (Property.name h) = str then Some h
       else player_name_to_property (sell_property player h) str
 
 (*[state_sell_prop player property] returns the new type player after the player
