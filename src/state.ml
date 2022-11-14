@@ -57,6 +57,11 @@ let rec find_owner (p : Property.t) (players : Player.player list) =
 let rec make_line (size : int) (line : string) =
   if size = 0 then line else make_line (size - 1) (line ^ "_")
 
+(** [make_space size line] is a string with spaces proportional to the magnitude
+    of [size]. Starts with [line] *)
+let rec make_space (size : int) (space : string) =
+  if size = 0 then space else make_space (size - 1) (space ^ " ")
+
 (** [inform_player s player_info current] tells [player] important info at the
     beginning of their turn, including what they rolled, how much money they
     have, their new position, and if they're on a property, how much that
@@ -75,26 +80,55 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 
   match current_tile with
   | Property p ->
-      let top = "__________" in
+      let top = "" in
       let name_length = String.length (tileName current_tile) in
-      let top = top ^ make_line name_length top ^ top in
+      let top = make_line 50 top in
       print_endline top;
+      let spacer = "" in
+      let name_spacer = make_space ((50 - name_length) / 2) spacer in
+
       print_endline
-        ("|               " ^ tileName current_tile ^ "               |");
+        ("|" ^ name_spacer ^ tileName current_tile ^ name_spacer ^ "|");
+      let property_spacer =
+        make_space
+          ((50
+           - String.length
+               ("Property value: $ "
+               ^ string_of_int (Tile.get_price current_tile)))
+          / 2)
+          spacer
+      in
       print_endline
-        ("|            Property value: $ "
+        ("|" ^ property_spacer ^ "Property value: $ "
         ^ string_of_int (Tile.get_price current_tile)
-        ^ "           |");
+        ^ property_spacer ^ "|");
+      let color_spacer =
+        make_space
+          ((50
+           - String.length
+               ("Color: " ^ Property.string_of_set (Property.color p)))
+          / 2)
+          spacer
+      in
       print_endline
-        ("|                 Color: "
+        ("|" ^ color_spacer ^ "Color: "
         ^ Property.string_of_set (Property.color p)
-        ^ "                 |");
+        ^ color_spacer ^ "|");
       if is_property_owned p s.players then
+        let owner_spacer =
+          make_space
+            ((50 - String.length ("Owner: " ^ find_owner p s.players)) / 2)
+            spacer
+        in
         print_endline
-          ("|               Owner: " ^ find_owner p s.players
-         ^ "               ")
-      else print_endline "|                Owner: None                 |";
-      print_endline top
+          ("|" ^ owner_spacer ^ "Owner: " ^ find_owner p s.players
+         ^ owner_spacer ^ "|")
+      else
+        let owner_spacer =
+          make_space ((50 - String.length "Owner: None") / 2) spacer
+        in
+        print_endline ("|" ^ owner_spacer ^ "Owner: None" ^ owner_spacer ^ "|");
+        print_endline top
   | _ -> ()
 
 let rec init_players players_lst =
