@@ -7,14 +7,6 @@ open Chest
 
 let starting_money = 1500
 
-let command_list = [
-  "Press P to attempt to purchase a property"; 
-  
-
-
-
-]
-
 type state = {
   players : player list;
   purchased_properties : int list;
@@ -224,6 +216,7 @@ let rec get_pos board dest acc =
   | h :: t ->
       let sq = tileName h in
       if sq = dest then acc else get_pos t dest (acc + 1)
+
 
 let unlock_chance_card (player : player) property =
   match property with
