@@ -171,7 +171,7 @@ let rec player_name_to_property (player : player) str =
   | [] -> None
   | h :: t ->
       if Monopoly.parse_user_input (Property.name h) = str then Some h
-      else player_name_to_property (sell_property player h) str
+      else player_name_to_property (Player.sell_property player h) str
 
 (*[state_sell_prop player property] returns the new type player after the player
   [player] has sold the property [property]*)
@@ -318,42 +318,8 @@ let rec one_turn (s : state) (player : player) =
     | _ -> updated_player
   in
 
-  print_endline "Prompting next action...";
-  let prompt_next_action state tile player =
-    match List.nth Board.board new_position with
-    | Go -> print_endline "You are on the Go tile"
-    | Property p ->
-        if is_property_owned p s.players then rent_charge_inform state p
-        else
-          print_endline
-            ("This property costs $ "
-            ^ string_of_int (Property.price p)
-            ^ "Attempt to purchase this property? Enter 'P' if you wish to do \
-               so")
-    | CommunityChest ->
-        print_endline
-          "You can draw a Community Chest Card. Press 'H' to proceed"
-    | IncomeTax ->
-        print_endline "You need to pay your taxes! Enter 'T' to continue."
-    | Chance _ ->
-        print_endline
-          "You have landed on a Chance Square! Enter 'C' to proceed."
-    | JustVisiting ->
-        print_endline
-          "You are just visiting your old Dyson pal (who recently committed \n\
-           financial fraud) in jail. No action needs to be taken – enter any \
-           other key to continue. "
-    | FreeParking ->
-        print_endline
-          "You have landed on free parking! Enter 'Collect' to collect your \
-           rewards!"
-    | _ ->
-        print_endline
-          "Enter 'Q' to quit the game, or do nothing (enter any other key)."
-  in
+  prompt_next_action s current_tile updated_player;
   print_endline "Enter 'S' to sell a property";
-
-  ignore prompt_next_action;
 
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
