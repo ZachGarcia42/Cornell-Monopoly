@@ -1,8 +1,12 @@
-let rec print_chars = function
+let slow = 0.05
+let med = 0.025
+let fast = 0.01
+
+let rec print_chars ?speed:(setting = med) = function
   | [] -> ()
   | h :: t ->
       print_char h;
-      Unix.sleepf 0.025;
+      Unix.sleepf setting;
       flush stdout;
       print_chars t
 
