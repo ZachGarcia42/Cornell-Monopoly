@@ -1,7 +1,7 @@
 type tile =
   | Property of Property.t
   | Go
-  | CommunityChest
+  | CommunityChest of Chest.t 
   | IncomeTax
   | Chance of Chance.t
   | JustVisiting
@@ -12,7 +12,7 @@ type tile =
 let tileName = function
   | Property p -> Property.name p
   | Go -> "Go"
-  | CommunityChest -> "Community Chest"
+  | CommunityChest h -> "Community Chest"
   | IncomeTax -> "Income Tax"
   | Chance c -> Chance.name c
   | JustVisiting -> "Just Visiting"
@@ -25,4 +25,5 @@ let get_price = function
   | IncomeTax -> -200
   | LuxuryTax -> -100
   | Chance c -> Chance.price c
+  | CommunityChest h -> Chest.payment h 
   | _ -> 0
