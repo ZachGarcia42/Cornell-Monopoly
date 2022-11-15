@@ -217,6 +217,7 @@ let rec get_pos board dest acc =
       let sq = tileName h in
       if sq = dest then acc else get_pos t dest (acc + 1)
 
+
 let unlock_chance_card (player : player) property =
   match property with
   | Chance c ->
@@ -251,6 +252,7 @@ let rent_charge_inform (s : state) (p : Property.t) =
 let charged_player (player : Player.player) (property : Property.t) =
   Player.charge player (Property.price property)
 
+
 (* [prompt_next_action] prompts the player's next key-press based on what tile
    type they are currently on. *)
 let prompt_next_action state tile player =
@@ -281,6 +283,7 @@ let prompt_next_action state tile player =
   | _ ->
       print_endline
         "Enter 'Q' to quit the game, or do nothing (enter any other key)."
+
 
 let rec one_turn (s : state) (player : player) =
   print_endline

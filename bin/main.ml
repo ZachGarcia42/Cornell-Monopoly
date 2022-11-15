@@ -10,6 +10,22 @@ open Property
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions = false (* TODO: check game ending conditions. *)
 
+let command_list =
+  [
+    "Press P to attempt to purchase a property";
+    "Press C to draw a chance card";
+    "Press H to draw a community chest card";
+    "Press T to pay a tax";
+    "Press Q to quit";
+    "Type Collect to receive rewards on Free Parking";
+    "Press S to sell a property";
+  ]
+
+let display_commands (cmdlist : string list) =
+  for i = 0 to List.length cmdlist - 1 do
+    print_endline (List.nth cmdlist i)
+  done
+
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
@@ -76,12 +92,15 @@ let print_typed_string (s : string) =
     initialization and players' turns, but does not actually do any processing
     itself. *)
 let rec main () =
-  ANSITerminal.print_string [ ANSITerminal.green ]
+  ANSITerminal.print_string [ ANSITerminal.red ]
     "Welcome to Cornellopoly! In this game, you'll get to play a\n\
     \  version of the popular board game Monopoly while learning a lot about \
-     Cornell University!\n";
+     Cornell University!\n\
+    \ Here are the commands that you can use: \n";
   print_endline " ";
   print_typed_string "Testing printing string";
+  display_commands command_list;
+  print_endline "";
   let open Random in
   Random.self_init ();
   let players_lst = init_players [] in
