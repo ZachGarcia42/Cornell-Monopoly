@@ -264,7 +264,7 @@ let prompt_next_action state tile player =
           ("This property costs $" ^ string_of_int (Property.price p));
         print_typed_string
           "Attempt to purchase this property? Enter 'P' if you wish to do so")
-  | CommunityChest ->
+  | CommunityChest h->
       print_typed_string
         "You can draw a Community Chest Card. Press 'C' to proceed"
   | IncomeTax ->
