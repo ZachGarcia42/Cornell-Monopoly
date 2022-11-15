@@ -10,20 +10,21 @@ open Property
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions = false (* TODO: check game ending conditions. *)
 
-let command_list = [
-  "Press P to attempt to purchase a property"; 
-  "Press C to draw a chance card";
-  "Press H to draw a community chest card";
-  "Press T to pay a tax";
-  "Press Q to quit";
-  "Type Collect to receive rewards on Free Parking";
-  "Press S to sell a property";
+let command_list =
+  [
+    "Press P to attempt to purchase a property";
+    "Press C to draw a chance card";
+    "Press H to draw a community chest card";
+    "Press T to pay a tax";
+    "Press Q to quit";
+    "Type Collect to receive rewards on Free Parking";
+    "Press S to sell a property";
   ]
 
-let display_commands (cmdlist: string list) = 
-  for i = 0 to ((List.length cmdlist) - 1) do 
-    print_endline (List.nth cmdlist i);
-  done 
+let display_commands (cmdlist : string list) =
+  for i = 0 to List.length cmdlist - 1 do
+    print_endline (List.nth cmdlist i)
+  done
 
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
@@ -38,7 +39,6 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
   let updated_playerlst = State.player_list updated_game in
   if end_conditions then ()
   else game_loop updated_game (turn + 1) purchased updated_playerlst
-
 
 (** [print_player_names players] prints out the names of all players in order. *)
 let rec print_player_names players =
@@ -73,6 +73,20 @@ let display_board_revised (board : Tile.tile list) =
     print_endline "------"
   done
 
+let rec print_chars = function
+  | [] -> ()
+  | h :: t ->
+      print_char h;
+      Unix.sleepf 0.05;
+      flush stdout;
+      print_chars t
+
+(** [print_typed_string s] prints out the characters in string [s] as if being
+    typed, instead of all at once. Otherwise, behaves the same as print_endline. *)
+let print_typed_string (s : string) =
+  let char_list = List.of_seq (String.to_seq s) in
+  print_chars char_list;
+  print_endline ""
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
@@ -81,8 +95,10 @@ let rec main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
     "Welcome to Cornellopoly! In this game, you'll get to play a\n\
     \  version of the popular board game Monopoly while learning a lot about \
-     Cornell University!\n Here are the commands that you can use: \n";
+     Cornell University!\n\
+    \ Here are the commands that you can use: \n";
   print_endline " ";
+  print_typed_string "Testing printing string";
   display_commands command_list;
   print_endline "";
   let open Random in
