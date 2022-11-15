@@ -14,7 +14,6 @@ let end_conditions = false (* TODO: check game ending conditions. *)
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
 let rec game_loop (game : state) (turn : int) purchased playerlst =
-  print_int (List.length playerlst);
   if List.length playerlst = 0 then exit 0 else print_endline "";
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn

@@ -45,6 +45,10 @@ val buy_property : player -> Property.t -> player
 (** [buy_property player prop roll] is an updated player with prop added to the
     property list and the cost of prop subtracted from their cash*)
 
+val sell_property : player -> Property.t -> player
+(** [buy_property player prop roll] is an updated player with prop subtracted
+    from the property list and half the cost of prop added from their cash*)
+
 val net_worth : player -> int
 (** [net_worth player] is the cash value plus property value of this player*)
 

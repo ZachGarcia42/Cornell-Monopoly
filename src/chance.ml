@@ -1,4 +1,3 @@
-
 type t = {
   name: string;
   price: int;

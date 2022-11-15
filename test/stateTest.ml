@@ -12,7 +12,7 @@ open Tile
    gameplay. *)
 let players = [ init_player "Zach" 1500 ]
 let default_state = init_state players
-let boardwalk = Property (init_property "Boardwalk" Blue 400)
+let boardwalk = Property (init_property "Boardwalk" Blue 400 39)
 let go = Go
 let it = IncomeTax
 let fp = FreeParking

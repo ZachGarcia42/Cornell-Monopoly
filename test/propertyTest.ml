@@ -10,7 +10,7 @@ open Property
 let property_test (name : string) expected_output input : test =
   name >:: fun _ -> assert_equal expected_output input
 
-let boardwalk = init_property "Boardwalk" Blue 400
+let boardwalk = init_property "Boardwalk" Blue 400 39
 
 let tests =
   [

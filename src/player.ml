@@ -1,3 +1,5 @@
+open Property
+
 type player = {
   name : string;
   get_out_cards : int;
@@ -36,6 +38,16 @@ let buy_property player prop =
     player with
     cash = player.cash - Property.price prop;
     properties = prop :: player.properties;
+  }
+
+let sell_property player prop =
+  {
+    player with
+    cash = player.cash + (Property.price prop / 2);
+    properties =
+      List.filter
+        (fun property -> if property = prop then false else true)
+        player.properties;
   }
 
 let net_worth p =
