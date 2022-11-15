@@ -5,6 +5,7 @@ open Player
 open Tile
 open Board
 open Property
+open Printer
 
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
@@ -73,21 +74,6 @@ let display_board_revised (board : Tile.tile list) =
     print_endline "------"
   done
 
-let rec print_chars = function
-  | [] -> ()
-  | h :: t ->
-      print_char h;
-      Unix.sleepf 0.05;
-      flush stdout;
-      print_chars t
-
-(** [print_typed_string s] prints out the characters in string [s] as if being
-    typed, instead of all at once. Otherwise, behaves the same as print_endline. *)
-let print_typed_string (s : string) =
-  let char_list = List.of_seq (String.to_seq s) in
-  print_chars char_list;
-  print_endline ""
-
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
     itself. *)
@@ -98,14 +84,14 @@ let rec main () =
      Cornell University!\n\
     \ Here are the commands that you can use: \n";
   print_endline " ";
-  print_typed_string "Testing printing string";
   display_commands command_list;
   print_endline "";
   let open Random in
   Random.self_init ();
   let players_lst = init_players [] in
   let game_state = init_state players_lst in
-  print_string "We begin our game of Cornellopoly with the following players: ";
+  print_typed_string
+    "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
   print_endline "";
   display_board_revised Board.board;
