@@ -28,14 +28,14 @@ let chance_commands =
 let community_chest_commands = [
     init_chest "Advance to Go! Collect $200" "Go" 200 "Bank";
     init_chest "Bank error in your favor! Collect $200" "Current" 200 "Bank";
-    init_chest "Doctor's Fees! Pay $50" "Current" 50 "Bank";
+    init_chest "Doctor's Fees! Pay $50" "Current" (-50) "Bank";
     init_chest "Get out of Jail Free Card earned" "Current" 0 "Bank";
     init_chest "It is your birthday! Collect $10 from every player" "Current" 10 "All Players"
 ]
 
 
 let draw_card cards = 
-  let idx = Random.int (List.length cards) + 1 in 
+  let idx = Random.int ((List.length cards))  in 
   List.nth cards idx
 
 let board : Tile.tile list =

@@ -203,6 +203,8 @@ let purchase_property (player : player) (property : Tile.tile) =
       charge player 100
   | _ -> charge player 0
 
+
+
 let pay_tax (player : player) property =
   match property with
   | IncomeTax -> charge player 200
@@ -217,6 +219,22 @@ let rec get_pos board dest acc =
   | h :: t ->
       let sq = tileName h in
       if sq = dest then acc else get_pos t dest (acc + 1)
+
+let unlock_comm_chest_card (player: player) property = 
+  match property with 
+  |CommunityChest c -> 
+    let dest = Chest.destination c in 
+    if dest <> "Current" then 
+      let new_pos = get_pos board dest 0 in 
+      print_typed_string ("You have advanced to " ^ dest);
+      Player.move_to player new_pos 
+    else 
+      let payment = Chest.payment c in 
+      if payment < 0 then charge player (-1 * payment) else 
+        pay player payment
+  |_ -> 
+    print_endline "This is not a Community Chest Card!";
+    player
 
 let unlock_chance_card (player : player) property =
   match property with
@@ -266,8 +284,8 @@ let prompt_next_action state tile player =
           "Attempt to purchase this property? Enter 'P' if you wish to do so")
   | CommunityChest h->
       print_typed_string
-        "You can draw a Community Chest Card. Press 'C' to proceed"
-  | IncomeTax ->
+        "You can draw a Community Chest Card. Press 'H' to proceed"
+  | IncomeTax | LuxuryTax ->
       print_typed_string "You need to pay your taxes! Enter 'T' to continue."
   | Chance _ ->
       print_typed_string
@@ -359,7 +377,9 @@ let rec one_turn (s : state) (player : player) =
       (next_update, s.purchased_properties, s.money_jar)
   | "H" ->
       print_typed_string "Drawing a community chest card ...";
-      (updated_player, s.purchased_properties, s.money_jar)
+      let next_update = unlock_comm_chest_card updated_player (List.nth Board.board new_position) in 
+
+      (next_update, s.purchased_properties, s.money_jar)
   | "T" ->
       let taxable_tile = List.nth board (location updated_player) in
       let tax_amt = Tile.get_price (List.nth board (location updated_player)) in
@@ -412,6 +432,7 @@ let rec one_turn (s : state) (player : player) =
          (string_of_int (index (Option.get propholder)))*)
       (playernow, s.purchased_properties, s.money_jar)
   | _ ->
+    (* Check if the player has forgotten to pay a tax here - if so charge the player*)
       print_endline ("End of turn for " ^ Player.name updated_player);
       (updated_player, s.purchased_properties, s.money_jar)
 
