@@ -360,6 +360,7 @@ let rec one_turn (s : state) (player : player) =
       (updated_player, s.purchased_properties)
   | "T" ->
       let taxable_tile = List.nth board (location updated_player) in
+
       (* let tax_amt = Tile.get_price (List.nth board (location updated_player))
          in *)
       let player_paid = pay_tax player taxable_tile in
