@@ -223,11 +223,19 @@ let rec get_pos board dest acc =
 let unlock_comm_chest_card (player: player) property = 
   match property with 
   |CommunityChest c -> 
+    print_endline (name c);
     let dest = Chest.destination c in 
     if dest <> "Current" then 
       let new_pos = get_pos board dest 0 in 
       print_typed_string ("You have advanced to " ^ dest);
-      Player.move_to player new_pos 
+
+      let did_player_pass_go = 
+        if Monopoly.player_passed_go (get_pos board (tileName property) 0 ) (get_pos board dest 0)
+        then 
+          pay player 200 else player ;
+      in 
+
+      Player.move_to did_player_pass_go new_pos 
     else 
       let payment = Chest.payment c in 
       if payment < 0 then charge player (-1 * payment) else 
@@ -245,7 +253,12 @@ let unlock_chance_card (player : player) property =
       if ctype = "Chance: Advancement" then (
         let new_pos = get_pos board dest 0 in
         print_typed_string ("You have advanced to " ^ dest);
-        Player.move_to player new_pos)
+        let did_player_pass_go = 
+          if Monopoly.player_passed_go (get_pos board (tileName property) 0 ) (get_pos board dest 0)
+          then 
+            pay player 200 else player ;
+        in 
+        Player.move_to did_player_pass_go new_pos)
       else if ctype = "Chance: Money Made" then pay player price
       else if ctype = "Chance: Payment Required" then charge player price
       else Player.add_get_out_card player
@@ -433,8 +446,14 @@ let rec one_turn (s : state) (player : player) =
       (playernow, s.purchased_properties, s.money_jar)
   | _ ->
     (* Check if the player has forgotten to pay a tax here - if so charge the player*)
-      print_endline ("End of turn for " ^ Player.name updated_player);
-      (updated_player, s.purchased_properties, s.money_jar)
+      let possible_update = 
+        match List.nth board (location updated_player) with 
+        |IncomeTax -> charge updated_player 200 
+        |LuxuryTax -> charge updated_player 100 
+        |_ -> charge updated_player 0
+      in 
+        print_endline ("End of turn for " ^ Player.name updated_player);
+      (possible_update, s.purchased_properties, s.money_jar)
 
 let rec take_turns (s : state) : state =
   match s.players with
