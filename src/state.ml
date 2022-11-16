@@ -11,13 +11,12 @@ let starting_money = 1500
 type state = {
   players : player list;
   purchased_properties : int list;
-  money_jar : int;
 }
 
 let player_list state = state.players
 
 let init_state (players : player list) : state =
-  { players; purchased_properties = []; money_jar = 0 }
+  { players; purchased_properties = [] }
 
 (** [check_properties state location] returns true iff the property at index
     [location] of the game board has been purchased. False otherwise. *)
@@ -279,8 +278,8 @@ let prompt_next_action state tile player =
          other key to continue. "
   | FreeParking ->
       print_typed_string
-        "You have landed on free parking! Enter 'Collect' to collect your \
-         rewards!"
+        "You have landed on free parking! You get to do nothing. Enter 'C' to \
+         continue."
   | _ ->
       print_typed_string
         "Enter 'Q' to quit the game, or do nothing (enter any other key)."
@@ -329,7 +328,7 @@ let rec one_turn (s : state) (player : player) =
       if check_properties s new_position then (
         print_typed_string "Sorry! This property has already been purchased.";
         print_typed_string ("End of turn for " ^ Player.name updated_player);
-        (updated_player, s.purchased_properties, s.money_jar))
+        (updated_player, s.purchased_properties))
       else
         let property_price =
           match List.nth board (location updated_player) with
@@ -339,7 +338,7 @@ let rec one_turn (s : state) (player : player) =
         if Player.cash updated_player < property_price then (
           print_typed_string
             "Sorry, you do not have enough money to purchase this property!";
-          (updated_player, s.purchased_properties, s.money_jar))
+          (updated_player, s.purchased_properties))
         else
           let player_purchased =
             purchase_property updated_player current_tile
@@ -347,8 +346,7 @@ let rec one_turn (s : state) (player : player) =
 
           print_typed_string ("End of turn for " ^ Player.name player_purchased);
           ( player_purchased,
-            add_properties s.purchased_properties (location updated_player),
-            s.money_jar )
+            add_properties s.purchased_properties (location updated_player) )
   | "C" ->
       print_typed_string "Drawing a chance card...";
 
@@ -356,13 +354,14 @@ let rec one_turn (s : state) (player : player) =
       let next_update =
         unlock_chance_card updated_player (List.nth Board.board new_position)
       in
-      (next_update, s.purchased_properties, s.money_jar)
+      (next_update, s.purchased_properties)
   | "H" ->
       print_typed_string "Drawing a community chest card ...";
-      (updated_player, s.purchased_properties, s.money_jar)
+      (updated_player, s.purchased_properties)
   | "T" ->
       let taxable_tile = List.nth board (location updated_player) in
-      let tax_amt = Tile.get_price (List.nth board (location updated_player)) in
+      (* let tax_amt = Tile.get_price (List.nth board (location updated_player))
+         in *)
       let player_paid = pay_tax player taxable_tile in
       if Player.cash player < 0 then
         print_typed_string
@@ -373,16 +372,11 @@ let rec one_turn (s : state) (player : player) =
       let updated_player_position =
         Player.move_to player_paid (location updated_player)
       in
-      (updated_player_position, s.purchased_properties, s.money_jar + tax_amt)
+      (updated_player_position, s.purchased_properties)
   | "Q" ->
       print_typed_string
         "Thank you for playing Cornellopoly! We hope you had fun!";
       exit 0
-  | "Collect" ->
-      print_typed_string
-        ("Congrats, You have reaped the rewards of landing on free parking!"
-       ^ string_of_int s.money_jar ^ "will be added to your bank account.");
-      (updated_player, s.purchased_properties, 0)
   | "S" ->
       print_typed_string
         "Pick from the following properties, or enter any other value to exit:";
@@ -410,37 +404,29 @@ let rec one_turn (s : state) (player : player) =
       in
       (* print_endline (string_of_int (location updated_player)); print_endline
          (string_of_int (index (Option.get propholder)))*)
-      (playernow, s.purchased_properties, s.money_jar)
+      (playernow, s.purchased_properties)
   | _ ->
       print_endline ("End of turn for " ^ Player.name updated_player);
-      (updated_player, s.purchased_properties, s.money_jar)
+      (updated_player, s.purchased_properties)
 
 let rec take_turns (s : state) : state =
   match s.players with
-  | [] -> { players = []; purchased_properties = []; money_jar = 0 }
+  | [] -> { players = []; purchased_properties = [] }
   | h :: t -> (
       match one_turn s h with
-      | p, new_s, m ->
+      | p, new_s ->
           if Player.cash p < 0 then
             {
               players =
-                (take_turns
-                   { players = t; purchased_properties = new_s; money_jar = m })
+                (take_turns { players = t; purchased_properties = new_s })
                   .players;
               purchased_properties = new_s;
-              money_jar = m;
             }
           else
             {
               players =
                 p
-                :: (take_turns
-                      {
-                        players = t;
-                        purchased_properties = new_s;
-                        money_jar = m;
-                      })
+                :: (take_turns { players = t; purchased_properties = new_s })
                      .players;
               purchased_properties = new_s;
-              money_jar = m;
             })
