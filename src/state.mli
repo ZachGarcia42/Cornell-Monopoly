@@ -11,14 +11,6 @@ val player_list : state -> Player.player list
 val purchased_properties : state -> int list
 (** [purchased_properties s] is [s.purchased_properties]*)
 
-val command_list: string list 
-(* The list of all of the commands that you can type in a game*)
-
-val inform_player : state -> Player.player -> Tile.tile -> int -> unit
-(** [inform_player state player current_tile roll] prints a terminal output that
-    informs players of essential information they need to begin each turn,
-    including how much money they have and the property they are currently at. *)
-
 val money_jar : state -> int
 (** [money_jar s] is [s.money_jar]*)
 

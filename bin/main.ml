@@ -11,6 +11,16 @@ open Printer
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions = false (* TODO: check game ending conditions. *)
 
+let command_list =
+  [
+    "Press P to attempt to purchase a property";
+    "Press C to draw a chance card";
+    "Press H to draw a community chest card";
+    "Press T to pay a tax";
+    "Press Q to quit";
+    "Type Collect to receive rewards on Free Parking";
+    "Press S to sell a property";
+  ]
 
 let display_commands (cmdlist : string list) =
   for i = 0 to List.length cmdlist - 1 do
@@ -382,7 +392,7 @@ let rec main () =
      Cornell University!\n\
     \ Here are the commands that you can use: \n";
   print_endline " ";
-  display_commands State.command_list;
+  display_commands command_list;
   print_endline "";
   let open Random in
   Random.self_init ();
