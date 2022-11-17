@@ -11,7 +11,7 @@ open Tile
    also inherently tests these functions since they are an integral part of the
    gameplay. *)
 let players = [ init_player "Zach" 1500 ]
-let default_state = init_state players
+let default_state = init_state players [] 0
 let boardwalk = Property (init_property "Boardwalk" Blue 400 39)
 let go = Go
 let it = IncomeTax
@@ -24,7 +24,7 @@ let test_purchase (name : string) exp tile =
 
 let tests =
   [
-    test "player list" players (players |> init_state |> player_list);
+    test "player list" players (init_state players [] 0 |> player_list);
     test_purchase "purchase luxury tax" 1400 lt;
     test_purchase "purchase income tax" 1300 it;
     test_purchase "purchase go" 1500 go;

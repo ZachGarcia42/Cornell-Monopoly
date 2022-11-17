@@ -36,3 +36,6 @@ clean:
 	dune clean
 	rm -f *.coverage
 	rm -f Cornell-Monopoly.zip
+
+doc:
+	dune build @doc

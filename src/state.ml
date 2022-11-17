@@ -26,12 +26,12 @@ let command_list =
   ]
 
 let player_list state = state.players
+let purchased_properties state = state.purchased_properties
+let money_jar state = state.money_jar
 
-let init_state (players : player list) : state =
-  { players; purchased_properties = []; money_jar = 0 }
+let init_state (players : player list) props money : state =
+  { players; purchased_properties = props; money_jar = money }
 
-(** [check_properties state location] returns true iff the property at index
-    [location] of the game board has been purchased. False otherwise. *)
 let check_properties state location =
   match List.nth board location with
   | Property x -> List.mem location state.purchased_properties
@@ -44,15 +44,12 @@ let add_properties purchased location = location :: purchased
 
 (**[remove_properties purchased property] removes the property [property] from
    the list of purchased properties*)
-let remove_properties purchased property =
-  List.filter (fun p -> if p = property then false else true) purchased
-
-(**[string_list_properties players] converts the list of player properties into
-   a string*)
-let string_list_properties player =
-  List.fold_left
-    (fun (acc : string) (h : Property.t) -> acc ^ " | " ^ Property.name h)
-    "" (properties player)
+let remove_properties state property =
+  init_state (player_list state)
+    (List.filter
+       (fun p -> if p = property then false else true)
+       (purchased_properties state))
+    (money_jar state)
 
 (** [check_player_properties prop properties] is true iff one of the properties
     matches [prop]. *)
@@ -440,10 +437,6 @@ let rec one_turn (s : state) (player : player) =
         then begin
           print_endline
             (inp ^ " sold t. = End of turn for " ^ Player.name updated_player);
-          ignore
-            (remove_properties s.purchased_properties
-               (index (Option.get propholder)));
-
           state_sell_prop updated_player (Option.get propholder)
         end
         else begin
@@ -496,3 +489,4 @@ let rec take_turns (s : state) : state =
               purchased_properties = new_s;
               money_jar = m;
             })
+
