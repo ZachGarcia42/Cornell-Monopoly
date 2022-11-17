@@ -14,6 +14,17 @@ type state = {
   money_jar : int;
 }
 
+let command_list =
+  [
+    "Press P to attempt to purchase a property";
+    "Press C to draw a chance card";
+    "Press H to draw a community chest card";
+    "Press T to pay a tax";
+    "Press Q to quit";
+    "Type Collect to receive rewards on Free Parking";
+    "Press S to sell a property";
+  ]
+
 let player_list state = state.players
 
 let init_state (players : player list) : state =
@@ -444,6 +455,7 @@ let rec one_turn (s : state) (player : player) =
       (* print_endline (string_of_int (location updated_player)); print_endline
          (string_of_int (index (Option.get propholder)))*)
       (playernow, s.purchased_properties, s.money_jar)
+
   | _ ->
     (* Check if the player has forgotten to pay a tax here - if so charge the player*)
       let possible_update = 

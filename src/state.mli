@@ -11,6 +11,9 @@ val player_list : state -> Player.player list
 val init_state : Player.player list -> state
 (** [init_state players] is the state containing [players]*)
 
+val command_list: string list 
+(* The list of all of the commands that you can type in a game*)
+
 val inform_player : state -> Player.player -> Tile.tile -> int -> unit
 (** [inform_player state player current_tile roll] prints a terminal output that
     informs players of essential information they need to begin each turn,
