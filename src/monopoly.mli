@@ -11,3 +11,6 @@ val parse_user_input : string -> string
 
 val player_passed_go : int -> int -> bool
 (* Returns true or false depending on whether a player passed Go or not*)
+
+val convert: int -> int -> int 
+(* Converts an input to be in bounds on the board.*)

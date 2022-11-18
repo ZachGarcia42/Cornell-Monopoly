@@ -60,6 +60,33 @@ let display_board_revised (board : Tile.tile list) =
     print_endline "------"
   done
 
+let display_board (board: Tile.tile list)(pos: int) = 
+  print_endline "Here is a small view of where you are 
+  right now, and what is around you"; 
+
+  let printed_tiles = [
+    List.nth board (Monopoly.convert (pos - 2) (List.length board));
+    List.nth board (Monopoly.convert (pos - 1) (List.length board));
+    List.nth board (Monopoly.convert pos (List.length board));
+    List.nth board (Monopoly.convert (pos + 1) (List.length board));
+    List.nth board (Monopoly.convert (pos + 2) (List.length board));
+  ] in 
+  
+  let rec print_tiles (printed_tiles) = 
+    match printed_tiles with 
+    |[] -> " | "
+    |h :: t -> 
+       " | " ^ (tileName h) ^ print_tiles t
+  
+  in 
+  let x = print_tiles printed_tiles in 
+  print_endline (String.make (String.length x) '-');
+  print_endline x;
+  print_endline (String.make (String.length x) '-');
+  ()
+
+  
+
 (** [make_line size line] is a string with horizontal dashes proportional to the
     magnitude of [size]. Starts with [line]. *)
 let rec make_line (size : int) (line : string) =
@@ -341,6 +368,9 @@ let rec one_turn (s : state) (player : player) =
       (* print_endline (string_of_int (location updated_player)); print_endline
          (string_of_int (index (Option.get propholder)))*)
       (playernow, purchased_properties s, money_jar s)
+  |"Help" -> 
+    display_commands command_list; 
+    (updated_player, purchased_properties s, money_jar s)
   | _ ->
       (* Check if the player has forgotten to pay a tax here - if so charge the
          player*)
@@ -402,6 +432,7 @@ let rec main () =
     "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
   print_endline "";
+  display_board Board.board 0;
   display_board_revised Board.board;
   game_loop game_state 1 [] players_lst;
   ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
