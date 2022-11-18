@@ -261,7 +261,10 @@ let rec one_turn (s : state) (player : player) =
 
   let current_tile = List.nth Board.board new_position in
 
+
   inform_player s player current_tile roll;
+
+  display_board Board.board new_position;
 
   (* [updated_player] is the new player identifier after they have been charged
      rent for landing on their current location property, if applicable. *)
@@ -433,7 +436,7 @@ let rec main () =
   print_player_names players_lst;
   print_endline "";
   display_board Board.board 0;
-  display_board_revised Board.board;
+  (* display_board_revised Board.board; *)
   game_loop game_state 1 [] players_lst;
   ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
 
