@@ -61,6 +61,7 @@ let display_board_revised (board : Tile.tile list) =
   done
 
 let display_board (board: Tile.tile list)(pos: int) = 
+  print_endline "";
   print_endline "Here is a small view of where you are 
   right now, and what is around you"; 
 
@@ -193,14 +194,19 @@ let rec init_players players_lst =
 (** [rent_charge_inform s p player] informs the current player whose turn it of
     the owner of the property [p] they landed on and how much they are being
     charged as rent *)
-let rent_charge_inform (s : state) (p : Property.t) =
+let rent_charge_inform (s : state) (p : Property.t) (pl: player) =
   let owner = find_owner p (player_list s) in
+
+  if ((Player.name pl) <> owner) then (
   print_typed_string ("This property is owned by " ^ owner);
   print_typed_string
-    ("You are being charged "
+    ("You are being charged  " 
     ^ string_of_int (Property.price p)
     ^ "for the privilege of staying on their properties. You may not take any \
-       other actions, press any key to continue.")
+       other actions, press any key to continue.") 
+  )
+  else 
+    print_typed_string "This is your property! You don't have to pay any rent fees"
 
 (* [prompt_next_action] prompts the player's next key-press based on what tile
    type they are currently on. *)
@@ -208,7 +214,7 @@ let prompt_next_action state tile player =
   match tile with
   | Go -> print_typed_string "You are on the Go tile"
   | Property p ->
-      if is_property_owned p (player_list state) then rent_charge_inform state p
+      if is_property_owned p (player_list state) then rent_charge_inform state p player
       else (
         print_typed_string
           ("This property costs $" ^ string_of_int (Property.price p));
