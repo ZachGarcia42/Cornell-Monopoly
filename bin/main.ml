@@ -237,9 +237,12 @@ let prompt_next_action state tile player =
       print_typed_string
         "You have landed on free parking! Enter 'Collect' to collect your \
          rewards!"
-  | _ ->
+  |GoToJail -> 
+      print_typed_string 
+      "You are ordered to go to jail! Press J to go to Jail"
+  (*| _ ->
       print_typed_string
-        "Enter 'Q' to quit the game, or do nothing (enter any other key)."
+        "Enter 'Q' to quit the game, or do nothing (enter any other key)." *)
 
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player record after turn has been completed. *)
@@ -340,7 +343,14 @@ let rec one_turn (s : state) (player : player) =
       let updated_player_position =
         Player.move_to player_paid (location updated_player)
       in
+      
       (updated_player_position, purchased_properties s, money_jar s + tax_amt)
+  |"J" -> 
+      print_typed_string "Moving you to Jail...."; 
+      let new_pos = get_pos board (tileName GoToJail) 0 in 
+      let new_update = 
+        Player.move_to updated_player new_pos in 
+      (new_update, purchased_properties s, money_jar s)
   | "Q" ->
       print_typed_string
         "Thank you for playing Cornellopoly! We hope you had fun!";

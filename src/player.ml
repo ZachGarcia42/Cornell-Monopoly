@@ -2,6 +2,8 @@ open Property
 open Printer
 open Tile
 open Board
+open Chance
+open Monopoly
 
 type player = {
   name : string;
@@ -95,8 +97,8 @@ let unlock_chance_card (player : player) property =
       let ctype = Chance.name c in
       let price = Chance.price c in
       if ctype = "Chance: Advancement" then (
-        let new_pos = get_pos board dest 0 in
         print_typed_string ("You have advanced to " ^ dest);
+        let new_pos = get_pos board dest 0 in
         let did_player_pass_go =
           if
             Monopoly.player_passed_go
@@ -108,7 +110,16 @@ let unlock_chance_card (player : player) property =
         move_to did_player_pass_go new_pos)
       else if ctype = "Chance: Money Made" then pay player price
       else if ctype = "Chance: Payment Required" then charge player price
-      else add_get_out_card player
+      else if ctype = "Chance: Move Backwards" then 
+        let current_pos = get_pos board (tileName property) 0 in 
+        print_int current_pos;
+        let dest = Monopoly.convert (current_pos + (rel_space_translation c)) (List.length board) in 
+        print_int dest;
+        move_to player dest
+      else 
+        add_get_out_card player
+        
+        
   | _ ->
       print_typed_string "This is not a Chance Card!";
       charge player 0

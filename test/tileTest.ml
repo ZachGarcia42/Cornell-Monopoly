@@ -18,7 +18,7 @@ let it = IncomeTax
 
 let chance =
   Chance
-    (init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go")
+    (init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go" 0)
 
 let jv = JustVisiting
 let fp = FreeParking

@@ -3,26 +3,26 @@ open Chest
 
 let chance_commands =
   [
-    init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go";
+    init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go" 0;
     init_chance "Chance: Advancement" 0
       "Advance to Illinois Avenue! \nCollect $200 if you pass Go!"
-      "Illinois Avenue";
+      "Illinois Avenue" 0;
     init_chance "Chance: Advancement" 0
       "Advance to St.Charles Place! \nCollect $200 if you pass Go!"
-      "St. Charles Place";
+      "St. Charles Place" 0;
     init_chance "Chance: Advancement" 0
       "Take a trip to Reading Railroad!\nCollect $200 if you pass Go"
-      "Reading Railroad";
+      "Reading Railroad" 0;
     init_chance "Chance: Advancement" 0
-      "Go directly to Jail!\nDo not $200 if you pass Go" "Just Visiting";
+      "Go directly to Jail!\nDo not $200 if you pass Go" "Just Visiting" 0;
     init_chance "Chance: Money Made" 150
-      "Your building loan matures. Collect $150" "Current";
-    init_chance "Chance: Payment Required" 15 "Speeding Fine! Pay $15" "Current";
+      "Your building loan matures. Collect $150" "Current" 0;
+    init_chance "Chance: Payment Required" 15 "Speeding Fine! Pay $15" "Current" 0;
     init_chance "Chance: Payment Required" 150 "Pay School Tax of $150"
-      "Current";
-    init_chance "Chance: Move Backwards" 0 "Move backwards 3 spaces" "3";
+      "Current" 0;
+    init_chance "Chance: Move Backwards" 0 "Move backwards 3 spaces" "3" (-3);
     init_chance "Get out of Jail Free" 0 "Acquire a Get of Jail Free Card"
-      "Current";
+      "Current" 0;
   ]
 
 let community_chest_commands = [
@@ -35,7 +35,7 @@ let community_chest_commands = [
 
 
 let draw_card cards = 
-  let idx = Random.int ((List.length cards))  in 
+  let idx = (List.length cards) - 2 (* Random.int ((List.length cards)) *) in 
   List.nth cards idx
 
 let board : Tile.tile list =

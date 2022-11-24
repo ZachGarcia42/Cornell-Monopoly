@@ -1,6 +1,7 @@
 open OUnit2
 open Game
 open Monopoly
+open Tile
 
 (* For testing our monopoly file implementation, we achieved 100% coverage using
    OUnit tests, so no manual testing was required. However, our play testing
@@ -9,6 +10,9 @@ open Monopoly
 
 let board = Board.board
 let identity s = s
+
+let gotojailpos = get_pos board (tileName GoToJail) 0
+let jailpos = get_pos board (tileName JustVisiting) 0
 
 let square_landed_test (name : string) expected_output board init_pos dice_roll
     : test =
@@ -43,6 +47,7 @@ let tests =
     parse_user_input_test "testing parse user input" "P" "    p         ";
     parse_user_input_test "testing parse user input" "" "      ";
     player_passed_go_test "testing player passed go" true 3 2;
+    player_passed_go_test "testing player passed go" false gotojailpos jailpos;
     player_passed_go_test "testing player passed go" false 4 7;
     player_passed_go_test "testing player passed go" true 38 0;
   ]
