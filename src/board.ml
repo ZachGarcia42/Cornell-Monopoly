@@ -21,7 +21,7 @@ let chance_commands =
     init_chance "Chance: Payment Required" 150 "Pay School Tax of $150"
       "Current" 0;
     init_chance "Chance: Move Backwards" 0 "Move backwards 3 spaces" "3" (-3);
-    init_chance "Get out of Jail Free" 0 "Acquire a Get of Jail Free Card"
+    init_chance "Chance: Get out of Jail Free" 0 "Acquire a Get of Jail Free Card"
       "Current" 0;
   ]
 
@@ -35,7 +35,7 @@ let community_chest_commands = [
 
 
 let draw_card cards = 
-  let idx = (List.length cards) - 2 (* Random.int ((List.length cards)) *) in 
+  let idx =  Random.int ((List.length cards))  in 
   List.nth cards idx
 
 let board : Tile.tile list =
