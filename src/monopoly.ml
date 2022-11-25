@@ -1,3 +1,5 @@
+open Tile
+
 let board = Board.board
 
 (* Accounts for the fact that positions may need to wrap around to the beginning
@@ -25,4 +27,6 @@ let parse_user_input (input: string): string =
 
 (* Returns whether a player passed Go or not*)
 let player_passed_go(init_pos: int)(fin_pos: int) = 
+let gotojail = Tile.get_pos board (tileName GoToJail) 0 in 
+if init_pos = gotojail then false else
 init_pos > 0 && fin_pos >= 0 && init_pos > fin_pos

@@ -10,4 +10,8 @@ val parse_user_input : string -> string
    with capital letters*)
 
 val player_passed_go : int -> int -> bool
-(* Returns true or false depending on whether a player passed Go or not*)
+(* Returns true or false depending on whether a player passed Go or not. Return False if the player 
+   was initially on GoToJail*)
+
+val convert: int -> int -> int 
+(* Converts an input to be in bounds on the board.*)

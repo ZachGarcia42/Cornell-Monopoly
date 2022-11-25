@@ -12,3 +12,6 @@ val payment: t -> int
 
 val payment_source: t -> string 
 (* A payment source for a certain community chest card*)
+
+val init_chest: string -> string -> int -> string -> t 
+(** [init_chest name destination payment payment_source] is the initial state of a community chest card. *)

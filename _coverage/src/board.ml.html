@@ -51,31 +51,31 @@
 <a id="L27"></a><span > </span>
 <a id="L28"></a><span > </span>
 <a id="L29"></a><span class="visited"> </span>
-<a id="L30"></a><span > </span>
-<a id="L31"></a><span > </span>
-<a id="L32"></a><span > </span>
-<a id="L33"></a><span > </span>
+<a id="L30"></a><span class="visited"> </span>
+<a id="L31"></a><span class="visited"> </span>
+<a id="L32"></a><span class="visited"> </span>
+<a id="L33"></a><span class="visited"> </span>
 <a id="L34"></a><span > </span>
-<a id="L35"></a><span class="visited"> </span>
+<a id="L35"></a><span > </span>
 <a id="L36"></a><span > </span>
-<a id="L37"></a><span class="visited"> </span>
-<a id="L38"></a><span > </span>
+<a id="L37"></a><span > </span>
+<a id="L38"></a><span class="visited"> </span>
 <a id="L39"></a><span class="visited"> </span>
-<a id="L40"></a><span class="visited"> </span>
-<a id="L41"></a><span class="visited"> </span>
-<a id="L42"></a><span class="visited"> </span>
-<a id="L43"></a><span class="visited"> </span>
-<a id="L44"></a><span > </span>
+<a id="L40"></a><span > </span>
+<a id="L41"></a><span > </span>
+<a id="L42"></a><span > </span>
+<a id="L43"></a><span > </span>
+<a id="L44"></a><span class="visited"> </span>
 <a id="L45"></a><span class="visited"> </span>
 <a id="L46"></a><span class="visited"> </span>
-<a id="L47"></a><span class="visited"> </span>
+<a id="L47"></a><span > </span>
 <a id="L48"></a><span class="visited"> </span>
 <a id="L49"></a><span class="visited"> </span>
 <a id="L50"></a><span class="visited"> </span>
-<a id="L51"></a><span > </span>
+<a id="L51"></a><span class="visited"> </span>
 <a id="L52"></a><span class="visited"> </span>
-<a id="L53"></a><span class="visited"> </span>
-<a id="L54"></a><span > </span>
+<a id="L53"></a><span > </span>
+<a id="L54"></a><span class="visited"> </span>
 <a id="L55"></a><span class="visited"> </span>
 <a id="L56"></a><span class="visited"> </span>
 <a id="L57"></a><span class="visited"> </span>
@@ -84,29 +84,38 @@
 <a id="L60"></a><span class="visited"> </span>
 <a id="L61"></a><span class="visited"> </span>
 <a id="L62"></a><span class="visited"> </span>
-<a id="L63"></a><span class="visited"> </span>
-<a id="L64"></a><span > </span>
+<a id="L63"></a><span > </span>
+<a id="L64"></a><span class="visited"> </span>
 <a id="L65"></a><span class="visited"> </span>
 <a id="L66"></a><span class="visited"> </span>
-<a id="L67"></a><span > </span>
+<a id="L67"></a><span class="visited"> </span>
 <a id="L68"></a><span class="visited"> </span>
 <a id="L69"></a><span class="visited"> </span>
 <a id="L70"></a><span class="visited"> </span>
 <a id="L71"></a><span class="visited"> </span>
-<a id="L72"></a><span > </span>
-<a id="L73"></a><span class="visited"> </span>
-<a id="L74"></a><span > </span>
-<a id="L75"></a><span > </span>
-<a id="L76"></a><span > </span>
-<a id="L77"></a><span > </span>
-<a id="L78"></a><span > </span>
-<a id="L79"></a><span > </span>
-<a id="L80"></a><span > </span>
+<a id="L72"></a><span class="visited"> </span>
+<a id="L73"></a><span > </span>
+<a id="L74"></a><span class="visited"> </span>
+<a id="L75"></a><span class="visited"> </span>
+<a id="L76"></a><span class="visited"> </span>
+<a id="L77"></a><span class="visited"> </span>
+<a id="L78"></a><span class="visited"> </span>
+<a id="L79"></a><span class="visited"> </span>
+<a id="L80"></a><span class="visited"> </span>
 <a id="L81"></a><span > </span>
-<a id="L82"></a><span > </span>
+<a id="L82"></a><span class="visited"> </span>
 <a id="L83"></a><span > </span>
 <a id="L84"></a><span > </span>
 <a id="L85"></a><span > </span>
+<a id="L86"></a><span > </span>
+<a id="L87"></a><span > </span>
+<a id="L88"></a><span > </span>
+<a id="L89"></a><span > </span>
+<a id="L90"></a><span > </span>
+<a id="L91"></a><span > </span>
+<a id="L92"></a><span > </span>
+<a id="L93"></a><span > </span>
+<a id="L94"></a><span > </span>
 </pre>
       </div>
       <div id="text-layer">
@@ -196,6 +205,15 @@
 <a href="#L83">83</a>
 <a href="#L84">84</a>
 <a href="#L85">85</a>
+<a href="#L86">86</a>
+<a href="#L87">87</a>
+<a href="#L88">88</a>
+<a href="#L89">89</a>
+<a href="#L90">90</a>
+<a href="#L91">91</a>
+<a href="#L92">92</a>
+<a href="#L93">93</a>
+<a href="#L94">94</a>
 </pre>
 <pre><code class="ocaml">open Chance
 open Chest
@@ -224,52 +242,61 @@ let chance_commands =
       "Current";
   ]
 
-let draw_chance_card chance_cards =
-  <span data-count="15">l</span>et idx = Random.in<span data-count="15">t</span> (List.lengt<span data-count="15">h</span> chance_cards) + 1  in
-  List.nth chance_cards idx
+let community_chest_commands = [
+    init_ches<span data-count="5">t</span> "Advance to Go! Collect $200" "Go" 200 "Bank";
+    init_ches<span data-count="5">t</span> "Bank error in your favor! Collect $200" "Current" 200 "Bank";
+    init_ches<span data-count="5">t</span> "Doctor's Fees! Pay $50" "Current" (-50) "Bank";
+    init_ches<span data-count="5">t</span> "Get out of Jail Free Card earned" "Current" 0 "Bank";
+    init_ches<span data-count="5">t</span> "It is your birthday! Collect $10 from every player" "Current" 10 "All Players"
+]
+
+
+let draw_card cards = 
+  <span data-count="30">l</span>et idx = Random.int ((List.lengt<span data-count="30">h</span> cards))  in 
+  <span data-count="30">L</span>ist.nth cards idx
 
 let board : Tile.tile list =
   [
     Go;
-    Property (Property.init_propert<span data-count="5">y</span> "Mediterranean Avenue" Brown 60);
-    CommunityChest;
-    Property (Property.init_propert<span data-count="5">y</span> "Baltic Avenue" Brown 60);
+    Property (Property.init_propert<span data-count="5">y</span> "Mediterranean Avenue" Brown 60 1);
+    CommunityChest (draw_car<span data-count="5">d</span> community_chest_commands);
+    Property (Property.init_propert<span data-count="5">y</span> "Baltic Avenue" Brown 60 3);
     IncomeTax;
-    Property (Property.init_propert<span data-count="5">y</span> "Reading Railroad" Railroad 200);
-    Property (Property.init_propert<span data-count="5">y</span> "Oriental Avenue" LightBlue 100);
-    Chance (draw_chance_car<span data-count="5">d</span> chance_commands);
-    Property (Property.init_propert<span data-count="5">y</span> "Vermont Avenue" LightBlue 100);
-    Property (Property.init_propert<span data-count="5">y</span> "Connecticut Avenue" LightBlue 120);
+    Property (Property.init_propert<span data-count="5">y</span> "Reading Railroad" Railroad 200 5);
+    Property (Property.init_propert<span data-count="5">y</span> "Oriental Avenue" LightBlue 100 6);
+    Chance (draw_car<span data-count="5">d</span> chance_commands);
+    Property (Property.init_propert<span data-count="5">y</span> "Vermont Avenue" LightBlue 100 8);
+    Property (Property.init_propert<span data-count="5">y</span> "Connecticut Avenue" LightBlue 120 9);
     JustVisiting;
-    Property (Property.init_propert<span data-count="5">y</span> "St. Charles Place" Magenta 140);
-    Property (Property.init_propert<span data-count="5">y</span> "Electric Company" Utility 150);
-    Property (Property.init_propert<span data-count="5">y</span> "States Avenue" Magenta 140);
-    Property (Property.init_propert<span data-count="5">y</span> "Virginia Avenue" Magenta 160);
-    Property (Property.init_propert<span data-count="5">y</span> "Pennsylvania Railroad" Railroad 200);
-    Property (Property.init_propert<span data-count="5">y</span> "St. James Place" Orange 180);
-    CommunityChest;
-    Property (Property.init_propert<span data-count="5">y</span> "Tennessee Avenue" Orange 180);
-    Property (Property.init_propert<span data-count="5">y</span> "New York Avenue" Orange 200);
+    Property (Property.init_propert<span data-count="5">y</span> "St. Charles Place" Magenta 140 11);
+    Property (Property.init_propert<span data-count="5">y</span> "Electric Company" Utility 150 12);
+    Property (Property.init_propert<span data-count="5">y</span> "States Avenue" Magenta 140 13);
+    Property (Property.init_propert<span data-count="5">y</span> "Virginia Avenue" Magenta 160 14);
+    Property (Property.init_propert<span data-count="5">y</span> "Pennsylvania Railroad" Railroad 200 15);
+    Property (Property.init_propert<span data-count="5">y</span> "St. James Place" Orange 180 16);
+    CommunityChest (draw_car<span data-count="5">d</span> community_chest_commands);
+    Property (Property.init_propert<span data-count="5">y</span> "Tennessee Avenue" Orange 180 18);
+    Property (Property.init_propert<span data-count="5">y</span> "New York Avenue" Orange 200 19);
     FreeParking;
-    Property (Property.init_propert<span data-count="5">y</span> "Kentucky Avenue" Red 220);
-    Chance (draw_chance_car<span data-count="5">d</span> chance_commands);
-    Property (Property.init_propert<span data-count="5">y</span> "Indiana Avenue" Red 220);
-    Property (Property.init_propert<span data-count="5">y</span> "Illinois Avenue" Red 240);
-    Property (Property.init_propert<span data-count="5">y</span> "B. &amp; O. Railroad" Railroad 200);
-    Property (Property.init_propert<span data-count="5">y</span> "Atlantic Avenue" Yellow 260);
-    Property (Property.init_propert<span data-count="5">y</span> "Ventnor Avenue" Yellow 260);
-    Property (Property.init_propert<span data-count="5">y</span> "Water Works" Utility 150);
-    Property (Property.init_propert<span data-count="5">y</span> "Marvin Gardens" Yellow 280);
+    Property (Property.init_propert<span data-count="5">y</span> "Kentucky Avenue" Red 220 21);
+    Chance (draw_car<span data-count="5">d</span> chance_commands);
+    Property (Property.init_propert<span data-count="5">y</span> "Indiana Avenue" Red 220 22);
+    Property (Property.init_propert<span data-count="5">y</span> "Illinois Avenue" Red 240 24);
+    Property (Property.init_propert<span data-count="5">y</span> "B. &amp; O. Railroad" Railroad 200 25);
+    Property (Property.init_propert<span data-count="5">y</span> "Atlantic Avenue" Yellow 260 26);
+    Property (Property.init_propert<span data-count="5">y</span> "Ventnor Avenue" Yellow 260 27);
+    Property (Property.init_propert<span data-count="5">y</span> "Water Works" Utility 150 28);
+    Property (Property.init_propert<span data-count="5">y</span> "Marvin Gardens" Yellow 280 29);
     GoToJail;
-    Property (Property.init_propert<span data-count="5">y</span> "Pacific Avenue" Green 300);
-    Property (Property.init_propert<span data-count="5">y</span> "North Carolina Avenue" Green 300);
-    CommunityChest;
-    Property (Property.init_propert<span data-count="5">y</span> "Pennsylvania Avenue" Green 320);
-    Property (Property.init_propert<span data-count="5">y</span> "Short Line" Railroad 200);
-    Chance (draw_chance_car<span data-count="5">d</span> chance_commands);
-    Property (Property.init_propert<span data-count="5">y</span> "Park Place" Blue 350);
+    Property (Property.init_propert<span data-count="5">y</span> "Pacific Avenue" Green 300 31);
+    Property (Property.init_propert<span data-count="5">y</span> "North Carolina Avenue" Green 300 32);
+    CommunityChest (draw_car<span data-count="5">d</span> community_chest_commands);
+    Property (Property.init_propert<span data-count="5">y</span> "Pennsylvania Avenue" Green 320 34);
+    Property (Property.init_propert<span data-count="5">y</span> "Short Line" Railroad 200 35);
+    Chance (draw_car<span data-count="5">d</span> chance_commands);
+    Property (Property.init_propert<span data-count="5">y</span> "Park Place" Blue 350 37);
     LuxuryTax;
-    Property (Property.init_propert<span data-count="5">y</span> "Boardwalk" Blue 400);
+    Property (Property.init_propert<span data-count="5">y</span> "Boardwalk" Blue 400 39);
   ]
 
 let chance_names : string list =

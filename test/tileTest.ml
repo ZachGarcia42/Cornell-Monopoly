@@ -3,6 +3,7 @@ open Game
 open Tile
 open Property
 open Chance
+open Chest
 
 (* For testing our tile implementation, we achieved 100% coverage using glass
    box and black box OUnit tests, so no manual testing was required. However,
@@ -11,12 +12,13 @@ open Chance
 
 let boardwalk = Property (init_property "Boardwalk" Blue 400 39)
 let go = Go
-let cc = CommunityChest
+
+let cc = CommunityChest (init_chest  "Advance to Go! Collect $200" "Go" 200 "Bank";)
 let it = IncomeTax
 
 let chance =
   Chance
-    (init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go")
+    (init_chance "Chance: Advancement" 200 "Advance to Go! Collect $200!" "Go" 0)
 
 let jv = JustVisiting
 let fp = FreeParking
