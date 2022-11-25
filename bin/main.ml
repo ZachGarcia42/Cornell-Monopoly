@@ -397,6 +397,8 @@ let rec one_turn (s : state) (player : player) =
         match List.nth board (location updated_player) with
         | IncomeTax -> charge updated_player 200
         | LuxuryTax -> charge updated_player 100
+        | Chance c -> unlock_chance_card updated_player (List.nth board (location updated_player))
+        | CommunityChest c -> unlock_comm_chest_card updated_player (List.nth board (location updated_player))
         | _ -> charge updated_player 0
       in
       print_endline ("End of turn for " ^ Player.name updated_player);

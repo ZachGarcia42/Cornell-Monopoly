@@ -63,8 +63,13 @@ val add_get_out_card : player -> player
 (* [add_get_out_card player] adds another get_out card*)
 
 val unlock_chance_card : player -> Tile.tile -> player
+(* [unlock_chance_card player property] unlocks a chance card and updates the player's status*)
+
 val unlock_comm_chest_card : player -> Tile.tile -> player
+(* [unlock_comm_card player property] unlocks a community chest card and updates the player's status*)
+
 val pay_tax : player -> Tile.tile -> player
+(* [unlock_comm_card player property] pays a tax for a player*)
 
 val string_list_properties : player -> string
 (**[string_list_properties player] converts the list of player properties into a
