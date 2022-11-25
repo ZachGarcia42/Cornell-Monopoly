@@ -61,4 +61,3 @@ let rec find_owner (p : Property.t) (players : Player.player list) =
   match players with
   | [] -> "No one"
   | h :: t -> if Player.has_property h p then Player.name h else find_owner p t
-
