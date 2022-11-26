@@ -60,33 +60,33 @@ let display_board_revised (board : Tile.tile list) =
     print_endline "------"
   done
 
-let display_board (board: Tile.tile list)(pos: int) = 
+let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
-  print_endline "Here is a small view of where you are 
-  right now, and what is around you"; 
+  print_endline
+    "Here is a small view of where you are \n\
+    \  right now, and what is around you";
 
-  let printed_tiles = [
-    List.nth board (Monopoly.convert (pos - 2) (List.length board));
-    List.nth board (Monopoly.convert (pos - 1) (List.length board));
-    List.nth board (Monopoly.convert pos (List.length board));
-    List.nth board (Monopoly.convert (pos + 1) (List.length board));
-    List.nth board (Monopoly.convert (pos + 2) (List.length board));
-  ] in 
-  
-  let rec print_tiles (printed_tiles) = 
-    match printed_tiles with 
-    |[] -> " | "
-    |h :: t -> 
-       " | " ^ (tileName h) ^ print_tiles t
-  
-  in 
-  let x = print_tiles printed_tiles in 
+  let printed_tiles =
+    [
+      List.nth board (Monopoly.convert (pos - 2) (List.length board));
+      List.nth board (Monopoly.convert (pos - 1) (List.length board));
+      List.nth board (Monopoly.convert pos (List.length board));
+      List.nth board (Monopoly.convert (pos + 1) (List.length board));
+      List.nth board (Monopoly.convert (pos + 2) (List.length board));
+    ]
+  in
+
+  let rec print_tiles printed_tiles =
+    match printed_tiles with
+    | [] -> " | "
+    | h :: t -> " | " ^ tileName h ^ print_tiles t
+  in
+
+  let x = print_tiles printed_tiles in
   print_endline (String.make (String.length x) '-');
   print_endline x;
   print_endline (String.make (String.length x) '-');
   ()
-
-  
 
 (** [make_line size line] is a string with horizontal dashes proportional to the
     magnitude of [size]. Starts with [line]. *)
@@ -112,7 +112,8 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
   let money = cash player in
 
   print_typed_string ("Bank Account balance: $" ^ string_of_int money);
-  print_typed_string ("New position: " ^ tileName current_tile);
+  print_typed_string
+    ("New position: " ^ if in_jail player then "Jail" else tileName current_tile);
 
   match current_tile with
   | Property p ->
@@ -194,55 +195,85 @@ let rec init_players players_lst =
 (** [rent_charge_inform s p player] informs the current player whose turn it of
     the owner of the property [p] they landed on and how much they are being
     charged as rent *)
-let rent_charge_inform (s : state) (p : Property.t) (pl: player) =
+let rent_charge_inform (s : state) (p : Property.t) (pl : player) =
   let owner = find_owner p (player_list s) in
 
-  if ((Player.name pl) <> owner) then (
-  print_typed_string ("This property is owned by " ^ owner);
-  print_typed_string
-    ("You are being charged  " 
-    ^ string_of_int (Property.price p)
-    ^ "for the privilege of staying on their properties. You may not take any \
-       other actions, press any key to continue.") 
-  )
-  else 
-    print_typed_string "This is your property! You don't have to pay any rent fees"
+  if Player.name pl <> owner then (
+    print_typed_string ("This property is owned by " ^ owner);
+    print_typed_string
+      ("You are being charged  "
+      ^ string_of_int (Property.price p)
+      ^ "for the privilege of staying on their properties. You may not take \
+         any other actions, press any key to continue."))
+  else
+    print_typed_string
+      "This is your property! You don't have to pay any rent fees"
 
 (* [prompt_next_action] prompts the player's next key-press based on what tile
    type they are currently on. *)
 let prompt_next_action state tile player =
-  match tile with
-  | Go -> print_typed_string "You are on the Go tile"
-  | Property p ->
-      if is_property_owned p (player_list state) then rent_charge_inform state p player
-      else (
+  if in_jail player then
+    print_typed_string
+      "You are in jail with your old Dyson pal (who recently committed \n\
+       financial fraud). No action needs to be taken – enter any other key to \
+       continue. "
+  else
+    match tile with
+    | Go -> print_typed_string "You are on the Go tile"
+    | Property p ->
+        if is_property_owned p (player_list state) then
+          rent_charge_inform state p player
+        else (
+          print_typed_string
+            ("This property costs $" ^ string_of_int (Property.price p));
+          print_typed_string
+            "Attempt to purchase this property? Enter 'P' if you wish to do so")
+    | CommunityChest h ->
         print_typed_string
-          ("This property costs $" ^ string_of_int (Property.price p));
+          "You can draw a Community Chest Card. Press 'H' to proceed"
+    | IncomeTax | LuxuryTax ->
+        print_typed_string "You need to pay your taxes! Enter 'T' to continue."
+    | Chance _ ->
         print_typed_string
-          "Attempt to purchase this property? Enter 'P' if you wish to do so")
-  | CommunityChest h ->
-      print_typed_string
-        "You can draw a Community Chest Card. Press 'H' to proceed"
-  | IncomeTax | LuxuryTax ->
-      print_typed_string "You need to pay your taxes! Enter 'T' to continue."
-  | Chance _ ->
-      print_typed_string
-        "You have landed on a Chance Square! Enter 'C' to proceed."
-  | JustVisiting ->
-      print_typed_string
-        "You are just visiting your old Dyson pal (who recently committed \n\
-         financial fraud) in jail. No action needs to be taken – enter any \
-         other key to continue. "
-  | FreeParking ->
-      print_typed_string
-        "You have landed on free parking! Enter 'Collect' to collect your \
-         rewards!"
-  |GoToJail -> 
-      print_typed_string 
-      "You are ordered to go to jail! Press J to go to Jail"
-  (*| _ ->
-      print_typed_string
-        "Enter 'Q' to quit the game, or do nothing (enter any other key)." *)
+          "You have landed on a Chance Square! Enter 'C' to proceed."
+    | JustVisiting ->
+        print_typed_string
+          "You are just visiting your old Dyson pal (who recently committed \n\
+           financial fraud) in jail. No action needs to be taken – enter any \
+           other key to continue. "
+    | FreeParking ->
+        print_typed_string
+          "You have landed on free parking! Enter 'Collect' to collect your \
+           rewards!"
+    | GoToJail ->
+        print_typed_string
+          "You are ordered to go to jail! Press J to go to Jail"
+(*| _ -> print_typed_string "Enter 'Q' to quit the game, or do nothing (enter
+  any other key)." *)
+
+(**[has_goojf p] is true iff p has at least one get out of jail free card*)
+let has_goojf player = cards player > 0
+
+let yes_no_helper = ref (fun s -> true)
+
+let yes_no_input s =
+  match Monopoly.parse_user_input s with
+  | "Y" | "YES" -> true
+  | "N" | "NO" -> false
+  | _ ->
+      print_endline "Please enter \"Y\" or \"N\".";
+      !yes_no_helper (read_line ())
+
+let x = yes_no_helper := yes_no_input
+
+let handle_card player =
+  print_endline
+    "You are in Jail and have a Get out of Jail Free Card. Would you like to \
+     use it? (Y/N)";
+  if yes_no_input (read_line ()) then use_card player else jail_turn player
+
+(**[handle_card p] represents the player after they choose whether to use a get
+   out of jail free card or not*)
 
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player record after turn has been completed. *)
@@ -250,17 +281,32 @@ let rec one_turn (s : state) (player : player) =
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
    ^ "---------------------");
-  let roll = Random.int 6 + 1 + (Random.int 6 + 1) in
+  let die1 = Random.int 6 + 1 in
+  let die2 = Random.int 6 + 1 in
+  let doubles = die1 = die2 in
+  let roll = die1 + die2 in
 
   let old_position = location player in
-  let new_position = (old_position + roll) mod List.length Board.board in
+  let roll_position = (old_position + roll) mod List.length Board.board in
 
-  let updated_player = move_to player new_position in
+  let updated_player =
+    match player with
+    | p when in_jail p && doubles -> leave_jail p
+    | p when in_jail p && has_goojf p -> handle_card p
+    | p when in_jail p && turns_in_jail p < 3 && not doubles -> jail_turn p
+    | p when in_jail p && turns_in_jail p >= 3 && not doubles ->
+        print_endline "You were charged $50 bail to leave jail.";
+        move_to (leave_jail (charge p 50)) roll_position
+    | _ -> move_to player roll_position
+  in
 
   print_typed_string
     ("You are starting this turn on "
-    ^ Tile.tileName (List.nth Board.board old_position));
+    ^
+    if in_jail updated_player then "Jail"
+    else Tile.tileName (List.nth Board.board old_position));
 
+  let new_position = location updated_player in
   let updated_player =
     if Monopoly.player_passed_go old_position new_position then (
       print_typed_string "You have passed Go! You win $200";
@@ -270,8 +316,7 @@ let rec one_turn (s : state) (player : player) =
 
   let current_tile = List.nth Board.board new_position in
 
-
-  inform_player s player current_tile roll;
+  inform_player s updated_player current_tile roll;
 
   display_board Board.board new_position;
 
@@ -343,13 +388,14 @@ let rec one_turn (s : state) (player : player) =
       let updated_player_position =
         Player.move_to player_paid (location updated_player)
       in
-      
+
       (updated_player_position, purchased_properties s, money_jar s + tax_amt)
-  |"J" -> 
-      print_typed_string "Moving you to Jail...."; 
-      let new_pos = get_pos board (tileName GoToJail) 0 in 
-      let new_update = 
-        Player.move_to updated_player new_pos in 
+  | "J" ->
+      print_typed_string "Moving you to Jail....";
+      let new_pos = get_pos board (tileName JustVisiting) 0 in
+      let new_update =
+        Player.go_to_jail (Player.move_to updated_player new_pos)
+      in
       (new_update, purchased_properties s, money_jar s)
   | "Q" ->
       print_typed_string
@@ -387,9 +433,9 @@ let rec one_turn (s : state) (player : player) =
       (* print_endline (string_of_int (location updated_player)); print_endline
          (string_of_int (index (Option.get propholder)))*)
       (playernow, purchased_properties s, money_jar s)
-  |"Help" -> 
-    display_commands command_list; 
-    (updated_player, purchased_properties s, money_jar s)
+  | "Help" ->
+      display_commands command_list;
+      (updated_player, purchased_properties s, money_jar s)
   | _ ->
       (* Check if the player has forgotten to pay a tax here - if so charge the
          player*)
@@ -397,8 +443,12 @@ let rec one_turn (s : state) (player : player) =
         match List.nth board (location updated_player) with
         | IncomeTax -> charge updated_player 200
         | LuxuryTax -> charge updated_player 100
-        | Chance c -> unlock_chance_card updated_player (List.nth board (location updated_player))
-        | CommunityChest c -> unlock_comm_chest_card updated_player (List.nth board (location updated_player))
+        | Chance c ->
+            unlock_chance_card updated_player
+              (List.nth board (location updated_player))
+        | CommunityChest c ->
+            unlock_comm_chest_card updated_player
+              (List.nth board (location updated_player))
         | _ -> charge updated_player 0
       in
       print_endline ("End of turn for " ^ Player.name updated_player);

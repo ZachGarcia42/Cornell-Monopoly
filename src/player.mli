@@ -11,6 +11,10 @@ val name : player -> string
 val cards : player -> int
 (** [cards player] is the number of get out of jail free cards the player has*)
 
+val use_card : player -> player
+(** [use_card player] represents the player after they used a get out of jail
+    free card to leave jail.*)
+
 val location : player -> int
 (** [location player] is the index of the tile the player is on*)
 
@@ -19,6 +23,15 @@ val in_jail : player -> bool
 
 val go_to_jail : player -> player
 (**[go_to_jail player] is an updated player now in jail*)
+
+val turns_in_jail : player -> int
+(**[turns_in_jail player] is the number of turns the player has been in jail*)
+
+val jail_turn : player -> player
+(**[jail_turn p] represents a player who has spent an additional turn in jail*)
+
+val leave_jail : player -> player
+(**[leave_jail player] represents a player who has left jail*)
 
 val move_to : player -> int -> player
 (** [move player ind] is an updated player with position [ind]. Requires ind is
@@ -63,10 +76,12 @@ val add_get_out_card : player -> player
 (* [add_get_out_card player] adds another get_out card*)
 
 val unlock_chance_card : player -> Tile.tile -> player
-(* [unlock_chance_card player property] unlocks a chance card and updates the player's status*)
+(* [unlock_chance_card player property] unlocks a chance card and updates the
+   player's status*)
 
 val unlock_comm_chest_card : player -> Tile.tile -> player
-(* [unlock_comm_card player property] unlocks a community chest card and updates the player's status*)
+(* [unlock_comm_card player property] unlocks a community chest card and updates
+   the player's status*)
 
 val pay_tax : player -> Tile.tile -> player
 (* [unlock_comm_card player property] pays a tax for a player*)

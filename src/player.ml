@@ -12,6 +12,7 @@ type player = {
   properties : Property.t list;
   cash : int;
   in_jail : bool;
+  turns_in_jail : int;
 }
 
 let init_player name amt =
@@ -22,6 +23,7 @@ let init_player name amt =
     properties = [];
     cash = amt;
     in_jail = false;
+    turns_in_jail = 0;
   }
 
 let name player = player.name
@@ -29,6 +31,13 @@ let cards player = player.get_out_cards
 let location player = player.tile
 let in_jail player = player.in_jail
 let go_to_jail player = { player with in_jail = true }
+let turns_in_jail player = player.turns_in_jail
+let leave_jail player = { player with in_jail = false; turns_in_jail = 0 }
+let jail_turn player = { player with turns_in_jail = player.turns_in_jail + 1 }
+
+let use_card player =
+  leave_jail { player with get_out_cards = player.get_out_cards - 1 }
+
 let move_to player ind = { player with tile = ind }
 let cash player = player.cash
 let pay player amt = { player with cash = player.cash + amt }
@@ -110,23 +119,26 @@ let unlock_chance_card (player : player) property =
         move_to did_player_pass_go new_pos)
       else if ctype = "Chance: Money Made" then pay player price
       else if ctype = "Chance: Payment Required" then charge player price
-      else if ctype = "Chance: Move Backwards" then 
-        let current_pos = get_pos board (tileName property) 0 in 
+      else if ctype = "Chance: Move Backwards" then (
+        let current_pos = get_pos board (tileName property) 0 in
 
-        let dest = Monopoly.convert (current_pos + (rel_space_translation c)) (List.length board) in 
-        print_endline ("You are being moved back to " ^ (tileName (List.nth board dest)));
-        move_to player dest
-      else if ctype = "Chance: Get out of Jail Free" then 
-        let num_get_out_of_jail_free_cards = player.get_out_cards in 
+        let dest =
+          Monopoly.convert
+            (current_pos + rel_space_translation c)
+            (List.length board)
+        in
+        print_endline
+          ("You are being moved back to " ^ tileName (List.nth board dest));
+        move_to player dest)
+      else if ctype = "Chance: Get out of Jail Free" then (
+        let num_get_out_of_jail_free_cards = player.get_out_cards in
         print_endline "You have earned another Get out of Jail Free Card! ";
-        print_endline ("You now have" ^ string_of_int(num_get_out_of_jail_free_cards + 1) 
-        ^ " Get out of Jail Free Cards!");
-        add_get_out_card player
-      else 
-        player
-
-        
-        
+        print_endline
+          ("You now have"
+          ^ string_of_int (num_get_out_of_jail_free_cards + 1)
+          ^ " Get out of Jail Free Cards!");
+        add_get_out_card player)
+      else player
   | _ ->
       print_typed_string "This is not a Chance Card!";
       charge player 0
@@ -135,24 +147,28 @@ let unlock_comm_chest_card (player : player) property =
   match property with
   | CommunityChest c ->
       print_endline (Chest.name c);
-      let dest = Chest.destination c in
-      if dest <> "Current" then (
-        let new_pos = get_pos board dest 0 in
-        print_typed_string ("You have advanced to " ^ dest);
-
-        let did_player_pass_go =
-          if
-            Monopoly.player_passed_go
-              (get_pos board (tileName property) 0)
-              (get_pos board dest 0)
-          then pay player 200
-          else player
-        in
-
-        move_to did_player_pass_go new_pos)
+      if Chest.name c = "Get out of Jail Free Card earned" then
+        { player with get_out_cards = player.get_out_cards + 1 }
       else
-        let payment = Chest.payment c in
-        if payment < 0 then charge player (-1 * payment) else pay player payment
+        let dest = Chest.destination c in
+        if dest <> "Current" then (
+          let new_pos = get_pos board dest 0 in
+          print_typed_string ("You have advanced to " ^ dest);
+
+          let did_player_pass_go =
+            if
+              Monopoly.player_passed_go
+                (get_pos board (tileName property) 0)
+                (get_pos board dest 0)
+            then pay player 200
+            else player
+          in
+
+          move_to did_player_pass_go new_pos)
+        else
+          let payment = Chest.payment c in
+          if payment < 0 then charge player (-1 * payment)
+          else pay player payment
   | _ ->
       print_endline "This is not a Community Chest Card!";
       player
