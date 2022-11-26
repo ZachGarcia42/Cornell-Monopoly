@@ -466,7 +466,7 @@ let rec one_turn (s : state) (player : player) =
   | "Help" ->
       display_commands command_list;
       reconstruct_state updated_player (purchased_properties s) (money_jar s) s
-  | _ ->
+  | _ -> (
       (* Check if the player has forgotten to pay a tax here - if so charge the
          player*)
       let possible_update =
@@ -481,8 +481,65 @@ let rec one_turn (s : state) (player : player) =
               (List.nth board (location updated_player))
         | _ -> charge updated_player 0
       in
-      print_endline ("End of turn for " ^ Player.name updated_player);
-      reconstruct_state possible_update (purchased_properties s) (money_jar s) s
+
+      (* If player is on another player's property, pays that player. *)
+      match current_tile with
+      | Property p ->
+          (* Returns the owner of property [p]. Returns the first player in the
+             list of players if the owner isn't found (should never happen) *)
+          let rec find_owner p players =
+            match players with
+            | [] -> List.nth players 0
+            | h :: t -> if Player.has_property h p then h else find_owner p t
+          in
+
+          let rec pay_player_in_list player_to_be_paid amt players =
+            match players with
+            | [] -> []
+            | h :: t ->
+                if Player.name h = Player.name player_to_be_paid then
+                  Player.pay player_to_be_paid amt :: t
+                else h :: pay_player_in_list player_to_be_paid amt t
+          in
+
+          (* Accepts and returns a game state, the only difference being that
+             [player_to_be_paid] gets paid [amt]*)
+          let rec state_with_paid_player (state : state)
+              (player_to_be_paid : player) (amt : int) =
+            let players = State.player_list state in
+            let new_players_list =
+              pay_player_in_list player_to_be_paid amt players
+            in
+            init_state new_players_list
+              (State.purchased_properties state)
+              (State.money_jar state)
+          in
+
+          if is_property_owned p (player_list s) then (
+            let property_price = Property.price p in
+            let property_owner = find_owner p (player_list s) in
+            if Player.name property_owner <> Player.name updated_player then
+              print_endline
+                (Player.name property_owner ^ " was paid "
+                ^ string_of_int property_price
+                ^ " for rent!");
+
+            print_endline ("End of turn for " ^ Player.name updated_player);
+
+            ( possible_update,
+              state_with_paid_player
+                (snd
+                   (reconstruct_state possible_update (purchased_properties s)
+                      (money_jar s) s))
+                property_owner property_price ))
+          else (
+            print_endline ("End of turn for " ^ Player.name updated_player);
+            reconstruct_state possible_update (purchased_properties s)
+              (money_jar s) s)
+      | _ ->
+          print_endline ("End of turn for " ^ Player.name updated_player);
+          reconstruct_state possible_update (purchased_properties s)
+            (money_jar s) s)
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
