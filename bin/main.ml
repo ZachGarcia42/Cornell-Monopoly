@@ -201,9 +201,9 @@ let rent_charge_inform (s : state) (p : Property.t) (pl : player) =
   if Player.name pl <> owner then (
     print_typed_string ("This property is owned by " ^ owner);
     print_typed_string
-      ("You are being charged  "
+      ("You are being charged "
       ^ string_of_int (Property.price p)
-      ^ "for the privilege of staying on their properties. You may not take \
+      ^ " for the privilege of staying on their properties. You may not take \
          any other actions, press any key to continue."))
   else
     print_typed_string
@@ -408,31 +408,37 @@ let rec one_turn (s : state) (player : player) =
         ^ "will be added to your bank account.");
       (updated_player, purchased_properties s, 0)
   | "S" ->
-      print_typed_string
-        "Pick from the following properties, or enter any other value to exit:";
-      print_typed_string (string_list_properties player);
-      let inp = Monopoly.parse_user_input (read_line ()) in
-      let propholder = player_name_to_property updated_player inp in
-      let playernow =
-        if
-          propholder <> None
-          && has_property updated_player (Option.get propholder)
-        then begin
-          print_endline
-            (inp ^ " sold t. = End of turn for " ^ Player.name updated_player);
+      if List.length (Player.properties updated_player) > 0 then (
+        print_typed_string
+          "Pick from the following properties, or enter any other value to \
+           exit:";
+        print_typed_string (string_list_properties player);
+        let inp = Monopoly.parse_user_input (read_line ()) in
+        let propholder = player_name_to_property updated_player inp in
+        let playernow =
+          if
+            propholder <> None
+            && has_property updated_player (Option.get propholder)
+          then begin
+            print_endline
+              (inp ^ " sold t. = End of turn for " ^ Player.name updated_player);
 
-          (* ignore (remove_properties s (index (Option.get propholder))); *)
-          state_sell_prop updated_player (Option.get propholder)
-        end
-        else begin
-          print_endline
-            ("Invalid Selection. End of turn for " ^ Player.name updated_player);
-          updated_player
-        end
-      in
-      (* print_endline (string_of_int (location updated_player)); print_endline
-         (string_of_int (index (Option.get propholder)))*)
-      (playernow, purchased_properties s, money_jar s)
+            (* ignore (remove_properties s (index (Option.get propholder))); *)
+            state_sell_prop updated_player (Option.get propholder)
+          end
+          else begin
+            print_endline
+              ("Invalid Selection. End of turn for "
+             ^ Player.name updated_player);
+            updated_player
+          end
+        in
+        (* print_endline (string_of_int (location updated_player));
+           print_endline (string_of_int (index (Option.get propholder)))*)
+        (playernow, purchased_properties s, money_jar s))
+      else (
+        print_typed_string "Sorry, you currently don't own any properties";
+        (updated_player, purchased_properties s, money_jar s))
   | "Help" ->
       display_commands command_list;
       (updated_player, purchased_properties s, money_jar s)
