@@ -110,23 +110,26 @@ let unlock_chance_card (player : player) property =
         move_to did_player_pass_go new_pos)
       else if ctype = "Chance: Money Made" then pay player price
       else if ctype = "Chance: Payment Required" then charge player price
-      else if ctype = "Chance: Move Backwards" then 
-        let current_pos = get_pos board (tileName property) 0 in 
+      else if ctype = "Chance: Move Backwards" then (
+        let current_pos = get_pos board (tileName property) 0 in
 
-        let dest = Monopoly.convert (current_pos + (rel_space_translation c)) (List.length board) in 
-        print_endline ("You are being moved back to " ^ (tileName (List.nth board dest)));
-        move_to player dest
-      else if ctype = "Chance: Get out of Jail Free" then 
-        let num_get_out_of_jail_free_cards = player.get_out_cards in 
+        let dest =
+          Monopoly.convert
+            (current_pos + rel_space_translation c)
+            (List.length board)
+        in
+        print_endline
+          ("You are being moved back to " ^ tileName (List.nth board dest));
+        move_to player dest)
+      else if ctype = "Chance: Get out of Jail Free" then (
+        let num_get_out_of_jail_free_cards = player.get_out_cards in
         print_endline "You have earned another Get out of Jail Free Card! ";
-        print_endline ("You now have" ^ string_of_int(num_get_out_of_jail_free_cards + 1) 
-        ^ " Get out of Jail Free Cards!");
-        add_get_out_card player
-      else 
-        player
-
-        
-        
+        print_endline
+          ("You now have "
+          ^ string_of_int (num_get_out_of_jail_free_cards + 1)
+          ^ " Get out of Jail Free Cards!");
+        add_get_out_card player)
+      else player
   | _ ->
       print_typed_string "This is not a Chance Card!";
       charge player 0
