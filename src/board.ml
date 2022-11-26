@@ -40,13 +40,11 @@ let community_chest_commands =
     ]
 
 let draw_card cards =
-  let idx = Random.int (List.length cards) in 
+  let idx = Random.int (List.length cards) in idx
 
-  let draw_card cards =
-    let idx = Random.int (List.length cards) in
-    List.nth cards idx 
-  
-  in draw_card cards
+let draw_card cards =
+  let idx = Random.int (List.length cards) in
+  List.nth cards idx 
 
 let board : Tile.tile list =
   [
