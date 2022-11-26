@@ -201,7 +201,7 @@ let rent_charge_inform (s : state) (p : Property.t) (pl : player) =
   if Player.name pl <> owner then (
     print_typed_string ("This property is owned by " ^ owner);
     print_typed_string
-      ("You are being charged "
+      ("You are being charged $"
       ^ string_of_int (Property.price p)
       ^ " for the privilege of staying on their properties. You may not take \
          any other actions, press any key to continue."))
@@ -275,8 +275,27 @@ let handle_card player =
 (**[handle_card p] represents the player after they choose whether to use a get
    out of jail free card or not*)
 
+(** Replaces the [players] list's corresponding [updated_player] *)
+let rec update_player_list (updated_player : player) (players : player list) =
+  match players with
+  | [] -> []
+  | h :: t ->
+      if Player.name h = Player.name updated_player then updated_player :: t
+      else h :: update_player_list updated_player t
+
+(** Creates a state that one_turn returns from the currently available changed
+    data. *)
+let reconstruct_state (updated_player : player)
+    (purchased_properties : int list) (money_jar : int) (state : state) :
+    player * state =
+  let new_players_list =
+    update_player_list updated_player (State.player_list state)
+  in
+  (updated_player, init_state new_players_list purchased_properties money_jar)
+
 (** [one_turn player] represents a single turn for [player]. Returns the updated
-    player record after turn has been completed. *)
+    player and state with the updated player inside after turn has been
+    completed. *)
 let rec one_turn (s : state) (player : player) =
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
@@ -339,7 +358,8 @@ let rec one_turn (s : state) (player : player) =
       if check_properties s new_position then (
         print_typed_string "Sorry! This property has already been purchased.";
         print_typed_string ("End of turn for " ^ Player.name updated_player);
-        (updated_player, purchased_properties s, money_jar s))
+        reconstruct_state updated_player (purchased_properties s) (money_jar s)
+          s)
       else
         let property_price =
           match List.nth board (location updated_player) with
@@ -349,16 +369,17 @@ let rec one_turn (s : state) (player : player) =
         if Player.cash updated_player < property_price then (
           print_typed_string
             "Sorry, you do not have enough money to purchase this property!";
-          (updated_player, purchased_properties s, money_jar s))
+          reconstruct_state updated_player (purchased_properties s)
+            (money_jar s) s)
         else
           let player_purchased =
             purchase_property updated_player current_tile
           in
 
           print_typed_string ("End of turn for " ^ Player.name player_purchased);
-          ( player_purchased,
-            add_properties (purchased_properties s) (location updated_player),
-            money_jar s )
+          reconstruct_state player_purchased
+            (add_properties (purchased_properties s) (location updated_player))
+            (money_jar s) s
   | "C" ->
       print_typed_string "Drawing a chance card...";
 
@@ -366,7 +387,7 @@ let rec one_turn (s : state) (player : player) =
       let next_update =
         unlock_chance_card updated_player (List.nth Board.board new_position)
       in
-      (next_update, purchased_properties s, money_jar s)
+      reconstruct_state next_update (purchased_properties s) (money_jar s) s
   | "H" ->
       print_typed_string "Drawing a community chest card ...";
       let next_update =
@@ -374,7 +395,7 @@ let rec one_turn (s : state) (player : player) =
           (List.nth Board.board new_position)
       in
 
-      (next_update, purchased_properties s, money_jar s)
+      reconstruct_state next_update (purchased_properties s) (money_jar s) s
   | "T" ->
       let taxable_tile = List.nth board (location updated_player) in
       let tax_amt = Tile.get_price (List.nth board (location updated_player)) in
@@ -389,14 +410,16 @@ let rec one_turn (s : state) (player : player) =
         Player.move_to player_paid (location updated_player)
       in
 
-      (updated_player_position, purchased_properties s, money_jar s + tax_amt)
+      reconstruct_state updated_player_position (purchased_properties s)
+        (money_jar s + tax_amt)
+        s
   | "J" ->
       print_typed_string "Moving you to Jail....";
       let new_pos = get_pos board (tileName JustVisiting) 0 in
       let new_update =
         Player.go_to_jail (Player.move_to updated_player new_pos)
       in
-      (new_update, purchased_properties s, money_jar s)
+      reconstruct_state new_update (purchased_properties s) (money_jar s) s
   | "Q" ->
       print_typed_string
         "Thank you for playing Cornellopoly! We hope you had fun!";
@@ -406,7 +429,7 @@ let rec one_turn (s : state) (player : player) =
         ("Congrats, You have reaped the rewards of landing on free parking!"
         ^ string_of_int (money_jar s)
         ^ "will be added to your bank account.");
-      (updated_player, purchased_properties s, 0)
+      reconstruct_state updated_player (purchased_properties s) 0 s
   | "S" ->
       if List.length (Player.properties updated_player) > 0 then (
         print_typed_string
@@ -435,13 +458,14 @@ let rec one_turn (s : state) (player : player) =
         in
         (* print_endline (string_of_int (location updated_player));
            print_endline (string_of_int (index (Option.get propholder)))*)
-        (playernow, purchased_properties s, money_jar s))
+        reconstruct_state playernow (purchased_properties s) (money_jar s) s)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
-        (updated_player, purchased_properties s, money_jar s))
+        reconstruct_state updated_player (purchased_properties s) (money_jar s)
+          s)
   | "Help" ->
       display_commands command_list;
-      (updated_player, purchased_properties s, money_jar s)
+      reconstruct_state updated_player (purchased_properties s) (money_jar s) s
   | _ ->
       (* Check if the player has forgotten to pay a tax here - if so charge the
          player*)
@@ -458,7 +482,22 @@ let rec one_turn (s : state) (player : player) =
         | _ -> charge updated_player 0
       in
       print_endline ("End of turn for " ^ Player.name updated_player);
-      (possible_update, purchased_properties s, money_jar s)
+      reconstruct_state possible_update (purchased_properties s) (money_jar s) s
+
+(** Removes player [p] from [players] *)
+let rec remove_player (p : player) (players : player list) =
+  match players with
+  | [] -> []
+  | h :: t ->
+      if Player.name h = Player.name p then players else h :: remove_player p t
+
+(** Removes player [p] from [state] *)
+let trimmed_state (p : player) (state : state) =
+  let old_player_list = State.player_list state in
+  let new_player_list = remove_player p old_player_list in
+  let purchased_props = State.purchased_properties state in
+  let money_jar_money = State.money_jar state in
+  init_state new_player_list purchased_props money_jar_money
 
 (** [take_turns players] represents the new player states after each player
     takes one turn*)
@@ -467,13 +506,23 @@ let rec take_turns (s : state) : state =
   | [] -> init_state [] [] 0
   | h :: t -> (
       match one_turn s h with
-      | p, new_s, m ->
+      | p, new_state ->
           if Player.cash p < 0 then
-            init_state (player_list (take_turns (init_state t new_s m))) new_s m
-          else
+            let newer_state = trimmed_state p new_state in
             init_state
-              (p :: player_list (take_turns (init_state t new_s m)))
-              new_s m)
+              (player_list (take_turns newer_state))
+              (State.purchased_properties newer_state)
+              (State.money_jar newer_state)
+          else
+            let tail_player_list = player_list (take_turns new_state) in
+            let total_player_list = p :: tail_player_list in
+            init_state total_player_list
+              (State.purchased_properties new_state)
+              (State.money_jar new_state)
+            (* | p, new_s, m -> if Player.cash p < 0 then init_state
+               (player_list (take_turns (init_state t new_s m))) new_s m else
+               init_state (p :: player_list (take_turns (init_state t new_s m)))
+               new_s m) *))
 
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The

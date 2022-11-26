@@ -18,7 +18,6 @@ let chance_commands =
     init_chance "Chance: Money Made" 150
       "Your building loan matures. Collect $150" "Current" 0;
     init_chance "Chance: Payment Required" 15 "Speeding Fine! Pay $15" "Current"
-     
       0;
     init_chance "Chance: Payment Required" 150 "Pay School Tax of $150"
       "Current" 0;
@@ -28,19 +27,15 @@ let chance_commands =
   ]
 
 let community_chest_commands =
- 
   [
     init_chest "Advance to Go! Collect $200" "Go" 200 "Bank";
     init_chest "Bank error in your favor! Collect $200" "Current" 200 "Bank";
     init_chest "Doctor's Fees! Pay $50" "Current" (-50) "Bank";
     init_chest "Get out of Jail Free Card earned" "Current" 0 "Bank";
     init_chest "It is your birthday! Collect $10 from every player" "Current" 10
-     
-      "All Players";;
-    ]
+      "All Players";
+  ]
 
-let draw_card cards =
-  let idx = Random.int (List.length cards) in
 let draw_card cards =
   let idx = Random.int (List.length cards) in
   List.nth cards idx
