@@ -63,8 +63,8 @@ let display_board_revised (board : Tile.tile list) =
 let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
   print_endline
-    "Here is a small view of where you are \n\
-    \  right now, and what is around you";
+    "You glance around at your surroundings and see the following several \
+     locations behind and in front of you. ";
 
   let printed_tiles =
     [
@@ -204,7 +204,7 @@ let rent_charge_inform (s : state) (p : Property.t) (pl : player) =
       ("You are being charged $"
       ^ string_of_int (Property.price p)
       ^ " for the privilege of staying on their properties. You may not take \
-         any other actions, press any key to continue."))
+         any other actions related to this property."))
   else
     print_typed_string
       "This is your property! You don't have to pay any rent fees"
@@ -352,6 +352,7 @@ let rec one_turn (s : state) (player : player) =
 
   prompt_next_action s current_tile updated_player;
   print_typed_string "Enter 'S' to sell a property";
+  print_typed_string "Or enter any other key to do nothing and continue on. ";
 
   match Monopoly.parse_user_input (read_line ()) with
   | "P" ->
@@ -466,7 +467,7 @@ let rec one_turn (s : state) (player : player) =
   | "Help" ->
       display_commands command_list;
       reconstruct_state updated_player (purchased_properties s) (money_jar s) s
-  | _ ->
+  | _ -> (
       (* Check if the player has forgotten to pay a tax here - if so charge the
          player*)
       let possible_update =
@@ -481,15 +482,72 @@ let rec one_turn (s : state) (player : player) =
               (List.nth board (location updated_player))
         | _ -> charge updated_player 0
       in
-      print_endline ("End of turn for " ^ Player.name updated_player);
-      reconstruct_state possible_update (purchased_properties s) (money_jar s) s
+
+      (* If player is on another player's property, pays that player. *)
+      match current_tile with
+      | Property p ->
+          (* Returns the owner of property [p]. Returns the first player in the
+             list of players if the owner isn't found (should never happen) *)
+          let rec find_owner p players =
+            match players with
+            | [] -> List.nth players 0
+            | h :: t -> if Player.has_property h p then h else find_owner p t
+          in
+
+          let rec pay_player_in_list player_to_be_paid amt players =
+            match players with
+            | [] -> []
+            | h :: t ->
+                if Player.name h = Player.name player_to_be_paid then
+                  Player.pay player_to_be_paid amt :: t
+                else h :: pay_player_in_list player_to_be_paid amt t
+          in
+
+          (* Accepts and returns a game state, the only difference being that
+             [player_to_be_paid] gets paid [amt]*)
+          let rec state_with_paid_player (state : state)
+              (player_to_be_paid : player) (amt : int) =
+            let players = State.player_list state in
+            let new_players_list =
+              pay_player_in_list player_to_be_paid amt players
+            in
+            init_state new_players_list
+              (State.purchased_properties state)
+              (State.money_jar state)
+          in
+
+          if is_property_owned p (player_list s) then (
+            let property_price = Property.price p in
+            let property_owner = find_owner p (player_list s) in
+            if Player.name property_owner <> Player.name updated_player then
+              print_endline
+                (Player.name property_owner ^ " was paid "
+                ^ string_of_int property_price
+                ^ " for rent!");
+
+            print_endline ("End of turn for " ^ Player.name updated_player);
+
+            ( possible_update,
+              state_with_paid_player
+                (snd
+                   (reconstruct_state possible_update (purchased_properties s)
+                      (money_jar s) s))
+                property_owner property_price ))
+          else (
+            print_endline ("End of turn for " ^ Player.name updated_player);
+            reconstruct_state possible_update (purchased_properties s)
+              (money_jar s) s)
+      | _ ->
+          print_endline ("End of turn for " ^ Player.name updated_player);
+          reconstruct_state possible_update (purchased_properties s)
+            (money_jar s) s)
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
   match players with
   | [] -> []
   | h :: t ->
-      if Player.name h = Player.name p then players else h :: remove_player p t
+      if Player.name h = Player.name p then t else h :: remove_player p t
 
 (** Removes player [p] from [state] *)
 let trimmed_state (p : player) (state : state) =
@@ -514,8 +572,10 @@ let rec take_turns (s : state) : state =
               (State.purchased_properties newer_state)
               (State.money_jar newer_state)
           else
-            let tail_player_list = player_list (take_turns new_state) in
-            let total_player_list = p :: tail_player_list in
+            let tail_player_list_state = trimmed_state p new_state in
+            let total_player_list =
+              p :: player_list (take_turns tail_player_list_state)
+            in
             init_state total_player_list
               (State.purchased_properties new_state)
               (State.money_jar new_state)
