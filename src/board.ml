@@ -8,8 +8,8 @@ let chance_commands =
       "Advance to Illinois Avenue! \nCollect $200 if you pass Go!"
       "Illinois Avenue" 0;
     init_chance "Chance: Advancement" 0
-      "Advance to St.Charles Place! \nCollect $200 if you pass Go!"
-      "St. Charles Place" 0;
+      "Advance to Louie's Lunch! \nCollect $200 if you pass Go!" "Louie's Lunch"
+      0;
     init_chance "Chance: Advancement" 0
       "Take a trip to Reading Railroad!\nCollect $200 if you pass Go"
       "Reading Railroad" 0;

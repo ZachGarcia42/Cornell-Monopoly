@@ -14,11 +14,7 @@ let end_conditions = false (* TODO: check game ending conditions. *)
 let command_list =
   [
     "Press P to attempt to purchase a property";
-    "Press C to draw a chance card";
-    "Press H to draw a community chest card";
-    "Press T to pay a tax";
     "Press Q to quit";
-    "Type Collect to receive rewards on Free Parking";
     "Press S to sell a property";
   ]
 
@@ -172,25 +168,39 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 
 (** [init_players ()] instantiates the number of desired players and adds them
     to the players list *)
-let rec init_players players_lst =
-  print_typed_string "Please enter your name: ";
-  print_string "> ";
+let rec init_players players_lst flag =
+  if flag == true then begin
+    print_typed_string "Please enter your name: ";
+    print_string "> ";
 
-  match read_line () with
-  | name -> (
-      let new_player = init_player name starting_money in
+    match read_line () with
+    | "" ->
+        print_typed_string "Invalid name! Your name cannot be blank!";
+        init_players players_lst true
+    | name -> (
+        let new_player = init_player name starting_money in
+        print_typed_string
+          ("Successfully created new player named " ^ Player.name new_player);
+        let updated_players = players_lst @ [ new_player ] in
+        print_typed_string "Enter another player? Enter 'Yes' or 'No'";
 
-      let updated_players = players_lst @ [ new_player ] in
-      print_typed_string
-        ("Successfully created new player named " ^ Player.name new_player);
-      print_typed_string "Enter another player? Enter 'Yes' or 'No'";
+        match String.lowercase_ascii (read_line ()) with
+        | "yes" | "y" -> init_players updated_players true
+        | "no" | "n" -> updated_players
+        | _ ->
+            print_typed_string "I didn't understand that";
+            init_players updated_players false)
+  end
+  else
+    let updated_players = players_lst in
+    print_typed_string "Enter another player? Enter 'Yes' or 'No'";
 
-      match String.lowercase_ascii (read_line ()) with
-      | "yes" | "y" -> init_players updated_players
-      | "no" | "n" -> updated_players
-      | _ ->
-          print_typed_string "I didn't understand that";
-          updated_players)
+    match String.lowercase_ascii (read_line ()) with
+    | "yes" | "y" -> init_players updated_players true
+    | "no" | "n" -> updated_players
+    | _ ->
+        print_typed_string "I didn't understand that";
+        init_players updated_players false
 
 (** [rent_charge_inform s p player] informs the current player whose turn it of
     the owner of the property [p] they landed on and how much they are being
@@ -230,12 +240,16 @@ let prompt_next_action state tile player =
             "Attempt to purchase this property? Enter 'P' if you wish to do so")
     | CommunityChest h ->
         print_typed_string
-          "You can draw a Community Chest Card. Press 'H' to proceed"
-    | IncomeTax | LuxuryTax ->
-        print_typed_string "You need to pay your taxes! Enter 'T' to continue."
+          "You have landed on Community Chest! Drawing Community Chest card..."
+    | IncomeTax ->
+        print_typed_string
+          "You need to pay your taxes! Martha snatched $200 from your account."
+    | LuxuryTax ->
+        print_typed_string
+          "You need to pay your taxes! Martha snatched $100 from your account."
     | Chance _ ->
         print_typed_string
-          "You have landed on a Chance Square! Enter 'C' to proceed."
+          "You have landed on a Chance Square! Drawing Chance card..."
     | JustVisiting ->
         print_typed_string
           "You are just visiting your old Dyson pal (who recently committed \n\
@@ -243,11 +257,11 @@ let prompt_next_action state tile player =
            other key to continue. "
     | FreeParking ->
         print_typed_string
-          "You have landed on free parking! Enter 'Collect' to collect your \
-           rewards!"
+          "You have landed on free parking! Time to reap the rewards! $100 \
+           will be added to your bank account."
     | GoToJail ->
         print_typed_string
-          "You are ordered to go to jail! Press J to go to Jail"
+          "You are ordered to go to jail! Moving you to jail..."
 (*| _ -> print_typed_string "Enter 'Q' to quit the game, or do nothing (enter
   any other key)." *)
 
@@ -286,17 +300,18 @@ let rec update_player_list (updated_player : player) (players : player list) =
 (** Creates a state that one_turn returns from the currently available changed
     data. *)
 let reconstruct_state (updated_player : player)
-    (purchased_properties : int list) (money_jar : int) (state : state) :
-    player * state =
+    (purchased_properties : int list) (state : state) : player * state =
   let new_players_list =
     update_player_list updated_player (State.player_list state)
   in
-  (updated_player, init_state new_players_list purchased_properties money_jar)
+  ( updated_player,
+    init_state new_players_list purchased_properties (money_jar state) )
 
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player and state with the updated player inside after turn has been
     completed. *)
 let rec one_turn (s : state) (player : player) =
+  print_endline "";
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
    ^ "---------------------");
@@ -351,138 +366,121 @@ let rec one_turn (s : state) (player : player) =
   in
 
   prompt_next_action s current_tile updated_player;
+
+  let new_player =
+    match current_tile with
+    | CommunityChest h ->
+        unlock_comm_chest_card updated_player
+          (List.nth Board.board new_position)
+    | Chance _ ->
+        unlock_chance_card updated_player (List.nth Board.board new_position)
+    | IncomeTax -> charge updated_player 200
+    | LuxuryTax -> charge updated_player 100
+    | FreeParking -> pay updated_player 100
+    | GoToJail ->
+        print_typed_string "Moving you to Jail....";
+        let new_pos = get_pos board (tileName JustVisiting) 0 in
+        let updated_player =
+          Player.go_to_jail (Player.move_to updated_player new_pos)
+        in
+        updated_player
+    | Property p ->
+        if
+          is_property_owned p (player_list s)
+          && Player.name updated_player <> find_owner p (player_list s)
+        then (
+          let taxable_tile = List.nth board (location updated_player) in
+
+          let player_paid = pay_tax player taxable_tile in
+          if Player.cash player < 0 then
+            print_typed_string
+              (Player.name player_paid
+             ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+                to be too much for them!")
+          else print_typed_string ("End of turn for " ^ Player.name player_paid);
+          let updated_player_position =
+            Player.move_to player_paid (location updated_player)
+          in
+          updated_player_position)
+        else updated_player
+    | _ -> updated_player
+  in
+
   print_typed_string "Enter 'S' to sell a property";
   print_typed_string "Or enter any other key to do nothing and continue on. ";
 
   match Monopoly.parse_user_input (read_line ()) with
-  | "P" ->
-      if check_properties s new_position then (
-        print_typed_string "Sorry! This property has already been purchased.";
-        print_typed_string ("End of turn for " ^ Player.name updated_player);
-        reconstruct_state updated_player (purchased_properties s) (money_jar s)
-          s)
-      else
-        let property_price =
-          match List.nth board (location updated_player) with
-          | Property p -> Property.price p
-          | _ -> 0
-        in
-        if Player.cash updated_player < property_price then (
-          print_typed_string
-            "Sorry, you do not have enough money to purchase this property!";
-          reconstruct_state updated_player (purchased_properties s)
-            (money_jar s) s)
-        else
-          let player_purchased =
-            purchase_property updated_player current_tile
-          in
+  | "P" -> begin
+      match current_tile with
+      | Property _ ->
+          if check_properties s new_position then (
+            print_typed_string
+              "Sorry! This property has already been purchased.";
+            print_typed_string ("End of turn for " ^ Player.name new_player);
+            reconstruct_state new_player (purchased_properties s) s)
+          else
+            let property_price =
+              match List.nth board (location new_player) with
+              | Property p -> Property.price p
+              | _ -> 0
+            in
+            if Player.cash new_player < property_price then (
+              print_typed_string
+                "Sorry, you do not have enough money to purchase this property!";
+              reconstruct_state new_player (purchased_properties s) s)
+            else
+              let player_purchased =
+                purchase_property new_player current_tile
+              in
 
-          print_typed_string ("End of turn for " ^ Player.name player_purchased);
-          reconstruct_state player_purchased
-            (add_properties (purchased_properties s) (location updated_player))
-            (money_jar s) s
-  | "C" ->
-      print_typed_string "Drawing a chance card...";
-
-      (* TODO: Implement drawing a chance card. *)
-      let next_update =
-        unlock_chance_card updated_player (List.nth Board.board new_position)
-      in
-      reconstruct_state next_update (purchased_properties s) (money_jar s) s
-  | "H" ->
-      print_typed_string "Drawing a community chest card ...";
-      let next_update =
-        unlock_comm_chest_card updated_player
-          (List.nth Board.board new_position)
-      in
-
-      reconstruct_state next_update (purchased_properties s) (money_jar s) s
-  | "T" ->
-      let taxable_tile = List.nth board (location updated_player) in
-      let tax_amt = Tile.get_price (List.nth board (location updated_player)) in
-      let player_paid = pay_tax player taxable_tile in
-      if Player.cash player < 0 then
-        print_typed_string
-          (Player.name player_paid
-         ^ " has gone bankrupt, Cornell's overwhelming costs have proved to be \
-            too much for them!")
-      else print_typed_string ("End of turn for " ^ Player.name player_paid);
-      let updated_player_position =
-        Player.move_to player_paid (location updated_player)
-      in
-
-      reconstruct_state updated_player_position (purchased_properties s)
-        (money_jar s + tax_amt)
-        s
-  | "J" ->
-      print_typed_string "Moving you to Jail....";
-      let new_pos = get_pos board (tileName JustVisiting) 0 in
-      let new_update =
-        Player.go_to_jail (Player.move_to updated_player new_pos)
-      in
-      reconstruct_state new_update (purchased_properties s) (money_jar s) s
+              print_typed_string
+                ("End of turn for " ^ Player.name player_purchased);
+              reconstruct_state player_purchased
+                (add_properties (purchased_properties s) (location new_player))
+                s
+      | _ ->
+          print_typed_string "Sorry, this property cannot be purchased!";
+          reconstruct_state updated_player (purchased_properties s) s
+    end
   | "Q" ->
       print_typed_string
         "Thank you for playing Cornellopoly! We hope you had fun!";
       exit 0
-  | "Collect" ->
-      print_typed_string
-        ("Congrats, You have reaped the rewards of landing on free parking!"
-        ^ string_of_int (money_jar s)
-        ^ "will be added to your bank account.");
-      reconstruct_state updated_player (purchased_properties s) 0 s
   | "S" ->
-      if List.length (Player.properties updated_player) > 0 then (
+      if List.length (Player.properties new_player) > 0 then (
         print_typed_string
           "Pick from the following properties, or enter any other value to \
            exit:";
         print_typed_string (string_list_properties player);
         let inp = Monopoly.parse_user_input (read_line ()) in
-        let propholder = player_name_to_property updated_player inp in
+        let propholder = player_name_to_property new_player inp in
         let playernow =
           if
             propholder <> None
-            && has_property updated_player (Option.get propholder)
+            && has_property new_player (Option.get propholder)
           then begin
             print_endline
-              (inp ^ " sold t. = End of turn for " ^ Player.name updated_player);
+              (inp ^ " sold t. = End of turn for " ^ Player.name new_player);
 
             (* ignore (remove_properties s (index (Option.get propholder))); *)
-            state_sell_prop updated_player (Option.get propholder)
+            state_sell_prop new_player (Option.get propholder)
           end
           else begin
             print_endline
-              ("Invalid Selection. End of turn for "
-             ^ Player.name updated_player);
-            updated_player
+              ("Invalid Selection. End of turn for " ^ Player.name new_player);
+            new_player
           end
         in
-        (* print_endline (string_of_int (location updated_player));
-           print_endline (string_of_int (index (Option.get propholder)))*)
-        reconstruct_state playernow (purchased_properties s) (money_jar s) s)
+        (* print_endline (string_of_int (location new_player)); print_endline
+           (string_of_int (index (Option.get propholder)))*)
+        reconstruct_state playernow (purchased_properties s) s)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
-        reconstruct_state updated_player (purchased_properties s) (money_jar s)
-          s)
+        reconstruct_state new_player (purchased_properties s) s)
   | "Help" ->
       display_commands command_list;
-      reconstruct_state updated_player (purchased_properties s) (money_jar s) s
+      reconstruct_state new_player (purchased_properties s) s
   | _ -> (
-      (* Check if the player has forgotten to pay a tax here - if so charge the
-         player*)
-      let possible_update =
-        match List.nth board (location updated_player) with
-        | IncomeTax -> charge updated_player 200
-        | LuxuryTax -> charge updated_player 100
-        | Chance c ->
-            unlock_chance_card updated_player
-              (List.nth board (location updated_player))
-        | CommunityChest c ->
-            unlock_comm_chest_card updated_player
-              (List.nth board (location updated_player))
-        | _ -> charge updated_player 0
-      in
-
       (* If player is on another player's property, pays that player. *)
       match current_tile with
       | Property p ->
@@ -519,28 +517,24 @@ let rec one_turn (s : state) (player : player) =
           if is_property_owned p (player_list s) then (
             let property_price = Property.price p in
             let property_owner = find_owner p (player_list s) in
-            if Player.name property_owner <> Player.name updated_player then
+            if Player.name property_owner <> Player.name new_player then
               print_endline
                 (Player.name property_owner ^ " was paid "
                 ^ string_of_int property_price
                 ^ " for rent!");
 
-            print_endline ("End of turn for " ^ Player.name updated_player);
+            print_endline ("End of turn for " ^ Player.name new_player);
 
-            ( possible_update,
+            ( new_player,
               state_with_paid_player
-                (snd
-                   (reconstruct_state possible_update (purchased_properties s)
-                      (money_jar s) s))
+                (snd (reconstruct_state new_player (purchased_properties s) s))
                 property_owner property_price ))
           else (
-            print_endline ("End of turn for " ^ Player.name updated_player);
-            reconstruct_state possible_update (purchased_properties s)
-              (money_jar s) s)
+            print_endline ("End of turn for " ^ Player.name new_player);
+            reconstruct_state new_player (purchased_properties s) s)
       | _ ->
-          print_endline ("End of turn for " ^ Player.name updated_player);
-          reconstruct_state possible_update (purchased_properties s)
-            (money_jar s) s)
+          print_endline ("End of turn for " ^ Player.name new_player);
+          reconstruct_state new_player (purchased_properties s) s)
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
@@ -589,6 +583,7 @@ let rec take_turns (s : state) : state =
     majority of the game will be spent in this state.*)
 let rec game_loop (game : state) (turn : int) purchased playerlst =
   if List.length playerlst = 0 then exit 0 else print_endline "";
+  print_endline "";
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
@@ -612,7 +607,7 @@ let rec main () =
   print_endline "";
   let open Random in
   Random.self_init ();
-  let players_lst = init_players [] in
+  let players_lst = init_players [] true in
   let game_state = init_state players_lst [] 0 in
   print_typed_string
     "We begin our game of Cornellopoly with the following players: ";

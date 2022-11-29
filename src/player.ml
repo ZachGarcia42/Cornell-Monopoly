@@ -132,9 +132,9 @@ let unlock_chance_card (player : player) property =
         move_to player dest)
       else if ctype = "Chance: Get out of Jail Free" then (
         let num_get_out_of_jail_free_cards = player.get_out_cards in
-        print_endline "You have earned another Get out of Jail Free Card! ";
+        print_endline "You have earned a Get out of Jail Free Card! ";
         print_endline
-          ("You now have"
+          ("You now have "
           ^ string_of_int (num_get_out_of_jail_free_cards + 1)
           ^ " Get out of Jail Free Cards!");
         add_get_out_card player)
