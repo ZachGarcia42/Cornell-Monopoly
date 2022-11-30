@@ -129,7 +129,18 @@ let unlock_chance_card (player : player) property =
         in
         print_endline
           ("You are being moved back to " ^ tileName (List.nth board dest));
-        move_to player dest)
+
+        let current_tile = List.nth board dest in
+
+        let new_player =
+          match current_tile with
+          | IncomeTax -> charge player 200
+          | LuxuryTax -> charge player 100
+          | FreeParking -> pay player 100
+          | _ -> player
+        in
+
+        move_to new_player dest)
       else if ctype = "Chance: Get out of Jail Free" then (
         let num_get_out_of_jail_free_cards = player.get_out_cards in
         print_endline "You have earned a Get out of Jail Free Card! ";
