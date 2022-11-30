@@ -1,0 +1,236 @@
+{
+  "tiles": [
+    {
+      "type": "Go"
+    },
+    {
+      "type": "Property",
+      "name": "Low Rise 7",
+      "color": "Brown",
+      "price": 60,
+      "pos": 1
+    },
+    {
+      "type": "CommunityChest"
+    },
+    {
+      "type": "Property",
+      "name": "Mary Donlon Hall",
+      "color": "Brown",
+      "price": 60,
+      "pos": 3
+    },
+    {
+      "type": "IncomeTax"
+    },
+    {
+      "type": "Property",
+      "name": "Louie's Lunch",
+      "color": "Railroad",
+      "price": 200,
+      "pos": 5
+    },
+    {
+      "type": "Property",
+      "name": "West Campus Gothics",
+      "color": "LightBlue",
+      "price": 100,
+      "pos": 6
+    },
+    {
+      "type": "Chance"
+    },
+    {
+      "type": "Property",
+      "name": "Clara Dickson Hall",
+      "color": "LightBlue",
+      "price": 100,
+      "pos": 8
+    },
+    {
+      "type": "Property",
+      "name": "Milstein Balls",
+      "color": "LightBlue",
+      "price": 120,
+      "pos": 9
+    },
+    {
+      "type": "JustVisiting"
+    },
+    {
+      "type": "Property",
+      "name": "Baker Lab",
+      "color": "Magenta",
+      "price": 140,
+      "pos": 11
+    },
+    {
+      "type": "Property",
+      "name": "West Campus Plumbing",
+      "color": "Utility",
+      "price": 150,
+      "pos": 12
+    },
+    {
+      "type": "Property",
+      "name": "Goldwin Smith",
+      "color": "Magenta",
+      "price": 140,
+      "pos": 13
+    },
+    {
+      "type": "Property",
+      "name": "Ag Quad",
+      "color": "Magenta",
+      "price": 160,
+      "pos": 14
+    },
+    {
+      "type": "Property",
+      "name": "Mattin's Cafe",
+      "color": "Railroad",
+      "price": 200,
+      "pos": 15
+    },
+    {
+      "type": "Property",
+      "name": "Olin Hall",
+      "color": "Orange",
+      "price": 180,
+      "pos": 16
+    },
+    {
+      "type": "CommunityChest"
+    },
+    {
+      "type": "Property",
+      "name": "Uris Hall",
+      "color": "Orange",
+      "price": 180,
+      "pos": 18
+    },
+    {
+      "type": "Property",
+      "name": "Uris Library",
+      "color": "Orange",
+      "price": 200,
+      "pos": 19
+    },
+    {
+      "type": "FreeParking"
+    },
+    {
+      "type": "Property",
+      "name": "PSB",
+      "color": "Red",
+      "price": 220,
+      "pos": 21
+    },
+    {
+      "type": "Chance"
+    },
+    {
+      "type": "Property",
+      "name": "Toni Morrison Hall",
+      "color": "Red",
+      "price": 220,
+      "pos": 23
+    },
+    {
+      "type": "Property",
+      "name": "Ganedago Hall",
+      "color": "Red",
+      "price": 240,
+      "pos": 24
+    },
+    {
+      "type": "Property",
+      "name": "Mac's Cafe",
+      "color": "Railroad",
+      "price": 200,
+      "pos": 25
+    },
+    {
+      "type": "Property",
+      "name": "Klarman Hall",
+      "color": "Yellow",
+      "price": 260,
+      "pos": 26
+    },
+    {
+      "type": "Property",
+      "name": "CTB",
+      "color": "Yellow",
+      "price": 260,
+      "pos": 27
+    },
+    {
+      "type": "Property",
+      "name": "North Campus Fire Alarms",
+      "color": "Utility",
+      "price": 150,
+      "pos": 28
+    },
+    {
+      "type": "Property",
+      "name": "Statler Hotel",
+      "color": "Yellow",
+      "price": 280,
+      "pos": 29
+    },
+    {
+      "type": "GoToJail"
+    },
+    {
+      "type": "Property",
+      "name": "Mann Library",
+      "color": "Green",
+      "price": 300,
+      "pos": 31
+    },
+    {
+      "type": "Property",
+      "name": "Rhodes Hall",
+      "color": "Green",
+      "price": 300,
+      "pos": 32
+    },
+    {
+      "type": "CommunityChest"
+    },
+    {
+      "type": "Property",
+      "name": "Duffield Hall",
+      "color": "Green",
+      "price": 320,
+      "pos": 34
+    },
+    {
+      "type": "Property",
+      "name": "Cornell Botanical Gardens",
+      "color": "Railroad",
+      "price": 200,
+      "pos": 35
+    },
+    {
+      "type": "Chance"
+    },
+    {
+      "type": "Property",
+      "name": "Upson Hall",
+      "color": "Blue",
+      "price": 350,
+      "pos": 37
+    },
+    {
+      "type": "LuxuryTax"
+    },
+    {
+      "type": "Property",
+      "name": "Gates Hall",
+      "color": "Blue",
+      "price": 400,
+      "pos": 39
+    }
+  ]
+}

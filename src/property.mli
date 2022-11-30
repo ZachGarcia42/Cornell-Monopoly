@@ -26,6 +26,10 @@ val color : t -> set
 val string_of_set : set -> string
 (** [string_of_set set] is the same [set] but as a string. *)
 
+val set_of_string : string -> set
+(** [set_of_string s] is the set represented by s. Raises Failure if the string
+    does not represent a legal set*)
+
 val price : t -> int
 (** [price p] is the price of property [p]. *)
 

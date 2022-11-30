@@ -33,5 +33,18 @@ let string_of_set = function
   | Railroad -> "Railroad"
   | Utility -> "Utility"
 
+let set_of_string = function
+  | "Red" -> Red
+  | "Yellow" -> Yellow
+  | "Green" -> Green
+  | "Blue" -> Blue
+  | "Brown" -> Brown
+  | "LightBlue" -> LightBlue
+  | "Magenta" -> Magenta
+  | "Orange" -> Orange
+  | "Railroad" -> Railroad
+  | "Utility" -> Utility
+  | _ -> failwith "Illegal property set"
+
 let price t = t.price
 let index t = t.index

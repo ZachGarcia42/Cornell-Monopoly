@@ -10,7 +10,6 @@ open Tile
 
 let board = Board.board
 let identity s = s
-
 let gotojailpos = get_pos board (tileName GoToJail) 0
 let jailpos = get_pos board (tileName JustVisiting) 0
 
@@ -32,8 +31,8 @@ let player_passed_go_test (name : string) (expected_output : bool) (input : int)
 
 let tests =
   [
-    square_landed_test "testing square landed" "Baltic Avenue" board 1 2;
-    square_landed_test "testing square landed" "Vermont Avenue" board
+    square_landed_test "testing square landed" "Mary Donlon Hall" board 1 2;
+    square_landed_test "testing square landed" "Clara Dickson Hall" board
       (List.length board - 1)
       9;
     square_landed_test "testing square landed" "Community Chest" board
@@ -42,7 +41,7 @@ let tests =
     square_landed_test "testing square landed" "Luxury Tax" board
       (List.length board - 3)
       1;
-    square_landed_test "testing negative result" "Park Place" board 0 ~-3;
+    square_landed_test "testing negative result" "Upson Hall" board 0 ~-3;
     parse_user_input_test "testing parse user input" "P" "   P";
     parse_user_input_test "testing parse user input" "P" "    p         ";
     parse_user_input_test "testing parse user input" "" "      ";

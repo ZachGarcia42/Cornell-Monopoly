@@ -1,0 +1,34 @@
+{
+  "cards": [
+    {
+      "name": "Advance to Go! Collect $200",
+      "tile": "Go",
+      "price": 200,
+      "source": "Bank"
+    },
+    {
+      "name": "Bank error in your favor! Collect $200",
+      "tile": "Current",
+      "price": 200,
+      "source": "Bank"
+    },
+    {
+      "name": "Doctor's Fees! Pay $50",
+      "tile": "Current",
+      "price": -50,
+      "source": "Bank"
+    },
+    {
+      "name": "Get out of Jail Free Card earned",
+      "tile": "Current",
+      "price": 0,
+      "source": "Bank"
+    },
+    {
+      "name": "It is your birthday! Collect $10 from every player",
+      "tile": "Current",
+      "price": 10,
+      "source": "All Players"
+    }
+  ]
+}

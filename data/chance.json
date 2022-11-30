@@ -1,0 +1,67 @@
+{
+  "cards": [
+    {
+      "name": "Chance: Advancement",
+      "price": 200,
+      "command": "Advance to Go! Collect $200!",
+      "tile": "Go",
+      "movement": 0
+    },
+    {
+      "name": "Chance: Advancement",
+      "price": 0,
+      "command": "Advance to Ganedago Hall! \nCollect $200 if you pass Go!",
+      "tile": "Ganedago Hall",
+      "movement": 0
+    },
+    {
+      "name": "Chance: Advancement",
+      "price": 0,
+      "command": "Advance to Louie's Lunch! \nCollect $200 if you pass Go!",
+      "tile": "Louie's Lunch",
+      "movement": 0
+    },
+    {
+      "name": "Chance: Advancement",
+      "price": 0,
+      "command": "Go directly to Jail!\nDo not $200 if you pass Go",
+      "tile": "Just Visiting",
+      "movement": 0
+    },
+    {
+      "name": "Chance: Money Made",
+      "price": 150,
+      "command": "Your building loan matures. Collect $150",
+      "tile": "Current",
+      "movement": 0
+    },
+    {
+      "name": "Chance: Payment Required",
+      "price": 15,
+      "command": "Speeding Fine! Pay $15",
+      "tile": "Current",
+      "movement": 0
+    },
+    {
+      "name": "Chance: Payment Required",
+      "price": 150,
+      "command": "Pay School Tax of $150",
+      "tile": "Current",
+      "movement": 0
+    },
+    {
+      "name": "Chance: Move Backwards",
+      "price": 0,
+      "command": "Move backwards 3 spaces",
+      "tile": "3",
+      "movement": -3
+    },
+    {
+      "name": "Chance: Get out of Jail Free",
+      "price": 0,
+      "command": "Acquire a Get of Jail Free Card",
+      "tile": "Current",
+      "movement": 0
+    }
+  ]
+}
