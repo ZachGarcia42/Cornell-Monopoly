@@ -25,11 +25,11 @@ let check_properties state location =
   match List.nth board location with
   | Property x -> List.mem location state.purchased_properties
   | _ -> false
-(*List.mem location purchased *)
 
 (** [add_properties purchased location] adds the property at index [location] to
     the list of purchased properties. *)
-let add_properties purchased location = location :: purchased
+let add_properties (purchased : int list) (location : int) =
+  location :: purchased
 
 (**[remove_properties purchased property] removes the property [property] from
    the list of purchased properties*)
