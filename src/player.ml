@@ -134,9 +134,15 @@ let unlock_chance_card (player : player) property =
 
         let new_player =
           match current_tile with
-          | IncomeTax -> charge player 200
-          | LuxuryTax -> charge player 100
-          | FreeParking -> pay player 100
+          | IncomeTax -> 
+            print_endline "You are being charged $200";
+            charge player 200
+          | LuxuryTax -> 
+            print_endline "You are being charged $100";
+            charge player 100
+          | FreeParking -> 
+            print_endline "You receive $100";
+            pay player 100
           | _ -> player
         in
 
