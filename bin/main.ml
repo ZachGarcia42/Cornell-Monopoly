@@ -360,7 +360,7 @@ let rec one_turn (s : state) (player : player) =
     match List.nth Board.board new_position with
     | Property p ->
         if is_property_owned p (s |> player_list) then
-          charged_player updated_player p
+          buy_property updated_player p
         else updated_player
     | _ -> updated_player
   in
@@ -463,7 +463,7 @@ let rec one_turn (s : state) (player : player) =
               (inp ^ " sold t. = End of turn for " ^ Player.name new_player);
 
             (* ignore (remove_properties s (index (Option.get propholder))); *)
-            state_sell_prop new_player (Option.get propholder)
+            sell_property new_player (Option.get propholder)
           end
           else begin
             print_endline

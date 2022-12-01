@@ -30,22 +30,25 @@
 <a id="L6"></a><span > </span>
 <a id="L7"></a><span > </span>
 <a id="L8"></a><span > </span>
-<a id="L9"></a><span class="visited"> </span>
-<a id="L10"></a><span > </span>
+<a id="L9"></a><span > </span>
+<a id="L10"></a><span class="visited"> </span>
 <a id="L11"></a><span > </span>
 <a id="L12"></a><span > </span>
 <a id="L13"></a><span > </span>
 <a id="L14"></a><span > </span>
 <a id="L15"></a><span > </span>
 <a id="L16"></a><span > </span>
-<a id="L17"></a><span class="visited"> </span>
+<a id="L17"></a><span > </span>
 <a id="L18"></a><span class="visited"> </span>
-<a id="L19"></a><span > </span>
-<a id="L20"></a><span class="visited"> </span>
-<a id="L21"></a><span > </span>
-<a id="L22"></a><span class="visited"> </span>
-<a id="L23"></a><span > </span>
+<a id="L19"></a><span class="visited"> </span>
+<a id="L20"></a><span > </span>
+<a id="L21"></a><span class="visited"> </span>
+<a id="L22"></a><span > </span>
+<a id="L23"></a><span class="visited"> </span>
 <a id="L24"></a><span > </span>
+<a id="L25"></a><span class="visited"> </span>
+<a id="L26"></a><span > </span>
+<a id="L27"></a><span > </span>
 </pre>
       </div>
       <div id="text-layer">
@@ -74,29 +77,35 @@
 <a href="#L22">22</a>
 <a href="#L23">23</a>
 <a href="#L24">24</a>
+<a href="#L25">25</a>
+<a href="#L26">26</a>
+<a href="#L27">27</a>
 </pre>
 <pre><code class="ocaml">type t = {
   name: string;
   price: int;
   command: string;
   destination: string;
+  rel_sp_translation: int;
 }
 
-let init_chance description charge command dest= 
-  <span data-count="60">{</span>
+let init_chance description charge command dest sp= 
+  <span data-count="100">{</span>
     name =  description;
     price = charge;
     command = command;
     destination = dest;
-
+    rel_sp_translation = sp;
   }
 
-let name t = <span data-count="1">t</span>.name 
-let price t = <span data-count="1">t</span>.price
+let name t = <span data-count="55">t</span>.name 
+let price t = <span data-count="56">t</span>.price
 
-let command t = <span data-count="1">t</span>.command
+let command t = <span data-count="5">t</span>.command
 
-let destination t = <span data-count="1">t</span>.destination
+let destination t = <span data-count="55">t</span>.destination
+
+let rel_space_translation t = <span data-count="15">t</span>.rel_sp_translation
 
 
 </code></pre>
