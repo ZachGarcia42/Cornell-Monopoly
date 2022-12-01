@@ -80,19 +80,12 @@ let purchase_property (player : player) (property : Tile.tile) =
       charge player 100
   | _ -> charge player 0
 
-(** [charged_player player property] is the updated player after they've been
-    charged for landing on [property]*)
-let charged_player (player : player) (property : Property.t) =
-  charge player (Property.price property)
-
 let sell_property player prop =
   {
     player with
     cash = player.cash + (Property.price prop / 2);
     properties =
-      List.filter
-        (fun property -> if property = prop then false else true)
-        player.properties;
+      List.filter (fun property -> property <> prop) player.properties;
   }
 
 let net_worth p =
@@ -209,5 +202,3 @@ let rec player_name_to_property (player : player) str =
   | h :: t ->
       if Monopoly.parse_user_input (Property.name h) = str then Some h
       else player_name_to_property (sell_property player h) str
-
-let state_sell_prop (player : player) property = sell_property player property
