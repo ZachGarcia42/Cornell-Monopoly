@@ -75,7 +75,7 @@ val unlock_chance_card : player -> Tile.tile -> player
 (* [unlock_chance_card player property] unlocks a chance card and updates the
    player's status*)
 
-val unlock_comm_chest_card : player -> Tile.tile -> player
+val unlock_comm_chest_card : player -> Tile.tile -> player list -> player
 (* [unlock_comm_card player property] unlocks a community chest card and updates
    the player's status*)
 

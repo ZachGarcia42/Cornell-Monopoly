@@ -310,7 +310,7 @@ let reconstruct_state (updated_player : player)
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player and state with the updated player inside after turn has been
     completed. *)
-let rec one_turn (s : state) (player : player) =
+let rec one_turn (s : state) (player : player) plist=
   print_endline "";
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
@@ -366,12 +366,12 @@ let rec one_turn (s : state) (player : player) =
   in
 
   prompt_next_action s current_tile updated_player;
-
+  
   let new_player =
     match current_tile with
     | CommunityChest h ->
         unlock_comm_chest_card updated_player
-          (List.nth Board.board new_position)
+          (List.nth Board.board new_position) plist
     | Chance _ ->
         unlock_chance_card updated_player (List.nth Board.board new_position)
     | IncomeTax -> charge updated_player 200
@@ -553,22 +553,22 @@ let trimmed_state (p : player) (state : state) =
 
 (** [take_turns players] represents the new player states after each player
     takes one turn*)
-let rec take_turns (s : state) : state =
+let rec take_turns (s : state) (plist): state =
   match s |> player_list with
   | [] -> init_state [] [] 0
   | h :: t -> (
-      match one_turn s h with
+      match one_turn s h plist with
       | p, new_state ->
           if Player.cash p < 0 then
             let newer_state = trimmed_state p new_state in
             init_state
-              (player_list (take_turns newer_state))
+              (player_list (take_turns newer_state plist))
               (State.purchased_properties newer_state)
               (State.money_jar newer_state)
           else
             let tail_player_list_state = trimmed_state p new_state in
             let total_player_list =
-              p :: player_list (take_turns tail_player_list_state)
+              p :: player_list (take_turns tail_player_list_state plist)
             in
             init_state total_player_list
               (State.purchased_properties new_state)
@@ -588,8 +588,8 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  let updated_game = take_turns game in
-  let updated_playerlst = State.player_list updated_game in
+  let updated_game = take_turns game playerlst in
+  let updated_playerlst = State.player_list updated_game  in
   if end_conditions then ()
   else game_loop updated_game (turn + 1) purchased updated_playerlst
 

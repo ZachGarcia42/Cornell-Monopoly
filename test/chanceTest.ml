@@ -21,8 +21,11 @@ let tests =
   [
     test "command test" "Advance to Go! Collect $200!"
       (command (List.nth chance 0));
+    test "command test" "Acquire a Get of Jail Free Card"
+      (command (List.nth chance 1));
     test "destination test" "Go" (destination (List.nth chance 0));
     test "destination test" "Current" (destination (List.nth chance 1));
+    test "destination test" "3" (destination (List.nth chance 2));
     test "charge test" 0 (price (List.nth chance 1));
     test "charge test" 200 (price (List.nth chance 0));
     test "name test" "Chance: Advancement" (name (List.nth chance 0));

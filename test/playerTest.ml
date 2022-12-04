@@ -101,20 +101,20 @@ let tests =
     player_test "chance move moves" 4
       (location (unlock_chance_card zach (Chance chance_move)));
     player_test "not cc does nothing" zach
-      (unlock_comm_chest_card zach (Property boardwalk));
+      (unlock_comm_chest_card zach (Property boardwalk) []);
     player_test "cc move does nothing"
       (unlock_comm_chest_card zach (CommunityChest cc_move))
       (unlock_comm_chest_card
-         (unlock_comm_chest_card zach (CommunityChest cc_move))
+         (unlock_comm_chest_card zach (CommunityChest cc_move) [])
          (CommunityChest cc_move));
     player_test "cc go pays 200" 1700
-      (cash (unlock_comm_chest_card zach (CommunityChest cc_go)));
+      (cash (unlock_comm_chest_card zach (CommunityChest cc_go) []));
     player_test "cc doc charges 50" 1450
-      (cash (unlock_comm_chest_card zach (CommunityChest cc_doc)));
+      (cash (unlock_comm_chest_card zach (CommunityChest cc_doc) []));
     player_test "cc bday pays 0" 1510
-      (cash (unlock_comm_chest_card zach (CommunityChest cc_bday)));
+      (cash (unlock_comm_chest_card zach (CommunityChest cc_bday) []));
     player_test "cc goojf adds a card" 1
-      (cards (unlock_comm_chest_card zach (CommunityChest cc_goojf)));
+      (cards (unlock_comm_chest_card zach (CommunityChest cc_goojf) []));
     player_test "pay income tax" 1300 (cash (pay_tax zach IncomeTax));
     player_test "pay luxury tax" 1400 (cash (pay_tax zach LuxuryTax));
     player_test "pay no tax" 1500 (cash (pay_tax zach (Property boardwalk)));
