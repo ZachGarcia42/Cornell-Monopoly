@@ -122,7 +122,8 @@ let unlock_chance_card (player : player) property =
             (List.length board)
         in
         print_endline
-          ("You are being moved back to " ^ tileName (List.nth board dest));
+          ("Chance event: You are being moved back to "
+          ^ tileName (List.nth board dest));
 
         let current_tile = List.nth board dest in
 
