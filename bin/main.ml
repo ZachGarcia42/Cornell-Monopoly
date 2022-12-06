@@ -257,38 +257,32 @@ let yes_no_input s =
 
 let x = yes_no_helper := yes_no_input
 
+let rev_sort_assoc_list lst = 
+  List.rev (List.sort (fun x y -> if snd x > snd y then 1 else if snd x < snd y then -1 else 0) lst)
+
+let rec get_pl lst = 
+  match lst with 
+  |[] -> []
+  |h :: t -> 
+    fst h :: get_pl t
+
+let rec cash_to_players players = 
+  match players with 
+  | [] -> []
+  |h :: t -> 
+    (Player.name h, Player.cash h) :: cash_to_players t
 
 (* Prints the players standings*)
-let rec print_player_standings (players: player list) = 
-  let rec cash_to_players players = 
-    match players with 
-    | [] -> []
-    |h :: t -> 
-      (Player.cash h, Player.name h) :: cash_to_players t
-  
-  in 
-  let rec get_cash_list lst = 
-    match lst with 
-    |[] -> []
-    |h :: t -> 
-      fst h :: get_cash_list t 
-  in 
-  let sorted_cash = List.rev (List.sort (fun x y -> if x 
-    > y then 1 else if x < y then -1 else 0) (get_cash_list (cash_to_players players)))
-  in 
+let print_player_standings (players: player list) = 
+  let standings_list = rev_sort_assoc_list (cash_to_players players) in
+  let rankings = get_pl standings_list in 
+  rankings
 
-  let rec get_player_standings srtcash players = 
-    match srtcash with 
-    |[] -> []
-    |h :: t -> 
-      List.assoc h players :: get_player_standings t players
-
-  in 
-  get_player_standings (sorted_cash) (cash_to_players players)
-
-let rec print_standings lst = 
+let rec print_standings lst (cashlst : (string * int) list )= 
+  print_endline " ----- LEADERBOARD ----- ";
   for i = 0 to (List.length lst - 1) do 
-    print_endline ("Rank : " ^ string_of_int (i + 1) ^ List.nth lst i);
+    print_endline ("Rank " ^ string_of_int (i + 1) ^  " : " 
+    ^ List.nth lst i ^ " has " ^ "$" ^ string_of_int (List.assoc (List.nth lst i) cashlst));
   done
 
 let handle_card player =
@@ -591,11 +585,6 @@ let rec take_turns (s : state) (plist): state =
                init_state (p :: player_list (take_turns (init_state t new_s m)))
                new_s m) *))
 
-let rec print_lst lst = 
-  match lst with 
-  |[] -> ""
-  |h :: t -> (Player.name h) ^ ", " ^ print_lst t 
-
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
@@ -606,7 +595,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  print_standings (print_player_standings playerlst);
+  print_standings (print_player_standings playerlst) (cash_to_players playerlst) ;
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game  in
   if end_conditions then ()
