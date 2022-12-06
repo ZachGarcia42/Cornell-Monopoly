@@ -80,19 +80,12 @@ let purchase_property (player : player) (property : Tile.tile) =
       charge player 100
   | _ -> charge player 0
 
-(** [charged_player player property] is the updated player after they've been
-    charged for landing on [property]*)
-let charged_player (player : player) (property : Property.t) =
-  charge player (Property.price property)
-
 let sell_property player prop =
   {
     player with
     cash = player.cash + (Property.price prop / 2);
     properties =
-      List.filter
-        (fun property -> if property = prop then false else true)
-        player.properties;
+      List.filter (fun property -> property <> prop) player.properties;
   }
 
 let net_worth p =
@@ -102,9 +95,10 @@ let net_worth p =
 let unlock_chance_card (player : player) property =
   match property with
   | Chance c ->
-      let dest = Chance.destination c in
-      let ctype = Chance.name c in
-      let price = Chance.price c in
+      let ch = Board.draw_card (Board.chance_commands) in 
+      let dest = Chance.destination ch in
+      let ctype = Chance.name ch in
+      let price = Chance.price ch in
       if ctype = "Chance: Advancement" then (
         print_typed_string ("You have advanced to " ^ dest);
         let new_pos = get_pos board dest 0 in
@@ -124,7 +118,7 @@ let unlock_chance_card (player : player) property =
 
         let dest =
           Monopoly.convert
-            (current_pos + rel_space_translation c)
+            (current_pos + rel_space_translation ch)
             (List.length board)
         in
         print_endline
@@ -135,9 +129,15 @@ let unlock_chance_card (player : player) property =
 
         let new_player =
           match current_tile with
-          | IncomeTax -> charge player 200
-          | LuxuryTax -> charge player 100
-          | FreeParking -> pay player 100
+          | IncomeTax -> 
+            print_endline "You are being charged $200";
+            charge player 200
+          | LuxuryTax -> 
+            print_endline "You are being charged $100";
+            charge player 100
+          | FreeParking -> 
+            print_endline "You receive $100";
+            pay player 100
           | _ -> player
         in
 
@@ -155,14 +155,30 @@ let unlock_chance_card (player : player) property =
       print_typed_string "This is not a Chance Card!";
       charge player 0
 
-let unlock_comm_chest_card (player : player) property =
+let rec collect_money_from_other_players player playerlist amt = 
+  match playerlist with 
+  |[] -> []
+  |h :: t -> 
+    if h = player then player :: collect_money_from_other_players player t amt 
+    else 
+      let new_player = pay h amt in 
+      new_player :: collect_money_from_other_players player t amt 
+
+
+let unlock_comm_chest_card (player : player) property (playerlst: player list) =
   match property with
   | CommunityChest c ->
-      print_endline (Chest.name c);
-      if Chest.name c = "Get out of Jail Free Card earned" then
+    let ch = Board.draw_card (Board.community_chest_commands) in 
+      print_endline (Chest.name ch);
+      if Chest.name ch = "Get out of Jail Free Card earned" then
         { player with get_out_cards = player.get_out_cards + 1 }
+      else if Chest.name ch = "It is your birthday! Collect $10 from every player" then 
+        let num_players = List.length playerlst in 
+        let new_player = pay player (num_players * 10) in 
+        let updated_players = new_player :: collect_money_from_other_players player playerlst 10 in 
+        List.nth updated_players 0
       else
-        let dest = Chest.destination c in
+        let dest = Chest.destination ch in
         if dest <> "Current" then (
           let new_pos = get_pos board dest 0 in
           print_typed_string ("You have advanced to " ^ dest);
@@ -178,7 +194,7 @@ let unlock_comm_chest_card (player : player) property =
 
           move_to did_player_pass_go new_pos)
         else
-          let payment = Chest.payment c in
+          let payment = Chest.payment ch in
           if payment < 0 then charge player (-1 * payment)
           else pay player payment
   | _ ->
@@ -205,4 +221,3 @@ let rec player_name_to_property (player : player) str =
       if Monopoly.parse_user_input (Property.name h) = str then Some h
       else player_name_to_property (sell_property player h) str
 
-let state_sell_prop (player : player) property = sell_property player property

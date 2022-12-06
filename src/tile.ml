@@ -14,7 +14,7 @@ let tileName = function
   | Go -> "Go"
   | CommunityChest h -> "Community Chest"
   | IncomeTax -> "Income Tax"
-  | Chance c -> Chance.name c
+  | Chance c -> "Chance"
   | JustVisiting -> "Just Visiting"
   | FreeParking -> "Free Parking"
   | GoToJail -> "Go To Jail"

@@ -26,6 +26,10 @@ val add_properties : int list -> int -> int list
 (** [add_properties purchased location] adds the property at index [location] to
     the list of purchased properties. *)
 
+val remove_properties : state -> int -> state
+(** [remove_properties purchased location] removes the property at index
+    [location] from the list of purchased properties*)
+
 val is_property_owned : Property.t -> Player.player list -> bool
 (** [is_property_owned property] is true iff [property] is owned by one of the
     players. *)

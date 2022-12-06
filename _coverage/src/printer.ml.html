@@ -79,18 +79,18 @@ let fast = 0.01
    true. *)
 let debugging = true
 
-let rec print_chars ?speed:(setting = <span data-count="1465">m</span>ed) = function
-  | <span data-count="20">[</span>] -&gt; ()
-  | <span data-count="1445">h</span> :: t -&gt;
+let rec print_chars ?speed:(setting = <span data-count="3165">m</span>ed) = function
+  | <span data-count="70">[</span>] -&gt; ()
+  | <span data-count="3095">h</span> :: t -&gt;
       print_char h;
-      <span data-count="1445">i</span>f debugging then <span data-count="1445">U</span>nix.sleep<span data-count="1445">f</span> 0. else <span data-count="0">U</span>nix.sleep<span data-count="0">f</span> setting;
+      <span data-count="3095">i</span>f debugging then <span data-count="3095">U</span>nix.sleep<span data-count="3095">f</span> 0. else <span data-count="0">U</span>nix.sleep<span data-count="0">f</span> setting;
       flush stdout;
-      <span data-count="1445">p</span>rint_chars t
+      <span data-count="3095">p</span>rint_chars t
 
 let print_typed_string (s : string) =
-  <span data-count="20">l</span>et char_list = List.of_seq (String.to_se<span data-count="20">q</span> s) in
-  <span data-count="20">p</span>rint_chars char_list;
-  <span data-count="20">p</span>rint_endline ""
+  <span data-count="70">l</span>et char_list = List.of_seq (String.to_se<span data-count="70">q</span> s) in
+  <span data-count="70">p</span>rint_chars char_list;
+  <span data-count="70">p</span>rint_endline ""
 </code></pre>
       </div>
     </div>

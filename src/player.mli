@@ -57,10 +57,6 @@ val has_property : player -> Property.t -> bool
 val purchase_property : player -> Tile.tile -> player
 (** Purchases the property and updates the player's values*)
 
-val charged_player : player -> Property.t -> player
-(** [charged_player player property] is the updated player after they've been
-    charged for landing on [property]*)
-
 val buy_property : player -> Property.t -> player
 (** [buy_property player prop roll] is an updated player with prop added to the
     property list and the cost of prop subtracted from their cash*)
@@ -79,7 +75,7 @@ val unlock_chance_card : player -> Tile.tile -> player
 (* [unlock_chance_card player property] unlocks a chance card and updates the
    player's status*)
 
-val unlock_comm_chest_card : player -> Tile.tile -> player
+val unlock_comm_chest_card : player -> Tile.tile -> player list -> player
 (* [unlock_comm_card player property] unlocks a community chest card and updates
    the player's status*)
 
@@ -94,7 +90,3 @@ val player_name_to_property : player -> string -> Property.t option
 (*[player_name player str] matches a string [str] to a property that player
   [player] has purchased. Returns None if [str] is not the name of a player's
   property.*)
-
-val state_sell_prop : player -> Property.t -> player
-(*[state_sell_prop player property] returns the new type player after the player
-  [player] has sold the property [property]*)

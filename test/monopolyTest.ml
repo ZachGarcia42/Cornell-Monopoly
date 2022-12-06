@@ -49,4 +49,7 @@ let tests =
     player_passed_go_test "testing player passed go" false gotojailpos jailpos;
     player_passed_go_test "testing player passed go" false 4 7;
     player_passed_go_test "testing player passed go" true 38 0;
+    player_passed_go_test "chance to just visiting" false
+      (get_pos board "Chance" 0)
+      (get_pos board "Just Visiting" 0);
   ]
