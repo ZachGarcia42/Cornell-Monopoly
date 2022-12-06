@@ -145,39 +145,55 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 
 (** [init_players ()] instantiates the number of desired players and adds them
     to the players list *)
-let rec init_players players_lst flag =
-  if flag == true then begin
+let rec init_players players_lst counter flag =
+  if counter = 0 || flag = true then begin
     print_typed_string "Please enter your name: ";
     print_string "> ";
 
     match read_line () with
     | "" ->
         print_typed_string "Invalid name! Your name cannot be blank!";
-        init_players players_lst true
+        init_players players_lst counter flag
+    | name ->
+        let new_player = init_player name starting_money in
+        print_typed_string
+          ("Successfully created new player named " ^ Player.name new_player);
+        let updated_players = players_lst @ [ new_player ] in
+        init_players updated_players (counter + 1) false
+  end
+  else if counter = 1 then begin
+    print_typed_string "Please enter a second player: ";
+    print_string "> ";
+
+    match read_line () with
+    | "" ->
+        print_typed_string "Invalid name! Your name cannot be blank!";
+        init_players players_lst counter flag
     | name -> (
         let new_player = init_player name starting_money in
         print_typed_string
           ("Successfully created new player named " ^ Player.name new_player);
         let updated_players = players_lst @ [ new_player ] in
+
         print_typed_string "Enter another player? Enter 'Yes' or 'No'";
 
         match String.lowercase_ascii (read_line ()) with
-        | "yes" | "y" -> init_players updated_players true
+        | "yes" | "y" -> init_players updated_players (counter + 1) true
         | "no" | "n" -> updated_players
         | _ ->
             print_typed_string "I didn't understand that";
-            init_players updated_players false)
+            init_players updated_players counter flag)
   end
   else
     let updated_players = players_lst in
     print_typed_string "Enter another player? Enter 'Yes' or 'No'";
 
     match String.lowercase_ascii (read_line ()) with
-    | "yes" | "y" -> init_players updated_players true
+    | "yes" | "y" -> init_players updated_players (counter + 1) true
     | "no" | "n" -> updated_players
     | _ ->
         print_typed_string "I didn't understand that";
-        init_players updated_players false
+        init_players updated_players counter flag
 
 (** [rent_charge_inform s p player] informs the current player whose turn it of
     the owner of the property [p] they landed on and how much they are being
@@ -255,36 +271,37 @@ let yes_no_input s =
 
 let x = yes_no_helper := yes_no_input
 
+let rev_sort_assoc_list lst =
+  List.rev
+    (List.sort
+       (fun x y -> if snd x > snd y then 1 else if snd x < snd y then -1 else 0)
+       lst)
 
-let rev_sort_assoc_list lst = 
-  List.rev (List.sort (fun x y -> if snd x > snd y then 1 else if snd x < snd y then -1 else 0) lst)
-
-let rec get_pl lst = 
-  match lst with 
-  |[] -> []
-  |h :: t -> 
-    fst h :: get_pl t
-
-let rec cash_to_players players = 
-  match players with 
+let rec get_pl lst =
+  match lst with
   | [] -> []
-  |h :: t -> 
-    (Player.name h, Player.cash h) :: cash_to_players t
+  | h :: t -> fst h :: get_pl t
+
+let rec cash_to_players players =
+  match players with
+  | [] -> []
+  | h :: t -> (Player.name h, Player.cash h) :: cash_to_players t
 
 (* Prints the players standings*)
-let print_player_standings (players: player list) = 
+let print_player_standings (players : player list) =
   let standings_list = rev_sort_assoc_list (cash_to_players players) in
-  let rankings = get_pl standings_list in 
+  let rankings = get_pl standings_list in
   rankings
 
-let rec print_standings lst (cashlst : (string * int) list )= 
+let rec print_standings lst (cashlst : (string * int) list) =
   print_endline " ----- LEADERBOARD ----- ";
-  for i = 0 to (List.length lst - 1) do 
-    print_endline ("Rank " ^ string_of_int (i + 1) ^  " : " 
-    ^ List.nth lst i ^ " has " ^ "$" ^ string_of_int (List.assoc (List.nth lst i) cashlst));
+  for i = 0 to List.length lst - 1 do
+    print_endline
+      ("Rank "
+      ^ string_of_int (i + 1)
+      ^ " : " ^ List.nth lst i ^ " has " ^ "$"
+      ^ string_of_int (List.assoc (List.nth lst i) cashlst))
   done
-
-
 
 let handle_card player =
   print_endline
@@ -624,7 +641,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  print_standings (print_player_standings playerlst) (cash_to_players playerlst) ;
+  print_standings (print_player_standings playerlst) (cash_to_players playerlst);
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game in
   if end_conditions then ()
@@ -644,7 +661,7 @@ let rec main () =
   print_endline "";
   let open Random in
   Random.self_init ();
-  let players_lst = init_players [] true in
+  let players_lst = init_players [] 0 false in
   let game_state = init_state players_lst [] 0 in
   print_typed_string
     "We begin our game of Cornellopoly with the following players: ";
