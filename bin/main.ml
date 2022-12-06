@@ -387,23 +387,30 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
             && has_property new_player (Option.get propholder)
           then begin
             print_endline
-              (inp ^ " sold t. = End of turn for " ^ Player.name new_player);
+              (inp ^ " was sold successfully at Martha's Auction. "
+             ^ Player.name new_player ^ ", you can attempt another action.");
 
             (* ignore (remove_properties s (index (Option.get propholder))); *)
             sell_property new_player (Option.get propholder)
           end
           else begin
             print_endline
-              ("Invalid Selection. End of turn for " ^ Player.name new_player);
+              ("Invalid Selection. " ^ Player.name new_player
+             ^ ", please attempt a new action.");
             new_player
           end
         in
-        (* print_endline (string_of_int (location new_player)); print_endline
-           (string_of_int (index (Option.get propholder)))*)
-        reconstruct_state playernow (purchased_properties s) s)
+
+        prompt_next_action s current_tile playernow;
+        prompt_if_not_jailed current_tile;
+        !match_input_helper current_tile s new_position new_player playernow)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
-        reconstruct_state new_player (purchased_properties s) s)
+
+        prompt_next_action s current_tile updated_player;
+        prompt_if_not_jailed current_tile;
+        !match_input_helper current_tile s new_position new_player
+          updated_player)
   | "H" ->
       print_endline
         "Hello! Here's a brief overview of how the game works: At the \
