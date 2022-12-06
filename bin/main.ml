@@ -33,6 +33,11 @@ let rec print_player_names players =
       print_string (Player.name h ^ ", ");
       print_player_names t
 
+let rec player_list_string (players : player list) =
+  match players with
+  | [] -> []
+  | h :: t -> Player.name h :: player_list_string t
+
 let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
   print_endline
@@ -155,11 +160,15 @@ let rec init_players players_lst counter flag =
         print_typed_string "Invalid name! Your name cannot be blank!";
         init_players players_lst counter flag
     | name ->
-        let new_player = init_player name starting_money in
-        print_typed_string
-          ("Successfully created new player named " ^ Player.name new_player);
-        let updated_players = players_lst @ [ new_player ] in
-        init_players updated_players (counter + 1) false
+        if List.mem name (player_list_string players_lst) then (
+          print_typed_string "Invalid name! Someone else has the same name!";
+          init_players players_lst counter flag)
+        else
+          let new_player = init_player name starting_money in
+          print_typed_string
+            ("Successfully created new player named " ^ Player.name new_player);
+          let updated_players = players_lst @ [ new_player ] in
+          init_players updated_players (counter + 1) false
   end
   else if counter = 1 then begin
     print_typed_string "Please enter a second player: ";
@@ -170,19 +179,23 @@ let rec init_players players_lst counter flag =
         print_typed_string "Invalid name! Your name cannot be blank!";
         init_players players_lst counter flag
     | name -> (
-        let new_player = init_player name starting_money in
-        print_typed_string
-          ("Successfully created new player named " ^ Player.name new_player);
-        let updated_players = players_lst @ [ new_player ] in
+        if List.mem name (player_list_string players_lst) then (
+          print_typed_string "Invalid name! Someone else has the same name!";
+          init_players players_lst counter flag)
+        else
+          let new_player = init_player name starting_money in
+          print_typed_string
+            ("Successfully created new player named " ^ Player.name new_player);
+          let updated_players = players_lst @ [ new_player ] in
 
-        print_typed_string "Enter another player? Enter 'Yes' or 'No'";
+          print_typed_string "Enter another player? Enter 'Yes' or 'No'";
 
-        match String.lowercase_ascii (read_line ()) with
-        | "yes" | "y" -> init_players updated_players (counter + 1) true
-        | "no" | "n" -> updated_players
-        | _ ->
-            print_typed_string "I didn't understand that";
-            init_players updated_players counter flag)
+          match String.lowercase_ascii (read_line ()) with
+          | "yes" | "y" -> init_players updated_players (counter + 1) true
+          | "no" | "n" -> updated_players
+          | _ ->
+              print_typed_string "I didn't understand that";
+              init_players updated_players counter flag)
   end
   else
     let updated_players = players_lst in
