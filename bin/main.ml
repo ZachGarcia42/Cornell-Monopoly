@@ -16,6 +16,7 @@ let command_list =
     "Press P to attempt to purchase a property";
     "Press Q to quit";
     "Press S to sell a property";
+    "Press H at any time for help";
   ]
 
 let display_commands (cmdlist : string list) =
@@ -369,6 +370,7 @@ let rec one_turn (s : state) (player : player) =
     | GoToJail -> ()
     | _ ->
         print_typed_string "Enter 'S' to sell a property";
+        print_typed_string "Enter 'H' for help";
         print_typed_string
           "Or enter any other key to do nothing and continue on. "
   in
@@ -484,8 +486,25 @@ let rec one_turn (s : state) (player : player) =
       else (
         print_typed_string "Sorry, you currently don't own any properties";
         reconstruct_state new_player (purchased_properties s) s)
+  | "H" ->
+      let help =
+        print_endline
+          "Hello! Here's a brief overview of how the game works: At the \
+           beginning of each turn, we roll a pair of die for you and advance \
+           your character that many spaces on the game board. We give you \
+           useful information like your current bank account balance, the \
+           current square you're on, and a few tiles around you. Then, you are \
+           prompted to enter your next action based on what square you're on. \
+           Note that you must enter exactly what's prompted in most cases, \
+           although you will still be charged for rent, taxes, and other \
+           things regardless of what you enter (so tax evasion isn't \
+           possible)! Hope this helps!"
+      in
+      help;
+      reconstruct_state new_player (purchased_properties s) s
   | "Help" ->
       display_commands command_list;
+      (* This does not work btw *)
       reconstruct_state new_player (purchased_properties s) s
   | _ -> (
       (* If player is on another player's property, pays that player. *)
