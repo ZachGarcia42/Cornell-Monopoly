@@ -324,6 +324,160 @@ let reconstruct_state (updated_player : player)
   ( updated_player,
     init_state new_players_list purchased_properties (money_jar state) )
 
+let match_input_helper =
+  ref
+    (fun
+      (current_tile : Tile.tile)
+      (s : state)
+      (new_position : int)
+      (new_player : player)
+      (updated_player : player)
+    -> (updated_player, s))
+
+let match_input (current_tile : tile) (s : state) (new_position : int)
+    (new_player : player) (updated_player : player) =
+  match Monopoly.parse_user_input (read_line ()) with
+  | "P" -> begin
+      match current_tile with
+      | Property _ ->
+          if check_properties s new_position then (
+            print_typed_string
+              "Sorry! This property has already been purchased.";
+            print_typed_string ("End of turn for " ^ Player.name new_player);
+            reconstruct_state new_player (purchased_properties s) s)
+          else
+            let property_price =
+              match List.nth board (location new_player) with
+              | Property p -> Property.price p
+              | _ -> 0
+            in
+            if Player.cash new_player < property_price then (
+              print_typed_string
+                "Sorry, you do not have enough money to purchase this property!";
+              reconstruct_state new_player (purchased_properties s) s)
+            else
+              let player_purchased =
+                purchase_property new_player current_tile
+              in
+
+              print_typed_string
+                ("End of turn for " ^ Player.name player_purchased);
+              reconstruct_state player_purchased
+                (add_properties (purchased_properties s) (location new_player))
+                s
+      | _ ->
+          print_typed_string "Sorry, this property cannot be purchased!";
+          reconstruct_state updated_player (purchased_properties s) s
+    end
+  | "Q" ->
+      print_typed_string
+        "Thank you for playing Cornellopoly! We hope you had fun!";
+      exit 0
+  | "S" ->
+      if List.length (Player.properties new_player) > 0 then (
+        print_typed_string
+          "Pick from the following properties, or enter any other value to \
+           exit:";
+        print_typed_string (string_list_properties new_player);
+        let inp = Monopoly.parse_user_input (read_line ()) in
+        let propholder = player_name_to_property new_player inp in
+        let playernow =
+          if
+            propholder <> None
+            && has_property new_player (Option.get propholder)
+          then begin
+            print_endline
+              (inp ^ " sold t. = End of turn for " ^ Player.name new_player);
+
+            (* ignore (remove_properties s (index (Option.get propholder))); *)
+            sell_property new_player (Option.get propholder)
+          end
+          else begin
+            print_endline
+              ("Invalid Selection. End of turn for " ^ Player.name new_player);
+            new_player
+          end
+        in
+        (* print_endline (string_of_int (location new_player)); print_endline
+           (string_of_int (index (Option.get propholder)))*)
+        reconstruct_state playernow (purchased_properties s) s)
+      else (
+        print_typed_string "Sorry, you currently don't own any properties";
+        reconstruct_state new_player (purchased_properties s) s)
+  | "H" ->
+      print_endline
+        "Hello! Here's a brief overview of how the game works: At the \
+         beginning of each turn, we roll a pair of die for you and advance \
+         your character that many spaces on the game board. We give you useful \
+         information like your current bank account balance, the current \
+         square you're on, and a few tiles around you. Then, you are prompted \
+         to enter your next action based on what square you're on. Note that \
+         you must enter exactly what's prompted in most cases, although you \
+         will still be charged for rent, taxes, and other things regardless of \
+         what you enter (so tax evasion isn't possible)! Hope this helps!";
+      prompt_next_action s current_tile updated_player;
+      prompt_if_not_jailed current_tile;
+      !match_input_helper current_tile s new_position new_player updated_player
+  | "Help" ->
+      display_commands command_list;
+      (* This does not work btw *)
+      reconstruct_state new_player (purchased_properties s) s
+  | _ -> (
+      (* If player is on another player's property, pays that player. *)
+      match current_tile with
+      | Property p ->
+          (* Returns the owner of property [p]. Returns the first player in the
+             list of players if the owner isn't found (should never happen) *)
+          let rec find_owner p players =
+            match players with
+            | [] -> List.nth players 0
+            | h :: t -> if Player.has_property h p then h else find_owner p t
+          in
+
+          let rec pay_player_in_list player_to_be_paid amt players =
+            match players with
+            | [] -> []
+            | h :: t ->
+                if Player.name h = Player.name player_to_be_paid then
+                  Player.pay player_to_be_paid amt :: t
+                else h :: pay_player_in_list player_to_be_paid amt t
+          in
+
+          (* Accepts and returns a game state, the only difference being that
+             [player_to_be_paid] gets paid [amt]*)
+          let rec state_with_paid_player (state : state)
+              (player_to_be_paid : player) (amt : int) =
+            let players = State.player_list state in
+            let new_players_list =
+              pay_player_in_list player_to_be_paid amt players
+            in
+            init_state new_players_list
+              (State.purchased_properties state)
+              (State.money_jar state)
+          in
+
+          if is_property_owned p (player_list s) then (
+            let property_price = Property.price p in
+            let property_owner = find_owner p (player_list s) in
+            if Player.name property_owner <> Player.name new_player then
+              print_endline
+                (Player.name property_owner ^ " was paid "
+                ^ string_of_int property_price
+                ^ " for rent!");
+
+            print_endline ("End of turn for " ^ Player.name new_player);
+
+            ( new_player,
+              state_with_paid_player
+                (snd (reconstruct_state new_player (purchased_properties s) s))
+                property_owner property_price ))
+          else (
+            print_endline ("End of turn for " ^ Player.name new_player);
+            reconstruct_state new_player (purchased_properties s) s)
+      | _ ->
+          print_endline ("End of turn for " ^ Player.name new_player);
+          reconstruct_state new_player (purchased_properties s) s)
+
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player and state with the updated player inside after turn has been
     completed. *)
@@ -430,159 +584,9 @@ let rec one_turn (s : state) (player : player) plist =
     | _ -> updated_player
   in
 
-  let rec match_input =
-    match Monopoly.parse_user_input (read_line ()) with
-    | "P" -> begin
-        match current_tile with
-        | Property _ ->
-            if check_properties s new_position then (
-              print_typed_string
-                "Sorry! This property has already been purchased.";
-              print_typed_string ("End of turn for " ^ Player.name new_player);
-              reconstruct_state new_player (purchased_properties s) s)
-            else
-              let property_price =
-                match List.nth board (location new_player) with
-                | Property p -> Property.price p
-                | _ -> 0
-              in
-              if Player.cash new_player < property_price then (
-                print_typed_string
-                  "Sorry, you do not have enough money to purchase this \
-                   property!";
-                reconstruct_state new_player (purchased_properties s) s)
-              else
-                let player_purchased =
-                  purchase_property new_player current_tile
-                in
+  match_input_helper := match_input;
 
-                print_typed_string
-                  ("End of turn for " ^ Player.name player_purchased);
-                reconstruct_state player_purchased
-                  (add_properties (purchased_properties s) (location new_player))
-                  s
-        | _ ->
-            print_typed_string "Sorry, this property cannot be purchased!";
-            reconstruct_state updated_player (purchased_properties s) s
-      end
-    | "Q" ->
-        print_typed_string
-          "Thank you for playing Cornellopoly! We hope you had fun!";
-        exit 0
-    | "S" ->
-        if List.length (Player.properties new_player) > 0 then (
-          print_typed_string
-            "Pick from the following properties, or enter any other value to \
-             exit:";
-          print_typed_string (string_list_properties player);
-          let inp = Monopoly.parse_user_input (read_line ()) in
-          let propholder = player_name_to_property new_player inp in
-          let playernow =
-            if
-              propholder <> None
-              && has_property new_player (Option.get propholder)
-            then begin
-              print_endline
-                (inp ^ " sold t. = End of turn for " ^ Player.name new_player);
-
-              (* ignore (remove_properties s (index (Option.get
-                 propholder))); *)
-              sell_property new_player (Option.get propholder)
-            end
-            else begin
-              print_endline
-                ("Invalid Selection. End of turn for " ^ Player.name new_player);
-              new_player
-            end
-          in
-          (* print_endline (string_of_int (location new_player)); print_endline
-             (string_of_int (index (Option.get propholder)))*)
-          reconstruct_state playernow (purchased_properties s) s)
-        else (
-          print_typed_string "Sorry, you currently don't own any properties";
-          reconstruct_state new_player (purchased_properties s) s)
-    | "H" ->
-        let help =
-          print_endline
-            "Hello! Here's a brief overview of how the game works: At the \
-             beginning of each turn, we roll a pair of die for you and advance \
-             your character that many spaces on the game board. We give you \
-             useful information like your current bank account balance, the \
-             current square you're on, and a few tiles around you. Then, you \
-             are prompted to enter your next action based on what square \
-             you're on. Note that you must enter exactly what's prompted in \
-             most cases, although you will still be charged for rent, taxes, \
-             and other things regardless of what you enter (so tax evasion \
-             isn't possible)! Hope this helps!"
-        in
-        help;
-        prompt_next_action s current_tile updated_player;
-        prompt_if_not_jailed current_tile;
-        reconstruct_state new_player (purchased_properties s) s
-    | "Help" ->
-        display_commands command_list;
-        (* This does not work btw *)
-        reconstruct_state new_player (purchased_properties s) s
-    | _ -> (
-        (* If player is on another player's property, pays that player. *)
-        match current_tile with
-        | Property p ->
-            (* Returns the owner of property [p]. Returns the first player in
-               the list of players if the owner isn't found (should never
-               happen) *)
-            let rec find_owner p players =
-              match players with
-              | [] -> List.nth players 0
-              | h :: t -> if Player.has_property h p then h else find_owner p t
-            in
-
-            let rec pay_player_in_list player_to_be_paid amt players =
-              match players with
-              | [] -> []
-              | h :: t ->
-                  if Player.name h = Player.name player_to_be_paid then
-                    Player.pay player_to_be_paid amt :: t
-                  else h :: pay_player_in_list player_to_be_paid amt t
-            in
-
-            (* Accepts and returns a game state, the only difference being that
-               [player_to_be_paid] gets paid [amt]*)
-            let rec state_with_paid_player (state : state)
-                (player_to_be_paid : player) (amt : int) =
-              let players = State.player_list state in
-              let new_players_list =
-                pay_player_in_list player_to_be_paid amt players
-              in
-              init_state new_players_list
-                (State.purchased_properties state)
-                (State.money_jar state)
-            in
-
-            if is_property_owned p (player_list s) then (
-              let property_price = Property.price p in
-              let property_owner = find_owner p (player_list s) in
-              if Player.name property_owner <> Player.name new_player then
-                print_endline
-                  (Player.name property_owner ^ " was paid "
-                  ^ string_of_int property_price
-                  ^ " for rent!");
-
-              print_endline ("End of turn for " ^ Player.name new_player);
-
-              ( new_player,
-                state_with_paid_player
-                  (snd
-                     (reconstruct_state new_player (purchased_properties s) s))
-                  property_owner property_price ))
-            else (
-              print_endline ("End of turn for " ^ Player.name new_player);
-              reconstruct_state new_player (purchased_properties s) s)
-        | _ ->
-            print_endline ("End of turn for " ^ Player.name new_player);
-            reconstruct_state new_player (purchased_properties s) s)
-  in
-
-  match_input
+  match_input current_tile s new_position new_player updated_player
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
