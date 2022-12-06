@@ -259,9 +259,7 @@ let prompt_next_action state tile player =
         print_typed_string
           "You have landed on free parking! Time to reap the rewards! $100 \
            will be added to your bank account."
-    | GoToJail ->
-        print_typed_string
-          "You are ordered to go to jail! Moving you to jail..."
+    | GoToJail -> print_typed_string "You are ordered to go to jail! "
 (*| _ -> print_typed_string "Enter 'Q' to quit the game, or do nothing (enter
   any other key)." *)
 
@@ -359,13 +357,23 @@ let rec one_turn (s : state) (player : player) =
   let updated_player =
     match List.nth Board.board new_position with
     | Property p ->
-        if is_property_owned p (s |> player_list) then
+        if is_property_owned p (s |> player_list) && false then
           charged_player updated_player p
         else updated_player
     | _ -> updated_player
   in
 
   prompt_next_action s current_tile updated_player;
+  let prompt_if_not_jailed =
+    match current_tile with
+    | GoToJail -> ()
+    | _ ->
+        print_typed_string "Enter 'S' to sell a property";
+        print_typed_string
+          "Or enter any other key to do nothing and continue on. "
+  in
+
+  prompt_if_not_jailed;
 
   let new_player =
     match current_tile with
@@ -389,9 +397,11 @@ let rec one_turn (s : state) (player : player) =
           is_property_owned p (player_list s)
           && Player.name updated_player <> find_owner p (player_list s)
         then (
-          let taxable_tile = List.nth board (location updated_player) in
+          print_endline ("Charging " ^ Player.name updated_player ^ "...");
+          let rentable_tile = List.nth board (location updated_player) in
+          let rent = Tile.get_price rentable_tile in
+          let player_paid = charge updated_player rent in
 
-          let player_paid = pay_tax player taxable_tile in
           if Player.cash player < 0 then
             print_typed_string
               (Player.name player_paid
@@ -405,9 +415,6 @@ let rec one_turn (s : state) (player : player) =
         else updated_player
     | _ -> updated_player
   in
-
-  print_typed_string "Enter 'S' to sell a property";
-  print_typed_string "Or enter any other key to do nothing and continue on. ";
 
   match Monopoly.parse_user_input (read_line ()) with
   | "P" -> begin
@@ -598,10 +605,10 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     itself. *)
 let rec main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
-    "Welcome to Cornellopoly! In this game, you'll get to play a\n\
-    \  version of the popular board game Monopoly while learning a lot about \
+    "Welcome to Cornellopoly! In this game, you'll get to play a \n\
+     version of the popular board game Monopoly while learning a lot about \n\
      Cornell University!\n\
-    \ Here are the commands that you can use: \n";
+     Here are the commands that you can use: \n";
   print_endline " ";
   display_commands command_list;
   print_endline "";
