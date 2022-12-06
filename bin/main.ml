@@ -16,6 +16,7 @@ let command_list =
     "Press P to attempt to purchase a property";
     "Press Q to quit";
     "Press S to sell a property";
+    "Press H at any time for help";
   ]
 
 let display_commands (cmdlist : string list) =
@@ -31,7 +32,6 @@ let rec print_player_names players =
   | h :: t ->
       print_string (Player.name h ^ ", ");
       print_player_names t
-
 
 let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
@@ -236,9 +236,7 @@ let prompt_next_action state tile player =
         print_typed_string
           "You have landed on free parking! Time to reap the rewards! $100 \
            will be added to your bank account."
-    | GoToJail ->
-        print_typed_string
-          "You are ordered to go to jail! Moving you to jail..."
+    | GoToJail -> print_typed_string "You are ordered to go to jail! "
 (*| _ -> print_typed_string "Enter 'Q' to quit the game, or do nothing (enter
   any other key)." *)
 
@@ -257,38 +255,37 @@ let yes_no_input s =
 
 let x = yes_no_helper := yes_no_input
 
-
 (* Prints the players standings*)
-let rec print_player_standings (players: player list) = 
-  let rec cash_to_players players = 
-    match players with 
+let rec print_player_standings (players : player list) =
+  let rec cash_to_players players =
+    match players with
     | [] -> []
-    |h :: t -> 
-      (Player.cash h, Player.name h) :: cash_to_players t
-  
-  in 
-  let rec get_cash_list lst = 
-    match lst with 
-    |[] -> []
-    |h :: t -> 
-      fst h :: get_cash_list t 
-  in 
-  let sorted_cash = List.rev (List.sort (fun x y -> if x 
-    > y then 1 else if x < y then -1 else 0) (get_cash_list (cash_to_players players)))
-  in 
+    | h :: t -> (Player.cash h, Player.name h) :: cash_to_players t
+  in
 
-  let rec get_player_standings srtcash players = 
-    match srtcash with 
-    |[] -> []
-    |h :: t -> 
-      List.assoc h players :: get_player_standings t players
+  let rec get_cash_list lst =
+    match lst with
+    | [] -> []
+    | h :: t -> fst h :: get_cash_list t
+  in
+  let sorted_cash =
+    List.rev
+      (List.sort
+         (fun x y -> if x > y then 1 else if x < y then -1 else 0)
+         (get_cash_list (cash_to_players players)))
+  in
 
-  in 
-  get_player_standings (sorted_cash) (cash_to_players players)
+  let rec get_player_standings srtcash players =
+    match srtcash with
+    | [] -> []
+    | h :: t -> List.assoc h players :: get_player_standings t players
+  in
 
-let rec print_standings lst = 
-  for i = 0 to (List.length lst - 1) do 
-    print_endline ("Rank : " ^ string_of_int (i + 1) ^ List.nth lst i);
+  get_player_standings sorted_cash (cash_to_players players)
+
+let rec print_standings lst =
+  for i = 0 to List.length lst - 1 do
+    print_endline ("Rank : " ^ string_of_int (i + 1) ^ List.nth lst i)
   done
 
 let handle_card player =
@@ -321,7 +318,7 @@ let reconstruct_state (updated_player : player)
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player and state with the updated player inside after turn has been
     completed. *)
-let rec one_turn (s : state) (player : player) plist=
+let rec one_turn (s : state) (player : player) plist =
   print_endline "";
   print_endline
     ("---------------------Starting turn for player " ^ Player.name player
@@ -364,7 +361,6 @@ let rec one_turn (s : state) (player : player) plist=
   inform_player s updated_player current_tile roll;
 
   (* print_standings (print_player_standings plist); *)
-
   display_board Board.board new_position;
 
   (* [updated_player] is the new player identifier after they have been charged
@@ -372,19 +368,32 @@ let rec one_turn (s : state) (player : player) plist=
   let updated_player =
     match List.nth Board.board new_position with
     | Property p ->
-        if is_property_owned p (s |> player_list) then
-          buy_property updated_player p
+        if is_property_owned p (s |> player_list) then (
+          print_typed_string "Updating player records...";
+          updated_player)
         else updated_player
     | _ -> updated_player
   in
 
   prompt_next_action s current_tile updated_player;
-  
+  let prompt_if_not_jailed =
+    match current_tile with
+    | GoToJail -> ()
+    | _ ->
+        print_typed_string "Enter 'S' to sell a property";
+        print_typed_string "Enter 'H' for help";
+        print_typed_string
+          "Or enter any other key to do nothing and continue on. "
+  in
+
+  prompt_if_not_jailed;
+
   let new_player =
     match current_tile with
     | CommunityChest h ->
         unlock_comm_chest_card updated_player
-          (List.nth Board.board new_position) plist
+          (List.nth Board.board new_position)
+          plist
     | Chance _ ->
         unlock_chance_card updated_player (List.nth Board.board new_position)
     | IncomeTax -> charge updated_player 200
@@ -402,9 +411,11 @@ let rec one_turn (s : state) (player : player) plist=
           is_property_owned p (player_list s)
           && Player.name updated_player <> find_owner p (player_list s)
         then (
-          let taxable_tile = List.nth board (location updated_player) in
+          print_endline ("Charging " ^ Player.name updated_player ^ "...");
+          let rentable_tile = List.nth board (location updated_player) in
+          let rent = Tile.get_price rentable_tile in
+          let player_paid = charge updated_player rent in
 
-          let player_paid = pay_tax player taxable_tile in
           if Player.cash player < 0 then
             print_typed_string
               (Player.name player_paid
@@ -418,9 +429,6 @@ let rec one_turn (s : state) (player : player) plist=
         else updated_player
     | _ -> updated_player
   in
-
-  print_typed_string "Enter 'S' to sell a property";
-  print_typed_string "Or enter any other key to do nothing and continue on. ";
 
   match Monopoly.parse_user_input (read_line ()) with
   | "P" -> begin
@@ -490,8 +498,25 @@ let rec one_turn (s : state) (player : player) plist=
       else (
         print_typed_string "Sorry, you currently don't own any properties";
         reconstruct_state new_player (purchased_properties s) s)
+  | "H" ->
+      let help =
+        print_endline
+          "Hello! Here's a brief overview of how the game works: At the \
+           beginning of each turn, we roll a pair of die for you and advance \
+           your character that many spaces on the game board. We give you \
+           useful information like your current bank account balance, the \
+           current square you're on, and a few tiles around you. Then, you are \
+           prompted to enter your next action based on what square you're on. \
+           Note that you must enter exactly what's prompted in most cases, \
+           although you will still be charged for rent, taxes, and other \
+           things regardless of what you enter (so tax evasion isn't \
+           possible)! Hope this helps!"
+      in
+      help;
+      reconstruct_state new_player (purchased_properties s) s
   | "Help" ->
       display_commands command_list;
+      (* This does not work btw *)
       reconstruct_state new_player (purchased_properties s) s
   | _ -> (
       (* If player is on another player's property, pays that player. *)
@@ -566,7 +591,7 @@ let trimmed_state (p : player) (state : state) =
 
 (** [take_turns players] represents the new player states after each player
     takes one turn*)
-let rec take_turns (s : state) (plist): state =
+let rec take_turns (s : state) plist : state =
   match s |> player_list with
   | [] -> init_state [] [] 0
   | h :: t -> (
@@ -591,10 +616,10 @@ let rec take_turns (s : state) (plist): state =
                init_state (p :: player_list (take_turns (init_state t new_s m)))
                new_s m) *))
 
-let rec print_lst lst = 
-  match lst with 
-  |[] -> ""
-  |h :: t -> (Player.name h) ^ ", " ^ print_lst t 
+let rec print_lst lst =
+  match lst with
+  | [] -> ""
+  | h :: t -> Player.name h ^ ", " ^ print_lst t
 
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
@@ -608,21 +633,19 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
   print_endline "";
   print_standings (print_player_standings playerlst);
   let updated_game = take_turns game playerlst in
-  let updated_playerlst = State.player_list updated_game  in
+  let updated_playerlst = State.player_list updated_game in
   if end_conditions then ()
-  else 
-    game_loop updated_game (turn + 1) purchased updated_playerlst
-
+  else game_loop updated_game (turn + 1) purchased updated_playerlst
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
     itself. *)
 let rec main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
-    "Welcome to Cornellopoly! In this game, you'll get to play a\n\
-    \  version of the popular board game Monopoly while learning a lot about \
+    "Welcome to Cornellopoly! In this game, you'll get to play a \n\
+     version of the popular board game Monopoly while learning a lot about \n\
      Cornell University!\n\
-    \ Here are the commands that you can use: \n";
+     Here are the commands that you can use: \n";
   print_endline " ";
   display_commands command_list;
   print_endline "";
