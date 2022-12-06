@@ -32,29 +32,6 @@ let rec print_player_names players =
       print_string (Player.name h ^ ", ");
       print_player_names t
 
-(* Displays the Cornellopoly Board on the terminal for the players to see.*)
-let display_board_revised (board : Tile.tile list) =
-  print_endline "Here is your Cornellopoly Board: ";
-  let rec print_8 (board : Tile.tile list) (count : int) =
-    match count with
-    | 0 -> " | "
-    | n ->
-        let tl = List.nth board (8 - n) in
-        " | " ^ tileName tl ^ print_8 board (count - 1)
-  in
-  print_endline (print_8 board 8);
-
-  let print_sides (board : Tile.tile list) (idx : int) =
-    let tl = tileName (List.nth board (47 - idx)) in
-
-    let tl2 = tileName (List.nth board idx) in
-    tl ^ "                           " ^ tl2
-  in
-  print_endline "";
-  for i = 8 to 19 do
-    print_endline (print_sides board i);
-    print_endline "------"
-  done
 
 let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
@@ -280,6 +257,40 @@ let yes_no_input s =
 
 let x = yes_no_helper := yes_no_input
 
+
+(* Prints the players standings*)
+let rec print_player_standings (players: player list) = 
+  let rec cash_to_players players = 
+    match players with 
+    | [] -> []
+    |h :: t -> 
+      (Player.cash h, Player.name h) :: cash_to_players t
+  
+  in 
+  let rec get_cash_list lst = 
+    match lst with 
+    |[] -> []
+    |h :: t -> 
+      fst h :: get_cash_list t 
+  in 
+  let sorted_cash = List.rev (List.sort (fun x y -> if x 
+    > y then 1 else if x < y then -1 else 0) (get_cash_list (cash_to_players players)))
+  in 
+
+  let rec get_player_standings srtcash players = 
+    match srtcash with 
+    |[] -> []
+    |h :: t -> 
+      List.assoc h players :: get_player_standings t players
+
+  in 
+  get_player_standings (sorted_cash) (cash_to_players players)
+
+let rec print_standings lst = 
+  for i = 0 to (List.length lst - 1) do 
+    print_endline ("Rank : " ^ string_of_int (i + 1) ^ List.nth lst i);
+  done
+
 let handle_card player =
   print_endline
     "You are in Jail and have a Get out of Jail Free Card. Would you like to \
@@ -351,6 +362,8 @@ let rec one_turn (s : state) (player : player) plist=
   let current_tile = List.nth Board.board new_position in
 
   inform_player s updated_player current_tile roll;
+
+  (* print_standings (print_player_standings plist); *)
 
   display_board Board.board new_position;
 
@@ -578,6 +591,11 @@ let rec take_turns (s : state) (plist): state =
                init_state (p :: player_list (take_turns (init_state t new_s m)))
                new_s m) *))
 
+let rec print_lst lst = 
+  match lst with 
+  |[] -> ""
+  |h :: t -> (Player.name h) ^ ", " ^ print_lst t 
+
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
@@ -588,10 +606,13 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
+  print_standings (print_player_standings playerlst);
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game  in
   if end_conditions then ()
-  else game_loop updated_game (turn + 1) purchased updated_playerlst
+  else 
+    game_loop updated_game (turn + 1) purchased updated_playerlst
+
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
     initialization and players' turns, but does not actually do any processing
