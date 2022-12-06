@@ -33,6 +33,8 @@ let rec print_player_names players =
       print_string (Player.name h ^ ", ");
       print_player_names t
 
+(** [player_list_string players] creates a list of the names of the players as a
+    string list*)
 let rec player_list_string (players : player list) =
   match players with
   | [] -> []
