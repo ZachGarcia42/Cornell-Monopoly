@@ -368,8 +368,9 @@ let rec one_turn (s : state) (player : player) plist =
   let updated_player =
     match List.nth Board.board new_position with
     | Property p ->
-        if is_property_owned p (s |> player_list) && false then
-          charged_player updated_player p
+        if is_property_owned p (s |> player_list) then (
+          print_typed_string "Updating player records...";
+          updated_player)
         else updated_player
     | _ -> updated_player
   in
@@ -392,6 +393,7 @@ let rec one_turn (s : state) (player : player) plist =
     | CommunityChest h ->
         unlock_comm_chest_card updated_player
           (List.nth Board.board new_position)
+          plist
     | Chance _ ->
         unlock_chance_card updated_player (List.nth Board.board new_position)
     | IncomeTax -> charge updated_player 200
