@@ -9,7 +9,8 @@ open Printer
 
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
-let end_conditions = false (* TODO: check game ending conditions. *)
+let end_conditions playerlist =
+  if List.length playerlist = 1 then true else false
 
 let command_list =
   [
@@ -672,7 +673,7 @@ let rec take_turns (s : state) plist : state =
     game ends, where [turn] represents which round of turns the game is on. The
     majority of the game will be spent in this state.*)
 let rec game_loop (game : state) (turn : int) purchased playerlst =
-  if List.length playerlst = 0 then exit 0 else print_endline "";
+  print_endline "";
   print_endline "";
   print_endline
     ("=======================Starting turn number " ^ string_of_int turn
@@ -681,7 +682,35 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
   print_standings (print_player_standings playerlst) (cash_to_players playerlst);
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game in
-  if end_conditions then ()
+  if end_conditions updated_playerlst then
+    ignore
+      (print_endline "";
+       print_endline "";
+       print_endline
+         ("CONGRATUALATIONS!!! "
+         ^ Player.name (List.hd updated_playerlst)
+         ^ " HAS WON THE GAME!!!!!");
+
+       print_endline
+         " █████╗  █████╗ ███╗  ██╗ ██████╗ ██████╗  █████╗ ████████╗ \
+          ██████╗██╗";
+       print_endline
+         "██╔══██╗██╔══██╗████╗ ██║██╔════╝ \
+          ██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██║";
+       print_endline
+         "██║  ╚═╝██║  ██║██╔██╗██║██║  ██╗ ██████╔╝███████║   ██║   ╚█████╗ \
+          ██║";
+       print_endline
+         "██║  ██╗██║  ██║██║╚████║██║  ╚██╗██╔══██╗██╔══██║   ██║    \
+          ╚═══██╗╚═╝";
+       print_endline
+         "╚█████╔╝╚█████╔╝██║ ╚███║╚██████╔╝██║  ██║██║  ██║   ██║   \
+          ██████╔╝██╗";
+       print_endline
+         " ╚════╝  ╚════╝ ╚═╝  ╚══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═════╝ \
+          ╚═╝";
+       print_endline "";
+       print_endline "")
   else game_loop updated_game (turn + 1) purchased updated_playerlst
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
@@ -707,6 +736,90 @@ let rec main () =
   display_board Board.board 0;
   (* display_board_revised Board.board; *)
   game_loop game_state 1 [] players_lst;
-  ANSITerminal.print_string [ ANSITerminal.green ] "End of game."
+  ANSITerminal.print_string [ ANSITerminal.green ] "End of game. ";
+  let rec replay () =
+    ANSITerminal.print_string [ ANSITerminal.green ]
+      "Would you like to play again? Enter 'Yes' or 'No'";
+    print_endline "";
+    match String.lowercase_ascii (read_line ()) with
+    | "yes" | "y" ->
+        print_endline "";
+        print_endline "";
+        main ()
+    | "no" | "n" ->
+        print_endline "";
+        print_endline "";
+        print_endline "Thank you for playing Cornellopoly! Have a great day!";
+        print_endline "";
+        print_endline "";
+
+        print_endline "     ████              ████      ";
+        print_endline "     ██    ██          ██    ██   ";
+        print_endline "   ██      ██        ██      ██    ";
+        print_endline "   ██        ██      ██      ██    ";
+        print_endline "   ██        ██    ██        ██    ";
+        print_endline "     ██      ██    ██        ██    ";
+        print_endline "     ██      ██    ██      ██      ";
+        print_endline "     ██      ██  ██        ██      ";
+        print_endline "     ██      ██  ██      ██        ";
+        print_endline "       ██    ██  ██      ██        ";
+        print_endline "       ██    ██  ██    ████        ";
+        print_endline "       ██      ██    ██    ██      ";
+        print_endline "       ██          ██      ██      ";
+        print_endline "       ██████      ██      ██████  ";
+        print_endline "     ██      ██  ██        ██    ██";
+        print_endline "   ██          ████████    ██    ██";
+        print_endline " ██                    ████    ██  ";
+        print_endline " ██                    ██      ██  ";
+        print_endline " ██      ██          ██      ██    ";
+        print_endline " ██    ██████████████  ██████      ";
+        print_endline "   ██          ██          ██      ";
+        print_endline "   ██          ██          ██      ";
+        print_endline "     ██      ██          ██        ";
+        print_endline "       ████            ██          ";
+        print_endline "           ████████████            ";
+        print_endline "";
+        print_endline "";
+        print_endline "────────█████─────────────█████";
+        print_endline "────████████████───────████████████";
+        print_endline "──████▓▓▓▓▓▓▓▓▓▓██───███▓▓▓▓▓▓▓▓▓████";
+        print_endline "─███▓▓▓▓▓▓▓▓▓▓▓▓▓██─██▓▓▓▓▓▓▓▓▓▓▓▓▓███";
+        print_endline "███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓███";
+        print_endline "██▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓██";
+        print_endline "██▓▓▓▓▓▓▓▓▓──────────────────▓▓▓▓▓▓▓▓██";
+        print_endline "██▓▓▓▓▓▓▓─██───████─█──█─█████─▓▓▓▓▓▓██";
+        print_endline "██▓▓▓▓▓▓▓─██───█──█─█──█─██────▓▓▓▓▓▓██";
+        print_endline "███▓▓▓▓▓▓─██───█──█─█──█─█████─▓▓▓▓▓▓██";
+        print_endline "███▓▓▓▓▓▓─██───█──█─█──█─██────▓▓▓▓▓▓██";
+        print_endline "─███▓▓▓▓▓─████─████─████─█████─▓▓▓▓███";
+        print_endline "───███▓▓▓▓▓──────────────────▓▓▓▓▓▓███";
+        print_endline "────████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓████";
+        print_endline "─────████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓████";
+        print_endline "───────████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█████";
+        print_endline "──────────████▓▓▓▓▓▓▓▓▓▓▓▓████";
+        print_endline "─────────────███▓▓▓▓▓▓▓████";
+        print_endline "───────────────███▓▓▓███";
+        print_endline "─────────────────██▓██";
+        print_endline "──────────────────███";
+        print_endline "";
+        print_endline "";
+        print_endline "██████████████ ████████   ████████   ██████████████ ";
+        print_endline "██░░░░░░░░░░██ ██░░░░██   ██░░░░██   ██░░░░░░░░░░██ ";
+        print_endline "██████████░░██ ████░░██   ████░░██   ██░░██████░░██ ";
+        print_endline "        ██░░██   ██░░██─────██░░██   ██░░██  ██░░██ ";
+        print_endline "██████████░░██   ██░░██─────██░░██   ██░░██  ██░░██ ";
+        print_endline "██░░░░░░░░░░██   ██░░██─────██░░██   ██░░██  ██░░██ ";
+        print_endline "██████████░░██   ██░░██─────██░░██   ██░░██  ██░░██ ";
+        print_endline "        ██░░██   ██░░██─────██░░██   ██░░██  ██░░██ ";
+        print_endline "██████████░░██ ████░░████ ████░░████─██░░██████░░██ ";
+        print_endline "██░░░░░░░░░░██ ██░░░░░░██ ██░░░░░░██─██░░░░░░░░░░██ ";
+        print_endline "██████████████ ██████████ ██████████─██████████████ ";
+
+        exit 0
+    | _ ->
+        print_typed_string "Sorry, I didn't understand that";
+        replay ()
+  in
+  replay ()
 
 let () = main ()
