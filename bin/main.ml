@@ -584,7 +584,7 @@ let rec one_turn (s : state) (player : player) plist =
           (List.nth Board.board new_position)
           plist
     | Chance _ ->
-        replace_player (unlock_chance_card updated_player current_tile) player s
+        replace_player (unlock_chance_card updated_player current_tile old_position new_position) player s
     | IncomeTax -> replace_player (charge updated_player 200) player s
     | LuxuryTax -> replace_player (charge updated_player 100) player s
     | FreeParking -> replace_player (pay updated_player 100) player s
