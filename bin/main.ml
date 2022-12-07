@@ -255,36 +255,37 @@ let yes_no_input s =
 
 let x = yes_no_helper := yes_no_input
 
+let rev_sort_assoc_list lst =
+  List.rev
+    (List.sort
+       (fun x y -> if snd x > snd y then 1 else if snd x < snd y then -1 else 0)
+       lst)
 
-let rev_sort_assoc_list lst = 
-  List.rev (List.sort (fun x y -> if snd x > snd y then 1 else if snd x < snd y then -1 else 0) lst)
-
-let rec get_pl lst = 
-  match lst with 
-  |[] -> []
-  |h :: t -> 
-    fst h :: get_pl t
-
-let rec cash_to_players players = 
-  match players with 
+let rec get_pl lst =
+  match lst with
   | [] -> []
-  |h :: t -> 
-    (Player.name h, Player.cash h) :: cash_to_players t
+  | h :: t -> fst h :: get_pl t
+
+let rec cash_to_players players =
+  match players with
+  | [] -> []
+  | h :: t -> (Player.name h, Player.cash h) :: cash_to_players t
 
 (* Prints the players standings*)
-let print_player_standings (players: player list) = 
+let print_player_standings (players : player list) =
   let standings_list = rev_sort_assoc_list (cash_to_players players) in
-  let rankings = get_pl standings_list in 
+  let rankings = get_pl standings_list in
   rankings
 
-let rec print_standings lst (cashlst : (string * int) list )= 
+let rec print_standings lst (cashlst : (string * int) list) =
   print_endline " ----- LEADERBOARD ----- ";
-  for i = 0 to (List.length lst - 1) do 
-    print_endline ("Rank " ^ string_of_int (i + 1) ^  " : " 
-    ^ List.nth lst i ^ " has " ^ "$" ^ string_of_int (List.assoc (List.nth lst i) cashlst));
+  for i = 0 to List.length lst - 1 do
+    print_endline
+      ("Rank "
+      ^ string_of_int (i + 1)
+      ^ " : " ^ List.nth lst i ^ " has " ^ "$"
+      ^ string_of_int (List.assoc (List.nth lst i) cashlst))
   done
-
-
 
 let handle_card player =
   print_endline
@@ -386,24 +387,30 @@ let rec one_turn (s : state) (player : player) plist =
 
   prompt_if_not_jailed;
 
-  let new_player =
+  let replace_player player =
+    List.map
+      (fun p -> if p = updated_player then player else p)
+      (State.player_list s)
+  in
+
+  let new_players =
     match current_tile with
     | CommunityChest h ->
         unlock_comm_chest_card updated_player
           (List.nth Board.board new_position)
           plist
     | Chance _ ->
-        unlock_chance_card updated_player (List.nth Board.board new_position)
-    | IncomeTax -> charge updated_player 200
-    | LuxuryTax -> charge updated_player 100
-    | FreeParking -> pay updated_player 100
+        replace_player (unlock_chance_card updated_player current_tile)
+    | IncomeTax -> replace_player (charge updated_player 200)
+    | LuxuryTax -> replace_player (charge updated_player 100)
+    | FreeParking -> replace_player (pay updated_player 100)
     | GoToJail ->
         print_typed_string "Moving you to Jail....";
         let new_pos = get_pos board (tileName JustVisiting) 0 in
         let updated_player =
           Player.go_to_jail (Player.move_to updated_player new_pos)
         in
-        updated_player
+        replace_player updated_player
     | Property p ->
         if
           is_property_owned p (player_list s)
@@ -423,9 +430,12 @@ let rec one_turn (s : state) (player : player) plist =
           let updated_player_position =
             Player.move_to player_paid (location updated_player)
           in
-          updated_player_position)
-        else updated_player
-    | _ -> updated_player
+          replace_player updated_player_position)
+        else replace_player updated_player
+    | _ -> replace_player updated_player
+  in
+  let new_player =
+    List.find (fun p -> Player.name p = Player.name updated_player) new_players
   in
 
   match Monopoly.parse_user_input (read_line ()) with
@@ -624,7 +634,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  print_standings (print_player_standings playerlst) (cash_to_players playerlst) ;
+  print_standings (print_player_standings playerlst) (cash_to_players playerlst);
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game in
   if end_conditions then ()
