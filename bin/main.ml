@@ -40,6 +40,11 @@ let rec player_list_string (players : player list) =
   | [] -> []
   | h :: t -> Player.name h :: player_list_string t
 
+let replace_player player updated_player s =
+  List.map
+    (fun p -> if p = updated_player then player else p)
+    (State.player_list s)
+
 let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
   print_endline
@@ -571,46 +576,50 @@ let rec one_turn (s : state) (player : player) plist =
 
   prompt_if_not_jailed current_tile;
 
-  let new_player =
+  let new_players =
     match current_tile with
     | CommunityChest h ->
         unlock_comm_chest_card updated_player
           (List.nth Board.board new_position)
           plist
     | Chance _ ->
-        unlock_chance_card updated_player (List.nth Board.board new_position)
-    | IncomeTax -> charge updated_player 200
-    | LuxuryTax -> charge updated_player 100
-    | FreeParking -> pay updated_player 100
+        replace_player (unlock_chance_card updated_player current_tile) player s
+    | IncomeTax -> replace_player (charge updated_player 200) player s
+    | LuxuryTax -> replace_player (charge updated_player 100) player s
+    | FreeParking -> replace_player (pay updated_player 100) player s
     | GoToJail ->
         print_typed_string "Moving you to Jail....";
         let new_pos = get_pos board (tileName JustVisiting) 0 in
         let updated_player =
           Player.go_to_jail (Player.move_to updated_player new_pos)
         in
-        updated_player
+        replace_player updated_player player s
     | Property p ->
         if
           is_property_owned p (player_list s)
           && Player.name updated_player <> find_owner p (player_list s)
-        then (
-          print_endline ("Charging " ^ Player.name updated_player ^ "...");
-          let rentable_tile = List.nth board (location updated_player) in
-          let rent = Tile.get_price rentable_tile in
-          let player_paid = charge updated_player rent in
+        then
+          (print_endline ("Charging " ^ Player.name updated_player ^ "...");
+           let rentable_tile = List.nth board (location updated_player) in
+           let rent = Tile.get_price rentable_tile in
+           let player_paid = charge updated_player rent in
 
-          if Player.cash player < 0 then
-            print_typed_string
-              (Player.name player_paid
-             ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
-                to be too much for them!")
-          else print_typed_string ("End of turn for " ^ Player.name player_paid);
-          let updated_player_position =
-            Player.move_to player_paid (location updated_player)
-          in
-          updated_player_position)
-        else updated_player
-    | _ -> updated_player
+           if Player.cash player < 0 then
+             print_typed_string
+               (Player.name player_paid
+              ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+                 to be too much for them!")
+           else print_typed_string ("End of turn for " ^ Player.name player_paid);
+           let updated_player_position =
+             Player.move_to player_paid (location updated_player)
+           in
+           replace_player updated_player_position)
+            player s
+        else replace_player updated_player player s
+    | _ -> replace_player updated_player player s
+  in
+  let new_player =
+    List.find (fun p -> Player.name p = Player.name updated_player) new_players
   in
 
   match_input_helper := match_input;

@@ -1,0 +1,16 @@
+{
+  "tiles": [
+    {
+      "type": "Chance"
+    },
+    {
+      "type": "Chance"
+    },
+    {
+      "type": "Chance"
+    },
+    {
+      "type": "CommunityChest"
+    }
+  ]
+}

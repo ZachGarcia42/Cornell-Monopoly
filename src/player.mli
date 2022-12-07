@@ -71,11 +71,19 @@ val net_worth : player -> int
 val add_get_out_card : player -> player
 (* [add_get_out_card player] adds another get_out card*)
 
-val unlock_chance_card : player -> Tile.tile -> player
-(* [unlock_chance_card player property] unlocks a chance card and updates the
-   player's status*)
+val handle_chance : player -> Chance.t -> Tile.tile -> player
+(* [handle_chance player ch property] updates the player's status based on the
+   chance card*)
 
-val unlock_comm_chest_card : player -> Tile.tile -> player list -> player
+val unlock_chance_card : player -> Tile.tile -> player
+(* [unlock_chance_card player property] picks a random chance card and calls
+   handle chance*)
+
+val handle_cc : player -> player list -> Chest.t -> Tile.tile -> player list
+(* [handle_cc player playerlst ch property] updates the player's status based on
+   the community chest card*)
+
+val unlock_comm_chest_card : player -> Tile.tile -> player list -> player list
 (* [unlock_comm_card player property] unlocks a community chest card and updates
    the player's status*)
 
