@@ -84,26 +84,26 @@ let tests =
          (sell_property (buy_property zach boardwalk) boardwalk)
          boardwalk);
     player_test "not chance does nothing" zach
-      (unlock_chance_card zach (Property boardwalk));
+      (unlock_chance_card zach (Property boardwalk) 0 0);
     player_test "chance pays money" 1700
-      (cash (handle_chance zach chance_go (Chance chance_go)));
+      (cash (handle_chance zach chance_go (Chance chance_go) 0 0));
     player_test "chance does nothing" zach
-      (handle_chance zach chance_blank (Chance chance_blank));
+      (handle_chance zach chance_blank (Chance chance_blank) 0 0);
     player_test "chance adv does not pass go" 1500
-      (cash (handle_chance zach chance_adv (Chance chance_adv)));
+      (cash (handle_chance zach chance_adv (Chance chance_adv) 0 0));
     player_test "chance adv does nothing the second time" 1500
       (handle_chance
-         (handle_chance zach chance_adv (Chance chance_adv))
-         chance_adv (Chance chance_adv)
+         (handle_chance zach chance_adv (Chance chance_adv) 0 0)
+         chance_adv (Chance chance_adv) 0 0
       |> cash);
     player_test "chance goojf adds a card" 1
-      (cards (handle_chance zach chance_goojf (Chance chance_goojf)));
+      (cards (handle_chance zach chance_goojf (Chance chance_goojf) 0 0));
     player_test "chance mm adds 200" 1700
-      (cash (handle_chance zach chance_mm (Chance chance_mm)));
+      (cash (handle_chance zach chance_mm (Chance chance_mm) 0 0));
     player_test "chance pay takes 100" 1400
-      (cash (handle_chance zach chance_pay (Chance chance_pay)));
+      (cash (handle_chance zach chance_pay (Chance chance_pay) 0 0));
     int_test "chance move moves" 4
-      (location (handle_chance zach chance_move (Chance chance_move)));
+      (location (handle_chance zach chance_move (Chance chance_move) 0 0));
     player_test "not cc does nothing" players
       (unlock_comm_chest_card zach (Property boardwalk) players);
     player_test "cc move does nothing"

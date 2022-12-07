@@ -3,7 +3,7 @@ open Chance
 open Chest
 
 let draw_card cards =
-  let idx = Random.int (List.length cards) in
+  let idx = List.length cards - 2 (* Random.int (List.length cards) *)in
   List.nth cards idx
 
 let data_dir_prefix = "data" ^ Filename.dir_sep
