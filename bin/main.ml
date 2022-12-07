@@ -327,14 +327,13 @@ let rec print_standings lst (cashlst : (string * int) list) =
       ^ string_of_int (List.assoc (List.nth lst i) cashlst))
   done
 
+(**[handle_card p] represents the player after they choose whether to use a get
+   out of jail free card or not*)
 let handle_card player =
   print_endline
     "You are in Jail and have a Get out of Jail Free Card. Would you like to \
      use it? (Y/N)";
   if yes_no_input (read_line ()) then use_card player else jail_turn player
-
-(**[handle_card p] represents the player after they choose whether to use a get
-   out of jail free card or not*)
 
 (** Replaces the [players] list's corresponding [updated_player] *)
 let rec update_player_list (updated_player : player) (players : player list) =
