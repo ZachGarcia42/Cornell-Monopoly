@@ -180,7 +180,7 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
         ("|" ^ color_spacer_one ^ "Color: "
         ^ Property.string_of_set (Property.color p)
         ^ color_spacer_two ^ "|");
-      if is_property_owned p (s |> player_list) then
+      if is_property_owned p (s |> player_list) then (
         let owner_spacer_one =
           make_space
             ((50 - String.length ("Owner: " ^ find_owner p (s |> player_list)))
@@ -202,7 +202,8 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
         print_endline
           ("|" ^ owner_spacer_one ^ "Owner: "
           ^ find_owner p (s |> player_list)
-          ^ owner_spacer_two ^ "|")
+          ^ owner_spacer_two ^ "|");
+        print_endline bottom)
       else
         let owner_spacer_one =
           make_space ((50 - String.length "Owner: None") / 2) spacer
