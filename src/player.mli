@@ -76,8 +76,8 @@ val handle_chance : player -> Chance.t -> Tile.tile -> int -> int -> player
    chance card*)
 
 val unlock_chance_card : player -> Tile.tile -> int -> int -> player
-(* [unlock_chance_card player property old_position new_position] picks a random chance card and calls
-   handle chance*)
+(* [unlock_chance_card player property old_position new_position] picks a random
+   chance card and calls handle chance*)
 
 val handle_cc : player -> player list -> Chest.t -> Tile.tile -> player list
 (* [handle_cc player playerlst ch property] updates the player's status based on

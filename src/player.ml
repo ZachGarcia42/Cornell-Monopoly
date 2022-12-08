@@ -92,7 +92,7 @@ let net_worth p =
   p.cash
   + List.fold_left (fun sum prop -> sum + Property.price prop) 0 p.properties
 
-let handle_chance (player : player) (ch : Chance.t) property oldpos newpos=
+let handle_chance (player : player) (ch : Chance.t) property oldpos newpos =
   print_endline (Chance.command ch);
   let dest = Chance.destination ch in
   let ctype = Chance.name ch in
@@ -112,11 +112,8 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos=
   else if ctype = "Chance: Money Made" then pay player price
   else if ctype = "Chance: Payment Required" then charge player price
   else if ctype = "Chance: Move Backwards" then (
-
     let dest =
-      Monopoly.convert
-        (newpos + rel_space_translation ch)
-        (List.length board)
+      Monopoly.convert (newpos + rel_space_translation ch) (List.length board)
     in
     print_endline
       ("Chance event: You are being moved back to "
@@ -135,9 +132,9 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos=
       | FreeParking ->
           print_endline "You receive $100";
           pay player 100
-      |CommunityChest c -> 
-        print_endline "Unlocking your Community Chest Card!";
-        player
+      | CommunityChest c ->
+          print_endline "Unlocking your Community Chest Card!";
+          player
       | _ -> player
     in
 
@@ -152,10 +149,12 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos=
     add_get_out_card player)
   else player
 
-let unlock_chance_card (player : player) property (oldpos) newpos =
+let unlock_chance_card (player : player) property oldpos newpos =
   match property with
   | Chance c ->
-      handle_chance player (Board.draw_card Board.chance_commands) property oldpos newpos
+      handle_chance player
+        (Board.draw_card Board.chance_commands)
+        property oldpos newpos
   | _ ->
       print_typed_string "This is not a Chance Card!";
       charge player 0

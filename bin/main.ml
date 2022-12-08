@@ -41,6 +41,13 @@ let rec player_list_string (players : player list) =
   | [] -> []
   | h :: t -> Player.name h :: player_list_string t
 
+(** [player_list_string players] returns a list of integer indexes of a list of
+    properties*)
+let rec property_int_list properties =
+  match properties with
+  | [] -> []
+  | h :: t -> index h :: property_int_list t
+
 let replace_player player updated_player s =
   List.map
     (fun p -> if p = updated_player then player else p)
@@ -309,10 +316,10 @@ let prompt_next_action state tile player =
           "You have landed on Community Chest! Drawing Community Chest card..."
     | IncomeTax ->
         print_typed_string
-          "You need to pay your taxes! Martha snatched $200 from your account."
+          "You need to pay your taxes! Martha snatched $400 from your account."
     | LuxuryTax ->
         print_typed_string
-          "You need to pay your taxes! Martha snatched $100 from your account."
+          "You need to pay your taxes! Martha snatched $200 from your account."
     | Chance _ ->
         print_typed_string
           "You have landed on a Chance Square! Drawing Chance card..."
@@ -408,8 +415,7 @@ let reconstruct_state (updated_player : player)
   let new_players_list =
     update_player_list updated_player (State.player_list state)
   in
-  ( updated_player,
-    init_state new_players_list purchased_properties (money_jar state) )
+  (updated_player, init_state new_players_list purchased_properties)
 
 let match_input_helper =
   ref
@@ -538,9 +544,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
             let new_players_list =
               pay_player_in_list player_to_be_paid amt players
             in
-            init_state new_players_list
-              (State.purchased_properties state)
-              (State.money_jar state)
+            init_state new_players_list (State.purchased_properties state)
           in
 
           if is_property_owned p (player_list s) then (
@@ -640,8 +644,8 @@ let rec one_turn (s : state) (player : player) plist =
           (unlock_chance_card updated_player current_tile old_position
              new_position)
           player s
-    | IncomeTax -> replace_player (charge updated_player 200) player s
-    | LuxuryTax -> replace_player (charge updated_player 100) player s
+    | IncomeTax -> replace_player (charge updated_player 400) player s
+    | LuxuryTax -> replace_player (charge updated_player 200) player s
     | FreeParking -> replace_player (pay updated_player 100) player s
     | GoToJail ->
         print_typed_string "Moving you to Jail....";
@@ -693,32 +697,37 @@ let rec remove_player (p : player) (players : player list) =
 let trimmed_state (p : player) (state : state) =
   let old_player_list = State.player_list state in
   let new_player_list = remove_player p old_player_list in
-  let purchased_props = State.purchased_properties state in
-  let money_jar_money = State.money_jar state in
-  init_state new_player_list purchased_props money_jar_money
+  let purchased_props =
+    List.filter
+      (fun a -> List.mem a (property_int_list (properties p)))
+      (State.purchased_properties state)
+  in
+  init_state new_player_list purchased_props
 
 (** [take_turns players] represents the new player states after each player
     takes one turn*)
 let rec take_turns (s : state) plist : state =
   match s |> player_list with
-  | [] -> init_state [] [] 0
+  | [] -> init_state [] []
   | h :: t -> (
       match one_turn s h plist with
       | p, new_state ->
-          if Player.cash p < 0 then
+          if Player.cash p < 0 then begin
+            print_typed_string
+              (Player.name p
+             ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+                to be too much for them!");
             let newer_state = trimmed_state p new_state in
             init_state
               (player_list (take_turns newer_state plist))
               (State.purchased_properties newer_state)
-              (State.money_jar newer_state)
+          end
           else
             let tail_player_list_state = trimmed_state p new_state in
             let total_player_list =
               p :: player_list (take_turns tail_player_list_state plist)
             in
-            init_state total_player_list
-              (State.purchased_properties new_state)
-              (State.money_jar new_state)
+            init_state total_player_list (State.purchased_properties new_state)
             (* | p, new_s, m -> if Player.cash p < 0 then init_state
                (player_list (take_turns (init_state t new_s m))) new_s m else
                init_state (p :: player_list (take_turns (init_state t new_s m)))
@@ -783,7 +792,7 @@ let rec main () =
   let open Random in
   Random.self_init ();
   let players_lst = init_players [] 0 false in
-  let game_state = init_state players_lst [] 0 in
+  let game_state = init_state players_lst [] in
   print_typed_string
     "We begin our game of Cornellopoly with the following players: ";
   print_player_names players_lst;
