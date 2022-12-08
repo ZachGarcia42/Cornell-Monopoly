@@ -439,19 +439,17 @@ let rec one_turn (s : state) (player : player) plist =
           (List.nth Board.board new_position)
           plist
     | Chance _ ->
-        replace_player
-          (unlock_chance_card updated_player current_tile)
-          updated_player s
-    | IncomeTax -> replace_player (charge updated_player 200) updated_player s
-    | LuxuryTax -> replace_player (charge updated_player 100) updated_player s
-    | FreeParking -> replace_player (pay updated_player 100) updated_player s
+        replace_player (unlock_chance_card updated_player current_tile) player s
+    | IncomeTax -> replace_player (charge updated_player 200) player s
+    | LuxuryTax -> replace_player (charge updated_player 100) player s
+    | FreeParking -> replace_player (pay updated_player 100) player s
     | GoToJail ->
         print_typed_string "Moving you to Jail....";
         let new_pos = get_pos board (tileName JustVisiting) 0 in
         let updated_player =
           Player.go_to_jail (Player.move_to updated_player new_pos)
         in
-        replace_player updated_player updated_player s
+        replace_player updated_player player s
     | Property p ->
         if
           is_property_owned p (player_list s)
@@ -472,14 +470,14 @@ let rec one_turn (s : state) (player : player) plist =
              Player.move_to player_paid (location updated_player)
            in
            replace_player updated_player_position)
-            updated_player s
-        else replace_player updated_player updated_player s
-    | _ -> replace_player updated_player updated_player s
+            player s
+        else replace_player player player s
+    | _ -> replace_player player player s
   in
   let new_player =
     List.find (fun p -> Player.name p = Player.name updated_player) new_players
   in
-  replace_player new_player
+  replace_player new_player player s
 
 let match_input_helper =
   ref
@@ -706,19 +704,17 @@ let rec one_turn (s : state) (player : player) plist =
           (List.nth Board.board new_position)
           plist
     | Chance _ ->
-        replace_player
-          (unlock_chance_card updated_player current_tile)
-          updated_player s
-    | IncomeTax -> replace_player (charge updated_player 200) updated_player s
-    | LuxuryTax -> replace_player (charge updated_player 100) updated_player s
-    | FreeParking -> replace_player (pay updated_player 100) updated_player s
+        replace_player (unlock_chance_card updated_player current_tile) player s
+    | IncomeTax -> replace_player (charge updated_player 200) player s
+    | LuxuryTax -> replace_player (charge updated_player 100) player s
+    | FreeParking -> replace_player (pay updated_player 100) player s
     | GoToJail ->
         print_typed_string "Moving you to Jail....";
         let new_pos = get_pos board (tileName JustVisiting) 0 in
         let updated_player =
           Player.go_to_jail (Player.move_to updated_player new_pos)
         in
-        replace_player updated_player updated_player s
+        replace_player updated_player player s
     | Property p ->
         if
           is_property_owned p (player_list s)
@@ -739,9 +735,9 @@ let rec one_turn (s : state) (player : player) plist =
              Player.move_to player_paid (location updated_player)
            in
            replace_player updated_player_position)
-            updated_player s
-        else replace_player updated_player updated_player s
-    | _ -> replace_player updated_player updated_player s
+            player s
+        else replace_player updated_player player s
+    | _ -> replace_player updated_player player s
   in
   let new_player =
     List.find (fun p -> Player.name p = Player.name updated_player) new_players
