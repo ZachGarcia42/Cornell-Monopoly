@@ -108,11 +108,15 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
       let top = make_line 50 top in
       print_endline top;
       let spacer = "" in
-      let name_spacer = make_space ((50 - name_length) / 2) spacer in
+      let name_spacer_one = make_space ((50 - name_length) / 2) spacer in
+      let name_spacer_two =
+        if name_length mod 2 = 0 then name_spacer_one
+        else make_space (((50 - name_length) / 2) + 1) spacer
+      in
 
       print_endline
-        ("|" ^ name_spacer ^ tileName current_tile ^ name_spacer ^ "|");
-      let property_spacer =
+        ("|" ^ name_spacer_one ^ tileName current_tile ^ name_spacer_two ^ "|");
+      let property_spacer_one =
         make_space
           ((50
            - String.length
@@ -121,11 +125,28 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
           / 2)
           spacer
       in
+      let property_spacer_two =
+        if
+          String.length
+            ("Property value: $ " ^ string_of_int (Tile.get_price current_tile))
+          mod 2
+          = 0
+        then property_spacer_one
+        else
+          make_space
+            ((50
+             - String.length
+                 ("Property value: $ "
+                 ^ string_of_int (Tile.get_price current_tile)))
+             / 2
+            + 1)
+            spacer
+      in
       print_endline
-        ("|" ^ property_spacer ^ "Property value: $ "
+        ("|" ^ property_spacer_one ^ "Property value: $ "
         ^ string_of_int (Tile.get_price current_tile)
-        ^ property_spacer ^ "|");
-      let color_spacer =
+        ^ property_spacer_two ^ "|");
+      let color_spacer_one =
         make_space
           ((50
            - String.length
@@ -133,26 +154,57 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
           / 2)
           spacer
       in
+      let color_spacer_two =
+        if
+          String.length ("Color: " ^ Property.string_of_set (Property.color p))
+          mod 2
+          = 0
+        then color_spacer_one
+        else
+          make_space
+            ((50
+             - String.length
+                 ("Color: " ^ Property.string_of_set (Property.color p)))
+             / 2
+            + 1)
+            spacer
+      in
       print_endline
-        ("|" ^ color_spacer ^ "Color: "
+        ("|" ^ color_spacer_one ^ "Color: "
         ^ Property.string_of_set (Property.color p)
-        ^ color_spacer ^ "|");
+        ^ color_spacer_two ^ "|");
       if is_property_owned p (s |> player_list) then
-        let owner_spacer =
+        let owner_spacer_one =
           make_space
             ((50 - String.length ("Owner: " ^ find_owner p (s |> player_list)))
             / 2)
             spacer
         in
+        let owner_spacer_two =
+          if
+            String.length ("Owner: " ^ find_owner p (s |> player_list)) mod 2
+            = 0
+          then owner_spacer_one
+          else
+            make_space
+              ((50 - String.length ("Owner: " ^ find_owner p (s |> player_list)))
+               / 2
+              + 1)
+              spacer
+        in
         print_endline
-          ("|" ^ owner_spacer ^ "Owner: "
+          ("|" ^ owner_spacer_one ^ "Owner: "
           ^ find_owner p (s |> player_list)
-          ^ owner_spacer ^ "|")
+          ^ owner_spacer_two ^ "|")
       else
-        let owner_spacer =
+        let owner_spacer_one =
           make_space ((50 - String.length "Owner: None") / 2) spacer
         in
-        print_endline ("|" ^ owner_spacer ^ "Owner: None" ^ owner_spacer ^ "|");
+        let owner_spacer_two =
+          make_space (((50 - String.length "Owner: None") / 2) + 1) spacer
+        in
+        print_endline
+          ("|" ^ owner_spacer_one ^ "Owner: None" ^ owner_spacer_two ^ "|");
         print_endline top
   | _ -> ()
 
@@ -584,7 +636,10 @@ let rec one_turn (s : state) (player : player) plist =
           (List.nth Board.board new_position)
           plist
     | Chance _ ->
-        replace_player (unlock_chance_card updated_player current_tile old_position new_position) player s
+        replace_player
+          (unlock_chance_card updated_player current_tile old_position
+             new_position)
+          player s
     | IncomeTax -> replace_player (charge updated_player 200) player s
     | LuxuryTax -> replace_player (charge updated_player 100) player s
     | FreeParking -> replace_player (pay updated_player 100) player s
