@@ -103,9 +103,9 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 
   match current_tile with
   | Property p ->
-      let top = "" in
       let name_length = String.length (tileName current_tile) in
-      let top = make_line 50 top in
+      let bottom = "|" ^ make_line 50 "" ^ "|" in
+      let top = make_line 52 "" in
       print_endline top;
       let spacer = "" in
       let name_spacer_one = make_space ((50 - name_length) / 2) spacer in
@@ -205,7 +205,7 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
         in
         print_endline
           ("|" ^ owner_spacer_one ^ "Owner: None" ^ owner_spacer_two ^ "|");
-        print_endline top
+        print_endline bottom
   | _ -> ()
 
 (** [init_players ()] instantiates the number of desired players and adds them
