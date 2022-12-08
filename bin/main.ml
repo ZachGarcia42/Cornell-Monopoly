@@ -33,6 +33,18 @@ let rec print_player_names players =
       print_string (Player.name h ^ ", ");
       print_player_names t
 
+(** [player_list_string players] creates a list of the names of the players as a
+    string list*)
+let rec player_list_string (players : player list) =
+  match players with
+  | [] -> []
+  | h :: t -> Player.name h :: player_list_string t
+
+let replace_player player updated_player s =
+  List.map
+    (fun p -> if p = updated_player then player else p)
+    (State.player_list s)
+
 let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
   print_endline
@@ -145,39 +157,63 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 
 (** [init_players ()] instantiates the number of desired players and adds them
     to the players list *)
-let rec init_players players_lst flag =
-  if flag == true then begin
+let rec init_players players_lst counter flag =
+  if counter = 0 || flag = true then begin
     print_typed_string "Please enter your name: ";
     print_string "> ";
 
     match read_line () with
     | "" ->
         print_typed_string "Invalid name! Your name cannot be blank!";
-        init_players players_lst true
-    | name -> (
-        let new_player = init_player name starting_money in
-        print_typed_string
-          ("Successfully created new player named " ^ Player.name new_player);
-        let updated_players = players_lst @ [ new_player ] in
-        print_typed_string "Enter another player? Enter 'Yes' or 'No'";
+        init_players players_lst counter flag
+    | name ->
+        if List.mem name (player_list_string players_lst) then (
+          print_typed_string "Invalid name! Someone else has the same name!";
+          init_players players_lst counter flag)
+        else
+          let new_player = init_player name starting_money in
+          print_typed_string
+            ("Successfully created new player named " ^ Player.name new_player);
+          let updated_players = players_lst @ [ new_player ] in
+          init_players updated_players (counter + 1) false
+  end
+  else if counter = 1 then begin
+    print_typed_string "Please enter a second player: ";
+    print_string "> ";
 
-        match String.lowercase_ascii (read_line ()) with
-        | "yes" | "y" -> init_players updated_players true
-        | "no" | "n" -> updated_players
-        | _ ->
-            print_typed_string "I didn't understand that";
-            init_players updated_players false)
+    match read_line () with
+    | "" ->
+        print_typed_string "Invalid name! Your name cannot be blank!";
+        init_players players_lst counter flag
+    | name -> (
+        if List.mem name (player_list_string players_lst) then (
+          print_typed_string "Invalid name! Someone else has the same name!";
+          init_players players_lst counter flag)
+        else
+          let new_player = init_player name starting_money in
+          print_typed_string
+            ("Successfully created new player named " ^ Player.name new_player);
+          let updated_players = players_lst @ [ new_player ] in
+
+          print_typed_string "Enter another player? Enter 'Yes' or 'No'";
+
+          match String.lowercase_ascii (read_line ()) with
+          | "yes" | "y" -> init_players updated_players (counter + 1) true
+          | "no" | "n" -> updated_players
+          | _ ->
+              print_typed_string "I didn't understand that";
+              init_players updated_players counter flag)
   end
   else
     let updated_players = players_lst in
     print_typed_string "Enter another player? Enter 'Yes' or 'No'";
 
     match String.lowercase_ascii (read_line ()) with
-    | "yes" | "y" -> init_players updated_players true
+    | "yes" | "y" -> init_players updated_players (counter + 1) true
     | "no" | "n" -> updated_players
     | _ ->
         print_typed_string "I didn't understand that";
-        init_players updated_players false
+        init_players updated_players counter flag
 
 (** [rent_charge_inform s p player] informs the current player whose turn it of
     the owner of the property [p] they landed on and how much they are being
@@ -239,6 +275,15 @@ let prompt_next_action state tile player =
     | GoToJail -> print_typed_string "You are ordered to go to jail! "
 (*| _ -> print_typed_string "Enter 'Q' to quit the game, or do nothing (enter
   any other key)." *)
+
+let prompt_if_not_jailed current_tile =
+  match current_tile with
+  | GoToJail -> ()
+  | _ ->
+      print_typed_string "Enter 'S' to sell a property";
+      print_typed_string "Enter 'H' for help";
+      print_typed_string
+        "Or enter any other key to do nothing and continue on. "
 
 (**[has_goojf p] is true iff p has at least one get out of jail free card*)
 let has_goojf player = cards player > 0
@@ -387,12 +432,6 @@ let rec one_turn (s : state) (player : player) plist =
 
   prompt_if_not_jailed;
 
-  let replace_player player =
-    List.map
-      (fun p -> if p = updated_player then player else p)
-      (State.player_list s)
-  in
-
   let new_players =
     match current_tile with
     | CommunityChest h ->
@@ -400,44 +439,60 @@ let rec one_turn (s : state) (player : player) plist =
           (List.nth Board.board new_position)
           plist
     | Chance _ ->
-        replace_player (unlock_chance_card updated_player current_tile)
-    | IncomeTax -> replace_player (charge updated_player 200)
-    | LuxuryTax -> replace_player (charge updated_player 100)
-    | FreeParking -> replace_player (pay updated_player 100)
+        replace_player
+          (unlock_chance_card updated_player current_tile)
+          updated_player s
+    | IncomeTax -> replace_player (charge updated_player 200) updated_player s
+    | LuxuryTax -> replace_player (charge updated_player 100) updated_player s
+    | FreeParking -> replace_player (pay updated_player 100) updated_player s
     | GoToJail ->
         print_typed_string "Moving you to Jail....";
         let new_pos = get_pos board (tileName JustVisiting) 0 in
         let updated_player =
           Player.go_to_jail (Player.move_to updated_player new_pos)
         in
-        replace_player updated_player
+        replace_player updated_player updated_player s
     | Property p ->
         if
           is_property_owned p (player_list s)
           && Player.name updated_player <> find_owner p (player_list s)
-        then (
-          print_endline ("Charging " ^ Player.name updated_player ^ "...");
-          let rentable_tile = List.nth board (location updated_player) in
-          let rent = Tile.get_price rentable_tile in
-          let player_paid = charge updated_player rent in
+        then
+          (print_endline ("Charging " ^ Player.name updated_player ^ "...");
+           let rentable_tile = List.nth board (location updated_player) in
+           let rent = Tile.get_price rentable_tile in
+           let player_paid = charge updated_player rent in
 
-          if Player.cash player < 0 then
-            print_typed_string
-              (Player.name player_paid
-             ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
-                to be too much for them!")
-          else print_typed_string ("End of turn for " ^ Player.name player_paid);
-          let updated_player_position =
-            Player.move_to player_paid (location updated_player)
-          in
-          replace_player updated_player_position)
-        else replace_player updated_player
-    | _ -> replace_player updated_player
+           if Player.cash player < 0 then
+             print_typed_string
+               (Player.name player_paid
+              ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+                 to be too much for them!")
+           else print_typed_string ("End of turn for " ^ Player.name player_paid);
+           let updated_player_position =
+             Player.move_to player_paid (location updated_player)
+           in
+           replace_player updated_player_position)
+            updated_player s
+        else replace_player updated_player updated_player s
+    | _ -> replace_player updated_player updated_player s
   in
   let new_player =
     List.find (fun p -> Player.name p = Player.name updated_player) new_players
   in
+  replace_player new_player
 
+let match_input_helper =
+  ref
+    (fun
+      (current_tile : Tile.tile)
+      (s : state)
+      (new_position : int)
+      (new_player : player)
+      (updated_player : player)
+    -> (updated_player, s))
+
+let match_input (current_tile : tile) (s : state) (new_position : int)
+    (new_player : player) (updated_player : player) =
   match Monopoly.parse_user_input (read_line ()) with
   | "P" -> begin
       match current_tile with
@@ -480,7 +535,7 @@ let rec one_turn (s : state) (player : player) plist =
         print_typed_string
           "Pick from the following properties, or enter any other value to \
            exit:";
-        print_typed_string (string_list_properties player);
+        print_typed_string (string_list_properties new_player);
         let inp = Monopoly.parse_user_input (read_line ()) in
         let propholder = player_name_to_property new_player inp in
         let playernow =
@@ -507,21 +562,19 @@ let rec one_turn (s : state) (player : player) plist =
         print_typed_string "Sorry, you currently don't own any properties";
         reconstruct_state new_player (purchased_properties s) s)
   | "H" ->
-      let help =
-        print_endline
-          "Hello! Here's a brief overview of how the game works: At the \
-           beginning of each turn, we roll a pair of die for you and advance \
-           your character that many spaces on the game board. We give you \
-           useful information like your current bank account balance, the \
-           current square you're on, and a few tiles around you. Then, you are \
-           prompted to enter your next action based on what square you're on. \
-           Note that you must enter exactly what's prompted in most cases, \
-           although you will still be charged for rent, taxes, and other \
-           things regardless of what you enter (so tax evasion isn't \
-           possible)! Hope this helps!"
-      in
-      help;
-      reconstruct_state new_player (purchased_properties s) s
+      print_endline
+        "Hello! Here's a brief overview of how the game works: At the \
+         beginning of each turn, we roll a pair of die for you and advance \
+         your character that many spaces on the game board. We give you useful \
+         information like your current bank account balance, the current \
+         square you're on, and a few tiles around you. Then, you are prompted \
+         to enter your next action based on what square you're on. Note that \
+         you must enter exactly what's prompted in most cases, although you \
+         will still be charged for rent, taxes, and other things regardless of \
+         what you enter (so tax evasion isn't possible)! Hope this helps!";
+      prompt_next_action s current_tile updated_player;
+      prompt_if_not_jailed current_tile;
+      !match_input_helper current_tile s new_position new_player updated_player
   | "Help" ->
       display_commands command_list;
       (* This does not work btw *)
@@ -581,6 +634,122 @@ let rec one_turn (s : state) (player : player) plist =
       | _ ->
           print_endline ("End of turn for " ^ Player.name new_player);
           reconstruct_state new_player (purchased_properties s) s)
+
+(** [one_turn player] represents a single turn for [player]. Returns the updated
+    player and state with the updated player inside after turn has been
+    completed. *)
+let rec one_turn (s : state) (player : player) plist =
+  print_endline "";
+  print_endline
+    ("---------------------Starting turn for player " ^ Player.name player
+   ^ "---------------------");
+  let die1 = Random.int 6 + 1 in
+  let die2 = Random.int 6 + 1 in
+  let doubles = die1 = die2 in
+  let roll = die1 + die2 in
+
+  let old_position = location player in
+  let roll_position = (old_position + roll) mod List.length Board.board in
+
+  let updated_player =
+    match player with
+    | p when in_jail p && doubles -> leave_jail p
+    | p when in_jail p && has_goojf p -> handle_card p
+    | p when in_jail p && turns_in_jail p < 3 && not doubles -> jail_turn p
+    | p when in_jail p && turns_in_jail p >= 3 && not doubles ->
+        print_endline "You were charged $50 bail to leave jail.";
+        move_to (leave_jail (charge p 50)) roll_position
+    | _ -> move_to player roll_position
+  in
+
+  print_typed_string
+    ("You are starting this turn on "
+    ^
+    if in_jail updated_player then "Jail"
+    else Tile.tileName (List.nth Board.board old_position));
+
+  let new_position = location updated_player in
+  let updated_player =
+    if Monopoly.player_passed_go old_position new_position then (
+      print_typed_string "You have passed Go! You win $200";
+      pay updated_player 200)
+    else updated_player
+  in
+
+  let current_tile = List.nth Board.board new_position in
+
+  inform_player s updated_player current_tile roll;
+
+  (* print_standings (print_player_standings plist); *)
+  display_board Board.board new_position;
+
+  (* [updated_player] is the new player identifier after they have been charged
+     rent for landing on their current location property, if applicable. *)
+  let updated_player =
+    match List.nth Board.board new_position with
+    | Property p ->
+        if is_property_owned p (s |> player_list) then (
+          print_typed_string "Updating player records...";
+          updated_player)
+        else updated_player
+    | _ -> updated_player
+  in
+
+  prompt_next_action s current_tile updated_player;
+
+  prompt_if_not_jailed current_tile;
+
+  let new_players =
+    match current_tile with
+    | CommunityChest h ->
+        unlock_comm_chest_card updated_player
+          (List.nth Board.board new_position)
+          plist
+    | Chance _ ->
+        replace_player
+          (unlock_chance_card updated_player current_tile)
+          updated_player s
+    | IncomeTax -> replace_player (charge updated_player 200) updated_player s
+    | LuxuryTax -> replace_player (charge updated_player 100) updated_player s
+    | FreeParking -> replace_player (pay updated_player 100) updated_player s
+    | GoToJail ->
+        print_typed_string "Moving you to Jail....";
+        let new_pos = get_pos board (tileName JustVisiting) 0 in
+        let updated_player =
+          Player.go_to_jail (Player.move_to updated_player new_pos)
+        in
+        replace_player updated_player updated_player s
+    | Property p ->
+        if
+          is_property_owned p (player_list s)
+          && Player.name updated_player <> find_owner p (player_list s)
+        then
+          (print_endline ("Charging " ^ Player.name updated_player ^ "...");
+           let rentable_tile = List.nth board (location updated_player) in
+           let rent = Tile.get_price rentable_tile in
+           let player_paid = charge updated_player rent in
+
+           if Player.cash player < 0 then
+             print_typed_string
+               (Player.name player_paid
+              ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+                 to be too much for them!")
+           else print_typed_string ("End of turn for " ^ Player.name player_paid);
+           let updated_player_position =
+             Player.move_to player_paid (location updated_player)
+           in
+           replace_player updated_player_position)
+            updated_player s
+        else replace_player updated_player updated_player s
+    | _ -> replace_player updated_player updated_player s
+  in
+  let new_player =
+    List.find (fun p -> Player.name p = Player.name updated_player) new_players
+  in
+
+  match_input_helper := match_input;
+
+  match_input current_tile s new_position new_player updated_player
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
@@ -654,7 +823,7 @@ let rec main () =
   print_endline "";
   let open Random in
   Random.self_init ();
-  let players_lst = init_players [] true in
+  let players_lst = init_players [] 0 false in
   let game_state = init_state players_lst [] 0 in
   print_typed_string
     "We begin our game of Cornellopoly with the following players: ";
