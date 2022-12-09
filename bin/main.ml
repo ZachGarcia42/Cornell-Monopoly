@@ -643,7 +643,7 @@ let rec one_turn (s : state) (player : player) plist =
     | Chance _ ->
         replace_player
           (unlock_chance_card updated_player current_tile old_position
-             new_position)
+             new_position plist)
           player s
     | IncomeTax -> replace_player (charge updated_player 400) player s
     | LuxuryTax -> replace_player (charge updated_player 200) player s
