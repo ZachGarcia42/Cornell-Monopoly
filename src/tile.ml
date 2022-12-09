@@ -9,7 +9,7 @@ type tile =
   | GoToJail
   | LuxuryTax
 
-let tileName = function
+let tile_name = function
   | Property p -> Property.name p
   | Go -> "Go"
   | CommunityChest h -> "Community Chest"
@@ -32,5 +32,5 @@ let rec get_pos board dest acc =
   match board with
   | [] -> acc
   | h :: t ->
-      let sq = tileName h in
+      let sq = tile_name h in
       if sq = dest then acc else get_pos t dest (acc + 1)

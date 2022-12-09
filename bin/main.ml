@@ -72,7 +72,7 @@ let display_board (board : Tile.tile list) (pos : int) =
   let rec print_tiles printed_tiles =
     match printed_tiles with
     | [] -> " | "
-    | h :: t -> " | " ^ tileName h ^ print_tiles t
+    | h :: t -> " | " ^ tile_name h ^ print_tiles t
   in
 
   let x = print_tiles printed_tiles in
@@ -106,11 +106,12 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 
   print_typed_string ("Bank Account balance: $" ^ string_of_int money);
   print_typed_string
-    ("New position: " ^ if in_jail player then "Jail" else tileName current_tile);
+    ("New position: "
+    ^ if in_jail player then "Jail" else tile_name current_tile);
 
   match current_tile with
   | Property p ->
-      let name_length = String.length (tileName current_tile) in
+      let name_length = String.length (tile_name current_tile) in
       let bottom = "|" ^ make_line 50 "" ^ "|" in
       let top = make_line 52 "" in
       print_endline top;
@@ -122,7 +123,7 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
       in
 
       print_endline
-        ("|" ^ name_spacer_one ^ tileName current_tile ^ name_spacer_two ^ "|");
+        ("|" ^ name_spacer_one ^ tile_name current_tile ^ name_spacer_two ^ "|");
       let property_spacer_one =
         make_space
           ((50
@@ -279,8 +280,9 @@ let rec init_players players_lst counter flag =
 (** [rent_charge_inform s p player] informs the current player whose turn it of
     the owner of the property [p] they landed on and how much they are being
     charged as rent *)
-let rent_charge_inform (s : state) (p : Property.t) (pl : player) =
-  let owner = find_owner p (player_list s) in
+let rent_charge_inform (p : Property.t) (pl : player) (playerlst : player list)
+    =
+  let owner = find_owner p playerlst in
 
   if Player.name pl <> owner then (
     print_typed_string ("This property is owned by " ^ owner);
@@ -295,7 +297,7 @@ let rent_charge_inform (s : state) (p : Property.t) (pl : player) =
 
 (* [prompt_next_action] prompts the player's next key-press based on what tile
    type they are currently on. *)
-let prompt_next_action state tile player =
+let prompt_next_action state tile player playerlst =
   if in_jail player then
     print_typed_string
       "You are in jail with your old Dyson pal (who recently committed \n\
@@ -305,8 +307,10 @@ let prompt_next_action state tile player =
     match tile with
     | Go -> print_typed_string "You are on the Go tile"
     | Property p ->
-        if is_property_owned p (player_list state) then
-          rent_charge_inform state p player
+        if
+          check_properties state (get_pos board (tile_name (Property p)) 0)
+          || is_property_owned p playerlst
+        then rent_charge_inform p player playerlst
         else (
           print_typed_string
             ("This property costs $" ^ string_of_int (Property.price p));
@@ -418,6 +422,60 @@ let reconstruct_state (updated_player : player)
   in
   (updated_player, init_state new_players_list purchased_properties)
 
+let check_rent current_tile players new_player s =
+  (* If player is on another player's property, pays that player. *)
+  match current_tile with
+  | Property p ->
+      (* Returns the owner of property [p]. Returns the first player in the list
+         of players if the owner isn't found (should never happen) *)
+      let rec find_owner p players =
+        match players with
+        | [] -> List.nth players 0
+        | h :: t -> if Player.has_property h p then h else find_owner p t
+      in
+
+      let rec pay_player_in_list player_to_be_paid amt players =
+        match players with
+        | [] -> []
+        | h :: t ->
+            if Player.name h = Player.name player_to_be_paid then
+              Player.pay player_to_be_paid amt :: t
+            else h :: pay_player_in_list player_to_be_paid amt t
+      in
+
+      (* Accepts and returns a game state, the only difference being that
+         [player_to_be_paid] gets paid [amt]*)
+      let rec state_with_paid_player (state : state)
+          (player_to_be_paid : player) (amt : int) =
+        let players = State.player_list state in
+        let new_players_list =
+          pay_player_in_list player_to_be_paid amt players
+        in
+        init_state new_players_list (State.purchased_properties state)
+      in
+
+      if is_property_owned p (player_list s) then (
+        let property_price = Property.price p in
+        let property_owner = find_owner p (player_list s) in
+        if Player.name property_owner <> Player.name new_player then
+          print_endline
+            (Player.name property_owner ^ " was paid "
+            ^ string_of_int property_price
+            ^ " for rent!");
+
+        print_endline ("End of turn for " ^ Player.name new_player);
+
+        ( new_player,
+          state_with_paid_player
+            (snd (reconstruct_state new_player (purchased_properties s) s))
+            property_owner property_price ))
+      else (
+        print_endline ("End of turn for " ^ Player.name new_player);
+        reconstruct_state new_player (purchased_properties s) s)
+  | _ ->
+      print_endline ("End of turn for " ^ Player.name new_player);
+      reconstruct_state new_player (purchased_properties s) s
+
 let match_input_helper =
   ref
     (fun
@@ -426,19 +484,20 @@ let match_input_helper =
       (new_position : int)
       (new_player : player)
       (updated_player : player)
+      (playerlst : player list)
     -> (updated_player, s))
 
 let match_input (current_tile : tile) (s : state) (new_position : int)
-    (new_player : player) (updated_player : player) =
+    (new_player : player) (updated_player : player) (playerlst : player list) =
   match Monopoly.parse_user_input (read_line ()) with
   | "P" -> begin
       match current_tile with
-      | Property _ ->
-          if check_properties s new_position then (
+      | Property p ->
+          if check_properties s new_position || is_property_owned p playerlst
+          then (
             print_typed_string
               "Sorry! This property has already been purchased.";
-            print_typed_string ("End of turn for " ^ Player.name new_player);
-            reconstruct_state new_player (purchased_properties s) s)
+            check_rent current_tile playerlst new_player s)
           else
             let property_price =
               match List.nth board (location new_player) with
@@ -498,7 +557,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
         reconstruct_state new_player (purchased_properties s) s)
-  | "H" ->
+  | "H" | "HELP" ->
       print_endline
         "Hello! Here's a brief overview of how the game works: At the \
          beginning of each turn, we roll a pair of die for you and advance \
@@ -509,66 +568,11 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
          you must enter exactly what's prompted in most cases, although you \
          will still be charged for rent, taxes, and other things regardless of \
          what you enter (so tax evasion isn't possible)! Hope this helps!";
-      prompt_next_action s current_tile updated_player;
+      prompt_next_action s current_tile updated_player playerlst;
       prompt_if_not_jailed current_tile;
       !match_input_helper current_tile s new_position new_player updated_player
-  | "Help" ->
-      display_commands command_list;
-      (* This does not work btw *)
-      reconstruct_state new_player (purchased_properties s) s
-  | _ -> (
-      (* If player is on another player's property, pays that player. *)
-      match current_tile with
-      | Property p ->
-          (* Returns the owner of property [p]. Returns the first player in the
-             list of players if the owner isn't found (should never happen) *)
-          let rec find_owner p players =
-            match players with
-            | [] -> List.nth players 0
-            | h :: t -> if Player.has_property h p then h else find_owner p t
-          in
-
-          let rec pay_player_in_list player_to_be_paid amt players =
-            match players with
-            | [] -> []
-            | h :: t ->
-                if Player.name h = Player.name player_to_be_paid then
-                  Player.pay player_to_be_paid amt :: t
-                else h :: pay_player_in_list player_to_be_paid amt t
-          in
-
-          (* Accepts and returns a game state, the only difference being that
-             [player_to_be_paid] gets paid [amt]*)
-          let rec state_with_paid_player (state : state)
-              (player_to_be_paid : player) (amt : int) =
-            let players = State.player_list state in
-            let new_players_list =
-              pay_player_in_list player_to_be_paid amt players
-            in
-            init_state new_players_list (State.purchased_properties state)
-          in
-
-          if is_property_owned p (player_list s) then (
-            let property_price = Property.price p in
-            let property_owner = find_owner p (player_list s) in
-            if Player.name property_owner <> Player.name new_player then
-              print_endline
-                (Player.name property_owner ^ " was paid "
-                ^ string_of_int property_price
-                ^ " for rent!");
-
-            print_endline ("End of turn for " ^ Player.name new_player);
-
-            ( new_player,
-              state_with_paid_player
-                (snd (reconstruct_state new_player (purchased_properties s) s))
-                property_owner property_price ))
-          else (
-            print_endline ("End of turn for " ^ Player.name new_player);
-            reconstruct_state new_player (purchased_properties s) s)
-      | _ ->
-          print_endline ("End of turn for " ^ Player.name new_player);
-          reconstruct_state new_player (purchased_properties s) s)
+        playerlst
+  | _ -> check_rent current_tile playerlst new_player s
 
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player and state with the updated player inside after turn has been
@@ -601,7 +605,7 @@ let rec one_turn (s : state) (player : player) plist =
     ("You are starting this turn on "
     ^
     if in_jail updated_player then "Jail"
-    else Tile.tileName (List.nth Board.board old_position));
+    else Tile.tile_name (List.nth Board.board old_position));
 
   let new_position = location updated_player in
   let updated_player =
@@ -630,7 +634,7 @@ let rec one_turn (s : state) (player : player) plist =
     | _ -> updated_player
   in
 
-  prompt_next_action s current_tile updated_player;
+  prompt_next_action s current_tile updated_player plist;
 
   prompt_if_not_jailed current_tile;
 
@@ -650,7 +654,7 @@ let rec one_turn (s : state) (player : player) plist =
     | FreeParking -> replace_player (pay updated_player 100) player s
     | GoToJail ->
         print_typed_string "Moving you to Jail....";
-        let new_pos = get_pos board (tileName JustVisiting) 0 in
+        let new_pos = get_pos board (tile_name JustVisiting) 0 in
         let updated_player =
           Player.go_to_jail (Player.move_to updated_player new_pos)
         in
@@ -659,23 +663,26 @@ let rec one_turn (s : state) (player : player) plist =
         if
           is_property_owned p (player_list s)
           && Player.name updated_player <> find_owner p (player_list s)
-        then
-          (print_endline ("Charging " ^ Player.name updated_player ^ "...");
-           let rentable_tile = List.nth board (location updated_player) in
-           let rent = Tile.get_price rentable_tile in
-           let player_paid = charge updated_player rent in
+        then (
+          print_typed_string ("Charging " ^ Player.name updated_player ^ "...");
+          let rentable_tile = List.nth board (location updated_player) in
+          let rent = Tile.get_price rentable_tile in
+          let player_paid = charge updated_player rent in
 
-           if Player.cash player < 0 then
-             print_typed_string
-               (Player.name player_paid
-              ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
-                 to be too much for them!")
-           else print_typed_string ("End of turn for " ^ Player.name player_paid);
-           let updated_player_position =
-             Player.move_to player_paid (location updated_player)
-           in
-           replace_player updated_player_position)
-            player s
+          if Player.cash player < 0 then
+            print_typed_string
+              (Player.name player_paid
+             ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+                to be too much for them!")
+          else print_typed_string ("End of turn for " ^ Player.name player_paid);
+          let updated_player_position =
+            Player.move_to player_paid (location updated_player)
+          in
+          replace_player updated_player_position player s)
+        else if is_property_owned p (player_list s) then (
+          print_typed_string
+            "This is your own property. Press any key to continue.";
+          replace_player updated_player player s)
         else replace_player updated_player player s
     | _ -> replace_player updated_player player s
   in
@@ -685,7 +692,7 @@ let rec one_turn (s : state) (player : player) plist =
 
   match_input_helper := match_input;
 
-  match_input current_tile s new_position new_player updated_player
+  match_input current_tile s new_position new_player updated_player plist
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
@@ -694,7 +701,13 @@ let rec remove_player (p : player) (players : player list) =
   | h :: t ->
       if Player.name h = Player.name p then t else h :: remove_player p t
 
-(** Removes player [p] from [state] *)
+(** Removes player [p] from [state]*)
+let remove_player_from_state (p : player) (s : state) =
+  let old_player_list = State.player_list s in
+  let new_player_list = remove_player p old_player_list in
+  init_state new_player_list (State.purchased_properties s)
+
+(** Removes player [p] and all properties owned by [p] from [state] *)
 let trimmed_state (p : player) (state : state) =
   let old_player_list = State.player_list state in
   let new_player_list = remove_player p old_player_list in
@@ -724,11 +737,11 @@ let rec take_turns (s : state) plist : state =
               (State.purchased_properties newer_state)
           end
           else
-            let tail_player_list_state = trimmed_state p new_state in
-            let total_player_list =
-              p :: player_list (take_turns tail_player_list_state plist)
-            in
-            init_state total_player_list (State.purchased_properties new_state)
+            let tail_player_list_state = remove_player_from_state p new_state in
+            let third_state = take_turns tail_player_list_state plist in
+            let total_player_list = p :: player_list third_state in
+            init_state total_player_list
+              (State.purchased_properties third_state)
             (* | p, new_s, m -> if Player.cash p < 0 then init_state
                (player_list (take_turns (init_state t new_s m))) new_s m else
                init_state (p :: player_list (take_turns (init_state t new_s m)))

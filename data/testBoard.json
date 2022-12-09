@@ -1,16 +1,11 @@
 {
   "tiles": [
     {
-      "type": "Chance"
-    },
-    {
-      "type": "Chance"
-    },
-    {
-      "type": "Chance"
-    },
-    {
-      "type": "CommunityChest"
+      "type": "Property",
+      "name": "Low Rise 7",
+      "color": "Brown",
+      "price": 60,
+      "pos": 1
     }
   ]
 }

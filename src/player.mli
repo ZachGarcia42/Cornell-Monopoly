@@ -71,11 +71,13 @@ val net_worth : player -> int
 val add_get_out_card : player -> player
 (* [add_get_out_card player] adds another get_out card*)
 
-val handle_chance : player -> Chance.t -> Tile.tile -> int -> int -> player list -> player
+val handle_chance :
+  player -> Chance.t -> Tile.tile -> int -> int -> player list -> player
 (* [handle_chance player ch property] updates the player's status based on the
    chance card*)
 
-val unlock_chance_card : player -> Tile.tile -> int -> int -> player list -> player
+val unlock_chance_card :
+  player -> Tile.tile -> int -> int -> player list -> player
 (* [unlock_chance_card player property old_position new_position] picks a random
    chance card and calls handle chance*)
 
