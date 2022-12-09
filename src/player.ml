@@ -111,6 +111,8 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos =
     move_to did_player_pass_go new_pos)
   else if ctype = "Chance: Money Made" then pay player price
   else if ctype = "Chance: Payment Required" then charge player price
+  else if ctype = "Chance: Jail" then
+    go_to_jail (move_to player (get_pos board (tileName JustVisiting) 0))
   else if ctype = "Chance: Move Backwards" then (
     let dest =
       Monopoly.convert (newpos + rel_space_translation ch) (List.length board)
