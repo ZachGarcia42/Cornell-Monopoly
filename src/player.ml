@@ -92,7 +92,80 @@ let net_worth p =
   p.cash
   + List.fold_left (fun sum prop -> sum + Property.price prop) 0 p.properties
 
-let handle_chance (player : player) (ch : Chance.t) property oldpos newpos =
+let rec collect_money_from_other_players player playerlist num_players amt =
+  match playerlist with
+  | [] -> []
+  | h :: t ->
+      if h = player then
+        pay player ((num_players - 1) * 10)
+        :: collect_money_from_other_players player t num_players amt
+      else
+        let new_player = pay h amt in
+        new_player :: collect_money_from_other_players player t num_players amt
+
+let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
+  (property : Tile.tile)  =
+print_endline (Chest.name ch);
+if Chest.name ch = "Get out of Jail Free Card earned" then
+  List.map
+    (fun p ->
+      if p = player then
+        { player with get_out_cards = player.get_out_cards + 1 }
+      else p)
+    playerlst
+else if Chest.name ch = "It is your birthday! Collect $10 from every player"
+then
+  let num_players = List.length playerlst in
+  let updated_players =
+    collect_money_from_other_players player playerlst num_players 10
+  in
+  updated_players
+else
+  let dest = Chest.destination ch in
+  if dest <> "Current" then (
+    let new_pos = get_pos board dest 0 in
+    print_typed_string ("You have advanced to " ^ dest);
+
+    let did_player_pass_go =
+      if
+        Monopoly.player_passed_go
+          (get_pos board (tileName property) 0)
+          (get_pos board dest 0)
+      then pay player 200
+      else player
+    in
+    List.map
+      (fun p -> if p = player then move_to did_player_pass_go new_pos else p)
+      playerlst)
+  else
+    let payment = Chest.payment ch in
+    if payment < 0 then
+      List.map
+        (fun p -> if p = player then charge player (-1 * payment) else p)
+        playerlst
+    else
+      List.map
+        (fun p -> if p = player then pay player payment else p)
+        playerlst
+
+
+let unlock_comm_chest_card (player : player) property (playerlst : player list)
+: player list =
+  match property with
+  | CommunityChest c ->
+    handle_cc player playerlst
+      (Board.draw_card Board.community_chest_commands)
+      property 
+  | _ ->
+    print_endline "This is not a Community Chest Card!";
+    playerlst
+
+let rec find_player lst player = 
+  match lst with 
+  |[] -> player 
+  |h :: t -> if h = player then h else find_player t player
+
+let handle_chance (player : player) (ch : Chance.t) property oldpos newpos (playerlst : player list)=
   print_endline (Chance.command ch);
   let dest = Chance.destination ch in
   let ctype = Chance.name ch in
@@ -135,8 +208,9 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos =
           print_endline "You receive $100";
           pay player 100
       | CommunityChest c ->
-          print_endline "Unlocking your Community Chest Card!";
-          player
+          print_endline "Unlocking your Community Chest Card.....";
+          let res = unlock_comm_chest_card player property playerlst in 
+          find_player res player
       | _ -> player
     in
 
@@ -151,82 +225,15 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos =
     add_get_out_card player)
   else player
 
-let unlock_chance_card (player : player) property oldpos newpos =
+let unlock_chance_card (player : player) property oldpos newpos (playerlist: player list)=
   match property with
   | Chance c ->
       handle_chance player
         (Board.draw_card Board.chance_commands)
-        property oldpos newpos
+        property oldpos newpos playerlist
   | _ ->
       print_typed_string "This is not a Chance Card!";
       charge player 0
-
-let rec collect_money_from_other_players player playerlist num_players amt =
-  match playerlist with
-  | [] -> []
-  | h :: t ->
-      if h = player then
-        pay player ((num_players - 1) * 10)
-        :: collect_money_from_other_players player t num_players amt
-      else
-        let new_player = pay h amt in
-        new_player :: collect_money_from_other_players player t num_players amt
-
-let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
-    (property : Tile.tile) =
-  print_endline (Chest.name ch);
-  if Chest.name ch = "Get out of Jail Free Card earned" then
-    List.map
-      (fun p ->
-        if p = player then
-          { player with get_out_cards = player.get_out_cards + 1 }
-        else p)
-      playerlst
-  else if Chest.name ch = "It is your birthday! Collect $10 from every player"
-  then
-    let num_players = List.length playerlst in
-    let updated_players =
-      collect_money_from_other_players player playerlst num_players 10
-    in
-    updated_players
-  else
-    let dest = Chest.destination ch in
-    if dest <> "Current" then (
-      let new_pos = get_pos board dest 0 in
-      print_typed_string ("You have advanced to " ^ dest);
-
-      let did_player_pass_go =
-        if
-          Monopoly.player_passed_go
-            (get_pos board (tileName property) 0)
-            (get_pos board dest 0)
-        then pay player 200
-        else player
-      in
-      List.map
-        (fun p -> if p = player then move_to did_player_pass_go new_pos else p)
-        playerlst)
-    else
-      let payment = Chest.payment ch in
-      if payment < 0 then
-        List.map
-          (fun p -> if p = player then charge player (-1 * payment) else p)
-          playerlst
-      else
-        List.map
-          (fun p -> if p = player then pay player payment else p)
-          playerlst
-
-let unlock_comm_chest_card (player : player) property (playerlst : player list)
-    : player list =
-  match property with
-  | CommunityChest c ->
-      handle_cc player playerlst
-        (Board.draw_card Board.community_chest_commands)
-        property
-  | _ ->
-      print_endline "This is not a Community Chest Card!";
-      playerlst
 
 let pay_tax (player : player) property =
   match property with
