@@ -237,7 +237,11 @@ let rec init_players players_lst counter flag =
           print_typed_string
             ("Successfully created new player named " ^ Player.name new_player);
           let updated_players = players_lst @ [ new_player ] in
-          init_players updated_players (counter + 1) false
+          if List.length updated_players = 8 then (
+            print_typed_string
+              "You have reached the maximum of 8 players allowed.";
+            updated_players)
+          else init_players updated_players (counter + 1) false
   end
   else if counter = 1 then begin
     print_typed_string "Please enter a second player: ";
