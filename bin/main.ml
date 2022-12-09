@@ -220,7 +220,7 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
 (** [init_players ()] instantiates the number of desired players and adds them
     to the players list *)
 let rec init_players players_lst counter flag =
-  if counter = 0 || flag = true then begin
+  if counter = 0 || flag then begin
     print_typed_string "Please enter your name: ";
     print_string "> ";
 
@@ -264,7 +264,7 @@ let rec init_players players_lst counter flag =
           | "no" | "n" -> updated_players
           | _ ->
               print_typed_string "I didn't understand that";
-              init_players updated_players counter flag)
+              init_players updated_players (counter + 1) flag)
   end
   else
     let updated_players = players_lst in
