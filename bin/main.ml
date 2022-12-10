@@ -7,6 +7,11 @@ open Board
 open Property
 open Printer
 
+(** [update_player p plist] is a new player list with [p] instead of the old
+    entry in [plist]*)
+let update_player p plist =
+  List.map (fun p' -> if Player.name p = Player.name p' then p else p') plist
+
 (** [read_lines name] returns the content of file [name] as a string list*)
 let read_lines name : string list =
   let ic = open_in name in
@@ -808,7 +813,7 @@ let rec take_turns (s : state) plist : state =
                 to be too much for them!");
             let newer_state = trimmed_state p new_state in
             init_state
-              (player_list (take_turns newer_state plist))
+              (player_list (take_turns newer_state (update_player p plist)))
               (State.purchased_properties newer_state)
           end
           else
