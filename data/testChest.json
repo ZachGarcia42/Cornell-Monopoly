@@ -1,8 +1,8 @@
 {
   "cards": [
     {
-      "name": "Bank error in your favor! Collect $200",
-      "tile": "Current",
+      "name": "Advance to Go! Collect $200",
+      "tile": "Go",
       "price": 200,
       "source": "Bank"
     }

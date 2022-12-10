@@ -288,13 +288,15 @@ let rent_charge_inform (p : Property.t) (pl : player) (playerlst : player list)
     =
   let owner = find_owner p playerlst in
 
-  if Player.name pl <> owner then (
+  if Player.name pl <> owner && owner <> "No one" then (
     print_typed_string ("This property is owned by " ^ owner);
     print_typed_string
       ("You are being charged $"
       ^ string_of_int (Property.price p)
-      ^ " for the privilege of staying on their properties. You may not take \
-         any other actions related to this property."))
+      ^ " for the privilege of staying on their properties. Your account's \
+         balance is now down to $"
+      ^ string_of_int (Player.cash pl - Property.price p)
+      ^ ". You may not take any other actions related to this property."))
   else
     print_typed_string
       "This is your property! You don't have to pay any rent fees"
@@ -546,8 +548,16 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
             && has_property new_player (Option.get propholder)
           then begin
             print_endline
-              (inp ^ " was sold successfully at Martha's Auction. "
-             ^ Player.name new_player ^ ", you can attempt another action.");
+              (inp
+             ^ " was sold successfully at Martha's Auction for an impressive $"
+              ^ string_of_int (Property.price (Option.get propholder) / 2)
+              ^ "! The profits have been added to your wallet. "
+              ^ Player.name new_player ^ ", you can attempt another action.");
+
+            print_endline
+              "Here is the information you were given earlier at the beginning \
+               of this turn, for your convenience. Note that this is merely \
+               informative – the effects are not doubled. ";
 
             (* ignore (remove_properties s (index (Option.get propholder))); *)
             sell_property new_player (Option.get propholder)
@@ -562,7 +572,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
 
         prompt_next_action s current_tile playernow playerlst;
         prompt_if_not_jailed current_tile;
-        !match_input_helper current_tile s new_position new_player playernow
+        !match_input_helper current_tile s new_position playernow playernow
           playerlst)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
@@ -572,7 +582,6 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
         !match_input_helper current_tile s new_position new_player
           updated_player playerlst)
   | "H" ->
-
       print_endline
         "Hello! Here's a brief overview of how the game works: At the \
          beginning of each turn, we roll a pair of die for you and advance \
@@ -582,8 +591,10 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
          to enter your next action based on what square you're on. Note that \
          you must enter exactly what's prompted in most cases, although you \
          will still be charged for rent, taxes, and other things regardless of \
-         what you enter (so tax evasion isn't possible)! Hope this helps!";
-
+         what you enter (so tax evasion isn't possible)! We also maintain a \
+         leaderboard (printed out at the beginning of each round) that's based \
+         on how much cash players have (not counting value of assets, so this \
+         can be deceptive!). Hope this helps!";
       prompt_next_action s current_tile updated_player playerlst;
       prompt_if_not_jailed current_tile;
       !match_input_helper current_tile s new_position new_player updated_player
@@ -702,13 +713,14 @@ let rec one_turn (s : state) (player : player) plist =
         else replace_player updated_player player s
     | _ -> replace_player updated_player player s
   in
+
   let new_player =
     List.find (fun p -> Player.name p = Player.name updated_player) new_players
   in
 
   match_input_helper := match_input;
 
-  match_input current_tile s new_position new_player updated_player plist
+  match_input current_tile s new_position new_player updated_player new_players
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
