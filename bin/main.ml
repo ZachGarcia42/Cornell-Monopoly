@@ -7,6 +7,21 @@ open Board
 open Property
 open Printer
 
+(** [read_lines name] returns the content of file [name] as a string list*)
+let read_lines name : string list =
+  let ic = open_in name in
+  let try_read () = try Some (input_line ic) with End_of_file -> None in
+  let rec loop acc =
+    match try_read () with
+    | Some s -> loop (s :: acc)
+    | None ->
+        close_in ic;
+        List.rev acc
+  in
+  loop []
+
+let to_one_string lst : string = List.fold_left (fun a b -> a ^ "\n" ^ b) "" lst
+
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions playerlist =
@@ -597,19 +612,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
         prompt_if_not_jailed current_tile;
         !match_input_helper current_tile s new_position new_player playerlst)
   | "H" ->
-      print_endline
-        "Hello! Here's a brief overview of how the game works: At the \
-         beginning of each turn, we roll a pair of die for you and advance \
-         your character that many spaces on the game board. We give you useful \
-         information like your current bank account balance, the current \
-         square you're on, and a few tiles around you. Then, you are prompted \
-         to enter your next action based on what square you're on. Note that \
-         you must enter exactly what's prompted in most cases, although you \
-         will still be charged for rent, taxes, and other things regardless of \
-         what you enter (so tax evasion isn't possible)! We also maintain a \
-         leaderboard (printed out at the beginning of each round) that's based \
-         on how much cash players have (not counting value of assets, so this \
-         can be deceptive!). Hope this helps!";
+      print_endline (to_one_string (read_lines "data/help.txt"));
       prompt_next_action s current_tile new_player playerlst;
       prompt_if_not_jailed current_tile;
       !match_input_helper current_tile s new_position new_player playerlst
@@ -824,26 +827,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
          ^ Player.name (List.hd updated_playerlst)
          ^ " HAS WON THE GAME!!!!!");
 
-       print_endline
-         " █████╗  █████╗ ███╗  ██╗ ██████╗ ██████╗  █████╗ ████████╗ \
-          ██████╗██╗";
-       print_endline
-         "██╔══██╗██╔══██╗████╗ ██║██╔════╝ \
-          ██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██║";
-       print_endline
-         "██║  ╚═╝██║  ██║██╔██╗██║██║  ██╗ ██████╔╝███████║   ██║   ╚█████╗ \
-          ██║";
-       print_endline
-         "██║  ██╗██║  ██║██║╚████║██║  ╚██╗██╔══██╗██╔══██║   ██║    \
-          ╚═══██╗╚═╝";
-       print_endline
-         "╚█████╔╝╚█████╔╝██║ ╚███║╚██████╔╝██║  ██║██║  ██║   ██║   \
-          ██████╔╝██╗";
-       print_endline
-         " ╚════╝  ╚════╝ ╚═╝  ╚══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═════╝ \
-          ╚═╝";
-       print_endline "";
-       print_endline "")
+       display_commands (read_lines "data/winArt.txt"))
   else game_loop updated_game (turn + 1) purchased updated_playerlst
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
@@ -851,10 +835,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     itself. *)
 let rec main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
-    "Welcome to Cornellopoly! In this game, you'll get to play a \n\
-     version of the popular board game Monopoly while learning a lot about \n\
-     Cornell University!\n\
-     Here are the commands that you can use: \n";
+    (to_one_string (read_lines "data/intro.txt"));
   print_endline " ";
   display_commands command_list;
   print_endline "";
@@ -880,73 +861,7 @@ let rec main () =
         print_endline "";
         main ()
     | "no" | "n" ->
-        print_endline "";
-        print_endline "";
-        print_endline "Thank you for playing Cornellopoly! Have a great day!";
-        print_endline "";
-        print_endline "";
-
-        print_endline "     ████              ████      ";
-        print_endline "     ██    ██          ██    ██   ";
-        print_endline "   ██      ██        ██      ██    ";
-        print_endline "   ██        ██      ██      ██    ";
-        print_endline "   ██        ██    ██        ██    ";
-        print_endline "     ██      ██    ██        ██    ";
-        print_endline "     ██      ██    ██      ██      ";
-        print_endline "     ██      ██  ██        ██      ";
-        print_endline "     ██      ██  ██      ██        ";
-        print_endline "       ██    ██  ██      ██        ";
-        print_endline "       ██    ██  ██    ████        ";
-        print_endline "       ██      ██    ██    ██      ";
-        print_endline "       ██          ██      ██      ";
-        print_endline "       ██████      ██      ██████  ";
-        print_endline "     ██      ██  ██        ██    ██";
-        print_endline "   ██          ████████    ██    ██";
-        print_endline " ██                    ████    ██  ";
-        print_endline " ██                    ██      ██  ";
-        print_endline " ██      ██          ██      ██    ";
-        print_endline " ██    ██████████████  ██████      ";
-        print_endline "   ██          ██          ██      ";
-        print_endline "   ██          ██          ██      ";
-        print_endline "     ██      ██          ██        ";
-        print_endline "       ████            ██          ";
-        print_endline "           ████████████            ";
-        print_endline "";
-        print_endline "";
-        print_endline "        █████             █████";
-        print_endline "    ████████████       ████████████";
-        print_endline "  ████▓▓▓▓▓▓▓▓▓▓██   ███▓▓▓▓▓▓▓▓▓████";
-        print_endline " ███▓▓▓▓▓▓▓▓▓▓▓▓▓██ ██▓▓▓▓▓▓▓▓▓▓▓▓▓███";
-        print_endline "███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓███";
-        print_endline "██▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓██";
-        print_endline "██▓▓▓▓▓▓▓▓▓                  ▓▓▓▓▓▓▓▓██";
-        print_endline "██▓▓▓▓▓▓▓ ██   ████ █  █ █████ ▓▓▓▓▓▓██";
-        print_endline "██▓▓▓▓▓▓▓ ██   █  █ █  █ ██    ▓▓▓▓▓▓██";
-        print_endline "███▓▓▓▓▓▓ ██   █  █ █  █ █████ ▓▓▓▓▓▓██";
-        print_endline "███▓▓▓▓▓▓ ██   █  █ █  █ ██    ▓▓▓▓▓▓██";
-        print_endline " ███▓▓▓▓▓ ████ ████ ████ █████ ▓▓▓▓███";
-        print_endline "   ███▓▓▓▓▓                  ▓▓▓▓▓▓███";
-        print_endline "    ████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓████";
-        print_endline "     ████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓████";
-        print_endline "       ████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█████";
-        print_endline "          ████▓▓▓▓▓▓▓▓▓▓▓▓████";
-        print_endline "             ███▓▓▓▓▓▓▓████";
-        print_endline "               ███▓▓▓███";
-        print_endline "                 ██▓██";
-        print_endline "                  ███";
-        print_endline "";
-        print_endline "";
-        print_endline "██████████████ ████████   ████████   ██████████████ ";
-        print_endline "██░░░░░░░░░░██ ██░░░░██   ██░░░░██   ██░░░░░░░░░░██ ";
-        print_endline "██████████░░██ ████░░██   ████░░██   ██░░██████░░██ ";
-        print_endline "        ██░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██████████░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██░░░░░░░░░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██████████░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "        ██░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██████████░░██ ████░░████ ████░░████ ██░░██████░░██ ";
-        print_endline "██░░░░░░░░░░██ ██░░░░░░██ ██░░░░░░██ ██░░░░░░░░░░██ ";
-        print_endline "██████████████ ██████████ ██████████ ██████████████ ";
+        display_commands (read_lines "data/endArt.txt");
 
         exit 0
     | _ ->

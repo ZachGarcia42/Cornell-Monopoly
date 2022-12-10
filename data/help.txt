@@ -1,0 +1,13 @@
+Hello! Here's a brief overview of how the game works: At the
+beginning of each turn, we roll a pair of die for you and advance
+your character that many spaces on the game board. We give you useful
+information like your current bank account balance, the current
+square you're on, and a few tiles around you. Then, you are prompted
+to enter your next action based on what square you're on. Note that
+you must enter exactly what's prompted in most cases, although you
+will still be charged for rent, taxes, and other things regardless of
+what you enter (so tax evasion isn't possible)! We also maintain a
+leaderboard (printed out at the beginning of each round) that's based
+on how much cash players have (not counting value of assets, so this
+can be deceptive!). Hope this helps!
+
