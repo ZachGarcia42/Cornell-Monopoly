@@ -288,7 +288,7 @@ let rent_charge_inform (p : Property.t) (pl : player) (playerlst : player list)
     =
   let owner = find_owner p playerlst in
 
-  if Player.name pl <> owner then (
+  if Player.name pl <> owner && owner <> "No one" then (
     print_typed_string ("This property is owned by " ^ owner);
     print_typed_string
       ("You are being charged $"
@@ -546,9 +546,16 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
             && has_property new_player (Option.get propholder)
           then begin
             print_endline
-              (inp ^ " was sold successfully at Martha's Auction. "
-             ^ Player.name new_player ^ ", you can attempt another action.");
+              (inp
+             ^ " was sold successfully at Martha's Auction for an impressive "
+              ^ string_of_int (Property.price (Option.get propholder) / 2)
+              ^ "! The profits have been added to your wallet. "
+              ^ Player.name new_player ^ ", you can attempt another action.");
 
+            print_endline
+              "Here is the information you were given earlier at the beginning \
+               of this turn, for your convenience. Note that this is merely \
+               informative – the effects are not doubled. ";
             (* ignore (remove_properties s (index (Option.get propholder))); *)
             sell_property new_player (Option.get propholder)
           end
