@@ -66,7 +66,11 @@ let purchase_property (player : player) (property : Tile.tile) =
       charge player 0
   | Property x ->
       print_typed_string
-        "Congratulations! You have successfully purchased this property.";
+        ("Congratulations! You have successfully purchased this property. $"
+        ^ string_of_int (Tile.get_price property)
+        ^ " has been deducted from your account. Your new balance is $"
+        ^ string_of_int (cash player - Tile.get_price property)
+        ^ "!");
       buy_property player x
   | IncomeTax ->
       print_typed_string
