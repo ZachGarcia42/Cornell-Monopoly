@@ -245,7 +245,10 @@ let pay_tax (player : player) property =
 
 let string_list_properties player =
   List.fold_left
-    (fun (acc : string) (h : Property.t) -> acc ^ " | " ^ Property.name h)
+    (fun (acc : string) (h : Property.t) ->
+      acc ^ " | " ^ Property.name h ^ " (initial value: $"
+      ^ string_of_int (Property.price h)
+      ^ ") ")
     "" (properties player)
 
 let rec player_name_to_property (player : player) str =
