@@ -6,7 +6,8 @@ open Tile
 (* For testing our monopoly file implementation, we achieved 100% coverage using
    OUnit tests, so no manual testing was required. However, our play testing
    also inherently tests these functions since they are an integral part of
-   Monopoly. *)
+   Monopoly. The combination of these approaches demonstrates the correctness of
+   this module.*)
 
 let board = Board.board
 let identity s = s

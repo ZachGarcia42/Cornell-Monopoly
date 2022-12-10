@@ -5,9 +5,15 @@ open Chest
 open Player
 open Property
 
-(* For testing our player implementation, we achieved 100% coverage using OUnit
-   tests, so no manual testing was required. However, our play testing also
-   inherently tests players since they are an integral part of Monopoly. *)
+(* For testing our player implementation, we achieved 87% coverage using OUnit
+   tests, and where we could not provide coverage was specific instances such as
+   functions with a random effect (like drawing a random chance card) and
+   functions with logic branches that are not possible on a normal Monopoly
+   board (like moving back three spaces from chance and landing on free
+   parking). For these situations, we specifically play tested to ensure these
+   logic branches function as expected. Our play testing also inherently tests
+   players since they are an integral part of Monopoly. The combination of these
+   approaches demonstrates the correctness of this module.*)
 
 let player_test (name : string) expected_output input : test =
   name >:: fun _ -> assert_equal expected_output input

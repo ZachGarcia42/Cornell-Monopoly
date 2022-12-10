@@ -2,11 +2,11 @@ open OUnit2
 open Game
 open Property
 
-
 (* For testing our property implementation, we achieved 100% coverage using
    OUnit tests, so no manual testing was required. However, our play testing
-   also inherently tests properties since they are an integral part of
-   Monopoly. *)
+   also inherently tests properties since they are an integral part of Monopoly.
+   The combination of these approaches demonstrates the correctness of this
+   module.*)
 
 let property_test (name : string) expected_output input : test =
   name >:: fun _ -> assert_equal expected_output input

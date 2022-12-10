@@ -1,3 +1,5 @@
+(** Represents a Monopoly game state*)
+
 type state
 (** The abstract type of values representing a single monopoly game state. *)
 

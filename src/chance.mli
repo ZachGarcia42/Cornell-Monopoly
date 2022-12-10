@@ -1,3 +1,5 @@
+(** Represents a chance card*)
+
 type t
 (** The abstract type representing a Chance Card*)
 
