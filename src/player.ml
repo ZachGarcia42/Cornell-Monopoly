@@ -103,6 +103,7 @@ let rec collect_money_from_other_players player playerlist num_players amt =
         let new_player = pay h amt in
         new_player :: collect_money_from_other_players player t num_players amt
 
+
 let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
     (property : Tile.tile) =
   print_endline (Chest.name ch);
@@ -164,6 +165,7 @@ let rec find_player lst player =
   | [] -> player
   | h :: t -> if h = player then h else find_player t player
 
+
 let handle_chance (player : player) (ch : Chance.t) property oldpos newpos
     (playerlst : player list) =
   print_endline (Chance.command ch);
@@ -183,7 +185,8 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos
     in
     move_to did_player_pass_go new_pos)
   else if ctype = "Chance: Money Made" then pay player price
-  else if ctype = "Chance: Payment Required" then charge player price
+  else if ctype = "Chance: Payment Required" then 
+    charge player price
   else if ctype = "Chance: Jail" then
     go_to_jail (move_to player (get_pos board (tile_name JustVisiting) 0))
   else if ctype = "Chance: Move Backwards" then (
