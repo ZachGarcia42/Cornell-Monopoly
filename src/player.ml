@@ -100,9 +100,8 @@ let rec collect_money_from_other_players player playerlist num_players amt =
         pay player ((num_players - 1) * 10)
         :: collect_money_from_other_players player t num_players amt
       else
-        let new_player = pay h amt in
+        let new_player = charge h amt in
         new_player :: collect_money_from_other_players player t num_players amt
-
 
 let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
     (property : Tile.tile) =
@@ -110,7 +109,7 @@ let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
   if Chest.name ch = "Get out of Jail Free Card earned" then
     List.map
       (fun p ->
-        if p = player then
+        if name p = name player then
           { player with get_out_cards = player.get_out_cards + 1 }
         else p)
       playerlst
@@ -136,17 +135,19 @@ let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
         else player
       in
       List.map
-        (fun p -> if p = player then move_to did_player_pass_go new_pos else p)
+        (fun p ->
+          if name p = name player then move_to did_player_pass_go new_pos else p)
         playerlst)
     else
       let payment = Chest.payment ch in
       if payment < 0 then
         List.map
-          (fun p -> if p = player then charge player (-1 * payment) else p)
+          (fun p ->
+            if name p = name player then charge player (-1 * payment) else p)
           playerlst
       else
         List.map
-          (fun p -> if p = player then pay player payment else p)
+          (fun p -> if name p = name player then pay player payment else p)
           playerlst
 
 let unlock_comm_chest_card (player : player) property (playerlst : player list)
@@ -164,7 +165,6 @@ let rec find_player lst player =
   match lst with
   | [] -> player
   | h :: t -> if h = player then h else find_player t player
-
 
 let handle_chance (player : player) (ch : Chance.t) property oldpos newpos
     (playerlst : player list) =
@@ -185,8 +185,7 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos
     in
     move_to did_player_pass_go new_pos)
   else if ctype = "Chance: Money Made" then pay player price
-  else if ctype = "Chance: Payment Required" then 
-    charge player price
+  else if ctype = "Chance: Payment Required" then charge player price
   else if ctype = "Chance: Jail" then
     go_to_jail (move_to player (get_pos board (tile_name JustVisiting) 0))
   else if ctype = "Chance: Move Backwards" then (
