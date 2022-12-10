@@ -20,6 +20,8 @@ let read_lines name : string list =
   in
   loop []
 
+(** [to_one_string lst] concatenates all the strings in [lst], separating them
+    by newlines*)
 let to_one_string lst : string = List.fold_left (fun a b -> a ^ "\n" ^ b) "" lst
 
 (** [end_conditions] is true if at least one of the game-ending conditions is
