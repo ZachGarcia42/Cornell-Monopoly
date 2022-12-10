@@ -9,7 +9,8 @@ open Tile
    and black box OUnit tests, so manual testing was required due to the player
    input requirements present in many of the state functions. Our play testing
    also inherently tests these functions since they are an integral part of the
-   gameplay. *)
+   gameplay. The combination of these approaches demonstrates the correctness of
+   this module.*)
 let zach = init_player "Zach" 1500
 let boardwalk_t = init_property "Boardwalk" Blue 400 39
 let boardwalk = Property boardwalk_t
