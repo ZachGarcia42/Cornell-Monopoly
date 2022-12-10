@@ -310,7 +310,7 @@ let rent_charge_inform (p : Property.t) (pl : player) (playerlst : player list)
     =
   let owner = find_owner p playerlst in
 
-  if Player.name pl <> owner && owner <> "No one" then (
+  if Player.name pl <> owner then (
     print_typed_string ("This property is owned by " ^ owner);
     print_typed_string
       ("You are being charged $"
@@ -321,7 +321,8 @@ let rent_charge_inform (p : Property.t) (pl : player) (playerlst : player list)
       ^ ". You may not take any other actions related to this property."))
   else
     print_typed_string
-      "This is your property! You don't have to pay any rent fees"
+      ("This is your property " ^ owner
+     ^ "! You don't have to pay any rent fees")
 
 (* [prompt_next_action] prompts the player's next key-press based on what tile
    type they are currently on. *)
@@ -692,8 +693,9 @@ let rec one_turn (s : state) (player : player) plist =
   (* print_standings (print_player_standings plist); *)
   display_board Board.board new_position;
 
-  (* [updated_player] is the new player identifier after they have been charged
-     rent for landing on their current location property, if applicable. *)
+  (* [updated_player] is the new player identifier after they have informed of
+     their charged rent for landing on their current location property, if
+     applicable. *)
   let updated_player =
     match List.nth Board.board new_position with
     | Property p ->
@@ -730,9 +732,14 @@ let rec one_turn (s : state) (player : player) plist =
         in
         replace_player updated_player player s
     | Property p ->
+        print_endline (string_of_bool (is_property_owned p plist));
+
+        print_endline
+          (string_of_bool (Player.name updated_player <> find_owner p plist));
+
         if
-          is_property_owned p (player_list s)
-          && Player.name updated_player <> find_owner p (player_list s)
+          is_property_owned p plist
+          && Player.name updated_player <> find_owner p plist
         then (
           print_typed_string ("Charging " ^ Player.name updated_player ^ "...");
           let rentable_tile = List.nth board (location updated_player) in
