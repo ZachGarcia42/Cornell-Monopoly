@@ -597,6 +597,12 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
       !match_input_helper current_tile s new_position new_player playerlst
   | _ -> check_rent current_tile playerlst new_player s
 
+(** [reconstruct_state_players s players] is the state [s] but with an updated
+    players list [players]*)
+let reconstruct_state_players (s : state) (players : player list) : state =
+  let purchased_props = State.purchased_properties s in
+  init_state players purchased_props
+
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player and state with the updated player inside after turn has been
     completed. *)
@@ -619,7 +625,9 @@ let rec one_turn (s : state) (player : player) plist =
     | p when in_jail p && has_goojf p -> handle_card p
     | p when in_jail p && turns_in_jail p < 3 && not doubles -> jail_turn p
     | p when in_jail p && turns_in_jail p >= 3 && not doubles ->
-        print_typed_string "You were charged $50 bail to leave jail.";
+        print_typed_string
+          "You were charged $50 bail to leave jail. Enjoy your newfound \
+           freedom while it lasts!";
         move_to (leave_jail (charge p 50)) roll_position
     | _ -> move_to player roll_position
   in
@@ -716,7 +724,11 @@ let rec one_turn (s : state) (player : player) plist =
 
   match_input_helper := match_input;
 
-  match_input current_tile s new_position new_player new_players
+  (* reconstructed state with new players as sometimes birthdays doesn't update
+     all players' accounts*)
+  match_input current_tile
+    (reconstruct_state_players s new_players)
+    new_position new_player new_players
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
