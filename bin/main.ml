@@ -752,6 +752,7 @@ let rec one_turn (s : state) (player : player) plist =
           let updated_player_position =
             Player.move_to player_paid (location updated_player)
           in
+
           replace_player updated_player_position player s)
         else if is_property_owned p (player_list s) then (
           print_typed_string
