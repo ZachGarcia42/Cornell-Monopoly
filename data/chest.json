@@ -23,12 +23,6 @@
       "tile": "Current",
       "price": 0,
       "source": "Bank"
-    },
-    {
-      "name": "It is your birthday! Collect $10 from every player",
-      "tile": "Current",
-      "price": 10,
-      "source": "All Players"
     }
   ]
 }

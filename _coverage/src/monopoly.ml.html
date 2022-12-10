@@ -37,23 +37,21 @@
 <a id="L13"></a><span > </span>
 <a id="L14"></a><span > </span>
 <a id="L15"></a><span > </span>
-<a id="L16"></a><span > </span>
+<a id="L16"></a><span class="visited"> </span>
 <a id="L17"></a><span class="visited"> </span>
 <a id="L18"></a><span class="visited"> </span>
-<a id="L19"></a><span class="visited"> </span>
+<a id="L19"></a><span > </span>
 <a id="L20"></a><span > </span>
 <a id="L21"></a><span > </span>
-<a id="L22"></a><span > </span>
-<a id="L23"></a><span > </span>
+<a id="L22"></a><span class="visited"> </span>
+<a id="L23"></a><span class="visited"> </span>
 <a id="L24"></a><span class="visited"> </span>
-<a id="L25"></a><span class="visited"> </span>
-<a id="L26"></a><span class="visited"> </span>
+<a id="L25"></a><span > </span>
+<a id="L26"></a><span > </span>
 <a id="L27"></a><span > </span>
-<a id="L28"></a><span > </span>
-<a id="L29"></a><span > </span>
+<a id="L28"></a><span class="visited"> </span>
+<a id="L29"></a><span class="visited"> </span>
 <a id="L30"></a><span class="visited"> </span>
-<a id="L31"></a><span class="visited"> </span>
-<a id="L32"></a><span class="visited"> </span>
 </pre>
       </div>
       <div id="text-layer">
@@ -88,8 +86,6 @@
 <a href="#L28">28</a>
 <a href="#L29">29</a>
 <a href="#L30">30</a>
-<a href="#L31">31</a>
-<a href="#L32">32</a>
 </pre>
 <pre><code class="ocaml">open Tile
 
@@ -98,31 +94,29 @@ let board = Board.board
 (* Accounts for the fact that positions may need to wrap around to the beginning
    of the board again*)
 let rec convert (new_pos : int) (square_list_length : int) =
-  <span data-count="13">i</span>f new_pos &gt;= 0 &amp;&amp; <span data-count="12">n</span>ew_pos &lt; square_list_length then <span data-count="10">n</span>ew_pos
-  else <span data-count="3">i</span>f new_pos &gt;= square_list_length then
+  <span data-count="14">i</span>f new_pos &gt;= 0 &amp;&amp; <span data-count="10">n</span>ew_pos &lt; square_list_length then <span data-count="8">n</span>ew_pos
+  else <span data-count="6">i</span>f new_pos &gt;= square_list_length then
     <span data-count="2">c</span>onvert (new_pos - square_list_length) square_list_length
-  else <span data-count="1">c</span>onvert (new_pos + square_list_length) square_list_length
+  else <span data-count="4">c</span>onvert (new_pos + square_list_length) square_list_length
 
-  
-(* init_pos is the initial position in the board where they are at. fin_pos is the 
-   roll on the dice that they got*)
+(* init_pos is the initial position in the board where they are at. fin_pos is
+   the roll on the dice that they got*)
 let square_landed board init_pos dice_roll =
   <span data-count="5">l</span>et new_pos = convert (init_pos + dice_roll) (List.lengt<span data-count="5">h</span> board) in
   <span data-count="5">l</span>et sq = List.nth board new_pos in
-  <span data-count="5">T</span>ile.tileName sq
-
+  <span data-count="5">T</span>ile.tile_name sq
 
 (* Parses the user's input properly*)
-let parse_user_input (input: string): string = 
-  <span data-count="18">l</span>et upperc_input = String.uppercase_ascii input in 
-    <span data-count="18">l</span>et new_str = String.trim upperc_input in 
-      <span data-count="18">n</span>ew_str
+let parse_user_input (input : string) : string =
+  <span data-count="12">l</span>et upperc_input = String.uppercase_ascii input in
+  <span data-count="12">l</span>et new_str = String.trim upperc_input in
+  <span data-count="12">n</span>ew_str
 
 (* Returns whether a player passed Go or not*)
-let player_passed_go(init_pos: int)(fin_pos: int) = 
-<span data-count="45">l</span>et gotojail = Tile.get_pos board (tileNam<span data-count="45">e</span> GoToJail) 0 in 
-<span data-count="45">i</span>f init_pos = gotojail then <span data-count="1">f</span>alse else
-<span data-count="44">i</span>nit_pos &gt; 0 &amp;&amp; <span data-count="44">f</span>in_pos &gt;= 0 &amp;&amp; <span data-count="44">i</span>nit_pos &gt; fin_pos
+let player_passed_go (init_pos : int) (fin_pos : int) =
+  <span data-count="29">l</span>et gotojail = Tile.get_pos board (tile_nam<span data-count="29">e</span> GoToJail) 0 in
+  <span data-count="29">i</span>f init_pos = gotojail then <span data-count="1">f</span>alse
+  else <span data-count="28">i</span>nit_pos &gt; 0 &amp;&amp; <span data-count="28">f</span>in_pos &gt;= 0 &amp;&amp; <span data-count="28">i</span>nit_pos &gt; fin_pos
 </code></pre>
       </div>
     </div>

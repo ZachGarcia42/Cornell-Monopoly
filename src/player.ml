@@ -117,13 +117,6 @@ let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
           { p with get_out_cards = p.get_out_cards + 1 }
         else p)
       playerlst
-  else if Chest.name ch = "It is your birthday! Collect $10 from every player"
-  then
-    let num_players = List.length playerlst in
-    let updated_players =
-      collect_money_from_other_players player playerlst num_players 10
-    in
-    updated_players
   else
     let dest = Chest.destination ch in
     if dest <> "Current" then (

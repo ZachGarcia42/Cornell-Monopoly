@@ -34,30 +34,37 @@
 <a id="L10"></a><span > </span>
 <a id="L11"></a><span > </span>
 <a id="L12"></a><span > </span>
-<a id="L13"></a><span class="visited"> </span>
-<a id="L14"></a><span class="visited"> </span>
-<a id="L15"></a><span class="visited"> </span>
-<a id="L16"></a><span class="visited"> </span>
+<a id="L13"></a><span > </span>
+<a id="L14"></a><span > </span>
+<a id="L15"></a><span > </span>
+<a id="L16"></a><span > </span>
 <a id="L17"></a><span class="visited"> </span>
 <a id="L18"></a><span class="visited"> </span>
 <a id="L19"></a><span class="visited"> </span>
 <a id="L20"></a><span class="visited"> </span>
 <a id="L21"></a><span class="visited"> </span>
-<a id="L22"></a><span > </span>
-<a id="L23"></a><span > </span>
+<a id="L22"></a><span class="visited"> </span>
+<a id="L23"></a><span class="visited"> </span>
 <a id="L24"></a><span class="visited"> </span>
 <a id="L25"></a><span class="visited"> </span>
-<a id="L26"></a><span class="visited"> </span>
-<a id="L27"></a><span class="visited"> </span>
-<a id="L28"></a><span class="visited"> </span>
+<a id="L26"></a><span > </span>
+<a id="L27"></a><span > </span>
+<a id="L28"></a><span > </span>
 <a id="L29"></a><span class="visited"> </span>
-<a id="L30"></a><span > </span>
-<a id="L31"></a><span > </span>
+<a id="L30"></a><span class="visited"> </span>
+<a id="L31"></a><span class="visited"> </span>
 <a id="L32"></a><span class="visited"> </span>
 <a id="L33"></a><span class="visited"> </span>
 <a id="L34"></a><span class="visited"> </span>
 <a id="L35"></a><span > </span>
-<a id="L36"></a><span class="visited"> </span>
+<a id="L36"></a><span > </span>
+<a id="L37"></a><span > </span>
+<a id="L38"></a><span > </span>
+<a id="L39"></a><span class="visited"> </span>
+<a id="L40"></a><span class="visited"> </span>
+<a id="L41"></a><span class="visited"> </span>
+<a id="L42"></a><span > </span>
+<a id="L43"></a><span class="visited"> </span>
 </pre>
       </div>
       <div id="text-layer">
@@ -98,8 +105,18 @@
 <a href="#L34">34</a>
 <a href="#L35">35</a>
 <a href="#L36">36</a>
+<a href="#L37">37</a>
+<a href="#L38">38</a>
+<a href="#L39">39</a>
+<a href="#L40">40</a>
+<a href="#L41">41</a>
+<a href="#L42">42</a>
+<a href="#L43">43</a>
 </pre>
-<pre><code class="ocaml">type tile =
+<pre><code class="ocaml">(** Represents a Monopoly board tile*)
+
+(** The type representing a single monopoly board tile*)
+type tile =
   | Property of Property.t
   | Go
   | CommunityChest of Chest.t
@@ -110,31 +127,35 @@
   | GoToJail
   | LuxuryTax
 
-let tileName = function
-  | <span data-count="1582">P</span>roperty p -&gt; Property.name p
-  | <span data-count="195">G</span>o -&gt; "Go"
-  | <span data-count="247">C</span>ommunityChest h -&gt; "Community Chest"
-  | <span data-count="159">I</span>ncomeTax -&gt; "Income Tax"
-  | <span data-count="201">C</span>hance c -&gt; "Chance"
-  | <span data-count="98">J</span>ustVisiting -&gt; "Just Visiting"
-  | <span data-count="52">F</span>reeParking -&gt; "Free Parking"
-  | <span data-count="102">G</span>oToJail -&gt; "Go To Jail"
+(** [tile_name t] is the name of [t]*)
+let tile_name = function
+  | <span data-count="1001">P</span>roperty p -&gt; Property.name p
+  | <span data-count="118">G</span>o -&gt; "Go"
+  | <span data-count="152">C</span>ommunityChest h -&gt; "Community Chest"
+  | <span data-count="93">I</span>ncomeTax -&gt; "Income Tax"
+  | <span data-count="121">C</span>hance c -&gt; "Chance"
+  | <span data-count="62">J</span>ustVisiting -&gt; "Just Visiting"
+  | <span data-count="34">F</span>reeParking -&gt; "Free Parking"
+  | <span data-count="66">G</span>oToJail -&gt; "Go To Jail"
   | <span data-count="3">L</span>uxuryTax -&gt; "Luxury Tax"
 
+(** [get_price t] is the price of [t]*)
 let get_price = function
-  | <span data-count="1">P</span>roperty p -&gt; Property.price p
+  | <span data-count="13">P</span>roperty p -&gt; Property.price p
   | <span data-count="1">I</span>ncomeTax -&gt; -200
   | <span data-count="1">L</span>uxuryTax -&gt; -100
   | <span data-count="1">C</span>hance c -&gt; Chance.price c
   | <span data-count="1">C</span>ommunityChest h -&gt; Chest.payment h
   | <span data-count="1">_</span> -&gt; 0
 
+(** [get_pos board dest acc] is the index of the tile with name [dest] in
+    [board] *)
 let rec get_pos board dest acc =
-  <span data-count="2521">m</span>atch board with
+  <span data-count="1575">m</span>atch board with
   | <span data-count="1">[</span>] -&gt; acc
-  | <span data-count="2520">h</span> :: t -&gt;
-      let sq = tileName h in
-      <span data-count="2520">i</span>f sq = dest then <span data-count="194">a</span>cc else <span data-count="2326">g</span>et_pos t dest (acc + 1)
+  | <span data-count="1574">h</span> :: t -&gt;
+      let sq = tile_name h in
+      <span data-count="1574">i</span>f sq = dest then <span data-count="117">a</span>cc else <span data-count="1457">g</span>et_pos t dest (acc + 1)
 </code></pre>
       </div>
     </div>

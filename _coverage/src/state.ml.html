@@ -37,54 +37,51 @@
 <a id="L13"></a><span > </span>
 <a id="L14"></a><span > </span>
 <a id="L15"></a><span > </span>
-<a id="L16"></a><span > </span>
+<a id="L16"></a><span class="visited"> </span>
 <a id="L17"></a><span class="visited"> </span>
-<a id="L18"></a><span class="visited"> </span>
-<a id="L19"></a><span class="visited"> </span>
-<a id="L20"></a><span > </span>
+<a id="L18"></a><span > </span>
+<a id="L19"></a><span > </span>
+<a id="L20"></a><span class="visited"> </span>
 <a id="L21"></a><span > </span>
-<a id="L22"></a><span class="visited"> </span>
-<a id="L23"></a><span > </span>
-<a id="L24"></a><span > </span>
+<a id="L22"></a><span > </span>
+<a id="L23"></a><span class="visited"> </span>
+<a id="L24"></a><span class="visited"> </span>
 <a id="L25"></a><span class="visited"> </span>
-<a id="L26"></a><span class="visited"> </span>
-<a id="L27"></a><span class="visited"> </span>
+<a id="L26"></a><span > </span>
+<a id="L27"></a><span > </span>
 <a id="L28"></a><span > </span>
 <a id="L29"></a><span > </span>
-<a id="L30"></a><span > </span>
+<a id="L30"></a><span class="visited"> </span>
 <a id="L31"></a><span > </span>
-<a id="L32"></a><span class="visited"> </span>
+<a id="L32"></a><span > </span>
 <a id="L33"></a><span > </span>
 <a id="L34"></a><span > </span>
-<a id="L35"></a><span > </span>
-<a id="L36"></a><span > </span>
+<a id="L35"></a><span class="visited"> </span>
+<a id="L36"></a><span class="visited"> </span>
 <a id="L37"></a><span class="visited"> </span>
 <a id="L38"></a><span class="visited"> </span>
-<a id="L39"></a><span class="visited"> </span>
-<a id="L40"></a><span class="visited"> </span>
-<a id="L41"></a><span class="visited"> </span>
+<a id="L39"></a><span > </span>
+<a id="L40"></a><span > </span>
+<a id="L41"></a><span > </span>
 <a id="L42"></a><span > </span>
-<a id="L43"></a><span > </span>
-<a id="L44"></a><span > </span>
+<a id="L43"></a><span class="visited"> </span>
+<a id="L44"></a><span class="visited"> </span>
 <a id="L45"></a><span > </span>
-<a id="L46"></a><span class="visited"> </span>
-<a id="L47"></a><span class="visited"> </span>
+<a id="L46"></a><span > </span>
+<a id="L47"></a><span > </span>
 <a id="L48"></a><span > </span>
-<a id="L49"></a><span > </span>
-<a id="L50"></a><span > </span>
-<a id="L51"></a><span > </span>
+<a id="L49"></a><span class="visited"> </span>
+<a id="L50"></a><span class="visited"> </span>
+<a id="L51"></a><span class="visited"> </span>
 <a id="L52"></a><span class="visited"> </span>
-<a id="L53"></a><span class="visited"> </span>
-<a id="L54"></a><span class="visited"> </span>
-<a id="L55"></a><span class="visited"> </span>
+<a id="L53"></a><span > </span>
+<a id="L54"></a><span > </span>
+<a id="L55"></a><span > </span>
 <a id="L56"></a><span > </span>
 <a id="L57"></a><span > </span>
-<a id="L58"></a><span > </span>
-<a id="L59"></a><span > </span>
-<a id="L60"></a><span > </span>
-<a id="L61"></a><span class="visited"> </span>
-<a id="L62"></a><span class="visited"> </span>
-<a id="L63"></a><span class="visited"> </span>
+<a id="L58"></a><span class="visited"> </span>
+<a id="L59"></a><span class="visited"> </span>
+<a id="L60"></a><span class="visited"> </span>
 </pre>
       </div>
       <div id="text-layer">
@@ -149,9 +146,6 @@
 <a href="#L58">58</a>
 <a href="#L59">59</a>
 <a href="#L60">60</a>
-<a href="#L61">61</a>
-<a href="#L62">62</a>
-<a href="#L63">63</a>
 </pre>
 <pre><code class="ocaml">open Player
 open Tile
@@ -166,56 +160,53 @@ let starting_money = 1500
 type state = {
   players : player list;
   purchased_properties : int list;
-  money_jar : int;
 }
 
-let player_list state = <span data-count="10">s</span>tate.players
-let purchased_properties state = <span data-count="10">s</span>tate.purchased_properties
-let money_jar state = <span data-count="15">s</span>tate.money_jar
+let player_list state = <span data-count="6">s</span>tate.players
+let purchased_properties state = <span data-count="6">s</span>tate.purchased_properties
 
-let init_state (players : player list) props money : state =
-  <span data-count="25">{</span> players; purchased_properties = props; money_jar = money }
+let init_state (players : player list) props : state =
+  <span data-count="15">{</span> players; purchased_properties = props }
 
 let check_properties state location =
-  <span data-count="25">m</span>atch List.nth board location with
-  | <span data-count="20">P</span>roperty x -&gt; List.mem location state.purchased_properties
-  | <span data-count="5">_</span> -&gt; false
+  <span data-count="15">m</span>atch List.nth board location with
+  | <span data-count="12">P</span>roperty x -&gt; List.mem location state.purchased_properties
+  | <span data-count="3">_</span> -&gt; false
 
 (** [add_properties purchased location] adds the property at index [location] to
     the list of purchased properties. *)
 let add_properties (purchased : int list) (location : int) =
-  <span data-count="15">l</span>ocation :: purchased
+  <span data-count="9">l</span>ocation :: purchased
 
 (**[remove_properties purchased property] removes the property [property] from
    the list of purchased properties*)
 let remove_properties state property =
-  <span data-count="5">i</span>nit_state (player_lis<span data-count="5">t</span> state)
-    (List.filte<span data-count="5">r</span>
-       (fun p -&gt; <span data-count="10">i</span>f p = property then <span data-count="5">f</span>alse else <span data-count="5">t</span>rue)
-       (purchased_propertie<span data-count="5">s</span> state))
-    (money_ja<span data-count="5">r</span> state)
+  <span data-count="3">i</span>nit_state (player_lis<span data-count="3">t</span> state)
+    (List.filte<span data-count="3">r</span>
+       (fun p -&gt; <span data-count="6">i</span>f p = property then <span data-count="3">f</span>alse else <span data-count="3">t</span>rue)
+       (purchased_propertie<span data-count="3">s</span> state))
 
 (** [check_player_properties prop properties] is true iff one of the properties
     matches [prop]. *)
 let rec check_player_properties prop = function
-  | <span data-count="5">[</span>] -&gt; false
-  | <span data-count="5">p</span>roperty :: t -&gt; property = pro<span data-count="5">p</span> || check_player_properties prop t
+  | <span data-count="3">[</span>] -&gt; false
+  | <span data-count="3">p</span>roperty :: t -&gt; property = pro<span data-count="3">p</span> || check_player_properties prop t
 
 (** [is_property_owned property] is true iff [property] is owned by one of the
     players. *)
 let rec is_property_owned (property : Property.t) players =
-  <span data-count="15">m</span>atch players with
-  | <span data-count="5">[</span>] -&gt; false
-  | <span data-count="10">p</span>layer :: t -&gt;
-      check_player_propertie<span data-count="10">s</span> property (propertie<span data-count="10">s</span> player<span data-count="5">)</span>
+  <span data-count="9">m</span>atch players with
+  | <span data-count="3">[</span>] -&gt; false
+  | <span data-count="6">p</span>layer :: t -&gt;
+      check_player_propertie<span data-count="6">s</span> property (propertie<span data-count="6">s</span> player<span data-count="3">)</span>
       || is_property_owned property t
 
 (** [find_owner p players] is the name of the owner of property [p] from the
     [players] list *)
 let rec find_owner (p : Property.t) (players : Player.player list) =
-  <span data-count="15">m</span>atch players with
-  | <span data-count="5">[</span>] -&gt; "No one"
-  | <span data-count="10">h</span> :: t -&gt; if Player.has_property h p then <span data-count="5">P</span>layer.name h else <span data-count="5">f</span>ind_owner p t
+  <span data-count="9">m</span>atch players with
+  | <span data-count="3">[</span>] -&gt; "No one"
+  | <span data-count="6">h</span> :: t -&gt; if Player.has_property h p then <span data-count="3">P</span>layer.name h else <span data-count="3">f</span>ind_owner p t
 </code></pre>
       </div>
     </div>
