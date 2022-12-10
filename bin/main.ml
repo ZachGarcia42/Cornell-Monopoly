@@ -292,10 +292,13 @@ let rec print_player_standings (players : player list) =
 
   get_player_standings sorted_cash (cash_to_players players)
 
-let rec print_standings lst =
-  for i = 0 to List.length lst - 1 do
-    print_endline ("Rank : " ^ string_of_int (i + 1) ^ List.nth lst i)
-  done
+let rec print_standings lst (turn : int) =
+  print_endline "Leaderboard: ";
+  if turn <> 1 then
+    for i = 0 to List.length lst - 1 do
+      print_endline ("Rank " ^ string_of_int (i + 1) ^ ": " ^ List.nth lst i)
+    done
+  else print_endline "--not calculated for the first round of the game--"
 
 let handle_card player =
   print_endline
@@ -421,7 +424,9 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
          to enter your next action based on what square you're on. Note that \
          you must enter exactly what's prompted in most cases, although you \
          will still be charged for rent, taxes, and other things regardless of \
-         what you enter (so tax evasion isn't possible)! Hope this helps!";
+         what you enter (so tax evasion isn't possible)! We also maintain a \
+         leaderboard (printed out at the beginning of each round) that's based \
+         on how much cash players have. Hope this helps!";
       prompt_next_action s current_tile updated_player;
       prompt_if_not_jailed current_tile;
       !match_input_helper current_tile s new_position new_player updated_player
@@ -652,7 +657,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  print_standings (print_player_standings playerlst);
+  print_standings (print_player_standings playerlst) turn;
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game in
   if end_conditions then ()
