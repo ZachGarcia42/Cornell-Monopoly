@@ -20,6 +20,8 @@ let read_lines name : string list =
   in
   loop []
 
+let to_one_string lst : string = List.fold_left (fun a b -> a ^ "\n" ^ b) "" lst
+
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions playerlist =
@@ -837,26 +839,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
          ^ Player.name (List.hd updated_playerlst)
          ^ " HAS WON THE GAME!!!!!");
 
-       print_endline
-         " █████╗  █████╗ ███╗  ██╗ ██████╗ ██████╗  █████╗ ████████╗ \
-          ██████╗██╗";
-       print_endline
-         "██╔══██╗██╔══██╗████╗ ██║██╔════╝ \
-          ██╔══██╗██╔══██╗╚══██╔══╝██╔════╝██║";
-       print_endline
-         "██║  ╚═╝██║  ██║██╔██╗██║██║  ██╗ ██████╔╝███████║   ██║   ╚█████╗ \
-          ██║";
-       print_endline
-         "██║  ██╗██║  ██║██║╚████║██║  ╚██╗██╔══██╗██╔══██║   ██║    \
-          ╚═══██╗╚═╝";
-       print_endline
-         "╚█████╔╝╚█████╔╝██║ ╚███║╚██████╔╝██║  ██║██║  ██║   ██║   \
-          ██████╔╝██╗";
-       print_endline
-         " ╚════╝  ╚════╝ ╚═╝  ╚══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═════╝ \
-          ╚═╝";
-       print_endline "";
-       print_endline "")
+       display_commands (read_lines "data/winArt.txt"))
   else game_loop updated_game (turn + 1) purchased updated_playerlst
 
 (** Entry point of the monopoly game. Calls helper functions to manage game
@@ -864,10 +847,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     itself. *)
 let rec main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
-    "Welcome to Cornellopoly! In this game, you'll get to play a \n\
-     version of the popular board game Monopoly while learning a lot about \n\
-     Cornell University!\n\
-     Here are the commands that you can use: \n";
+    (to_one_string (read_lines "data/intro.txt"));
   print_endline " ";
   display_commands command_list;
   print_endline "";

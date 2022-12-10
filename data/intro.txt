@@ -1,0 +1,6 @@
+Welcome to Cornellopoly! In this game, you'll get to play a
+version of the popular board game Monopoly while learning a lot about
+Cornell University!
+
+Here are the commands that you can use:
+
