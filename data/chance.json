@@ -22,7 +22,7 @@
       "movement": 0
     },
     {
-      "name": "Chance: Advancement",
+      "name": "Chance: Jail",
       "price": 0,
       "command": "Go directly to Jail!\nDo not collect $200 if you pass Go",
       "tile": "Just Visiting",
