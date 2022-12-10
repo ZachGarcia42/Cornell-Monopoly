@@ -1,3 +1,5 @@
+(** Represents a Monopoly property*)
+
 type t
 (** The abstract type of values representing a single monopoly property. *)
 

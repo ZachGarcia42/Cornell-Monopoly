@@ -1,3 +1,5 @@
+(** Board is the representation of the game board including all tiles and cards*)
+
 open Yojson.Basic.Util
 open Chance
 open Chest

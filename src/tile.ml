@@ -1,3 +1,5 @@
+(** Represents a Monopoly board tile*)
+
 (** The type representing a single monopoly board tile*)
 type tile =
   | Property of Property.t

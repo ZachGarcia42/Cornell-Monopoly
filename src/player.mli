@@ -1,3 +1,5 @@
+(** Represents a Monopoly player*)
+
 type player
 (** The abstract type of values representing a monopoly player. *)
 
