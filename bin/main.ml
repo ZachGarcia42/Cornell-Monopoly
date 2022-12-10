@@ -818,7 +818,9 @@ let rec take_turns (s : state) plist : state =
           end
           else
             let tail_player_list_state = remove_player_from_state p new_state in
-            let third_state = take_turns tail_player_list_state plist in
+            let third_state =
+              take_turns tail_player_list_state (update_player p plist)
+            in
             let total_player_list = p :: player_list third_state in
             init_state total_player_list
               (State.purchased_properties third_state))
