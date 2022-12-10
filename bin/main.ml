@@ -601,6 +601,12 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
         playerlst
   | _ -> check_rent current_tile playerlst new_player s
 
+(** [reconstruct_state_players s players] is the state [s] but with an updated
+    players list [players]*)
+let reconstruct_state_players (s : state) (players : player list) : state =
+  let purchased_props = State.purchased_properties s in
+  init_state players purchased_props
+
 (** [one_turn player] represents a single turn for [player]. Returns the updated
     player and state with the updated player inside after turn has been
     completed. *)
@@ -720,7 +726,9 @@ let rec one_turn (s : state) (player : player) plist =
 
   match_input_helper := match_input;
 
-  match_input current_tile s new_position new_player updated_player new_players
+  match_input current_tile
+    (reconstruct_state_players s new_players)
+    new_position new_player updated_player new_players
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
