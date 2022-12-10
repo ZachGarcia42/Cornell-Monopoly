@@ -50,7 +50,7 @@ let rec property_int_list properties =
 
 let replace_player player updated_player s =
   List.map
-    (fun p -> if p = updated_player then player else p)
+    (fun p -> if Player.name p = Player.name updated_player then player else p)
     (State.player_list s)
 
 let display_board (board : Tile.tile list) (pos : int) =
@@ -491,12 +491,11 @@ let match_input_helper =
       (s : state)
       (new_position : int)
       (new_player : player)
-      (updated_player : player)
       (playerlst : player list)
-    -> (updated_player, s))
+    -> (new_player, s))
 
 let match_input (current_tile : tile) (s : state) (new_position : int)
-    (new_player : player) (updated_player : player) (playerlst : player list) =
+    (new_player : player) (playerlst : player list) =
   match Monopoly.parse_user_input (read_line ()) with
   | "P" -> begin
       match current_tile with
@@ -528,7 +527,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
                 s
       | _ ->
           print_typed_string "Sorry, this property cannot be purchased!";
-          reconstruct_state updated_player (purchased_properties s) s
+          reconstruct_state new_player (purchased_properties s) s
     end
   | "Q" ->
       print_typed_string
@@ -572,15 +571,13 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
 
         prompt_next_action s current_tile playernow playerlst;
         prompt_if_not_jailed current_tile;
-        !match_input_helper current_tile s new_position playernow playernow
-          playerlst)
+        !match_input_helper current_tile s new_position playernow playerlst)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
 
-        prompt_next_action s current_tile updated_player playerlst;
+        prompt_next_action s current_tile new_player playerlst;
         prompt_if_not_jailed current_tile;
-        !match_input_helper current_tile s new_position new_player
-          updated_player playerlst)
+        !match_input_helper current_tile s new_position new_player playerlst)
   | "H" ->
       print_endline
         "Hello! Here's a brief overview of how the game works: At the \
@@ -595,10 +592,9 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
          leaderboard (printed out at the beginning of each round) that's based \
          on how much cash players have (not counting value of assets, so this \
          can be deceptive!). Hope this helps!";
-      prompt_next_action s current_tile updated_player playerlst;
+      prompt_next_action s current_tile new_player playerlst;
       prompt_if_not_jailed current_tile;
-      !match_input_helper current_tile s new_position new_player updated_player
-        playerlst
+      !match_input_helper current_tile s new_position new_player playerlst
   | _ -> check_rent current_tile playerlst new_player s
 
 (** [reconstruct_state_players s players] is the state [s] but with an updated
@@ -730,7 +726,7 @@ let rec one_turn (s : state) (player : player) plist =
      all players' accounts*)
   match_input current_tile
     (reconstruct_state_players s new_players)
-    new_position new_player updated_player new_players
+    new_position new_player new_players
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
