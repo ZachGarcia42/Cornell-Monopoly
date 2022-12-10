@@ -202,16 +202,16 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos
     let new_player =
       match current_tile with
       | IncomeTax ->
-          print_endline "You are being charged $200";
+          print_typed_string "You are being charged $200";
           charge player 200
       | LuxuryTax ->
-          print_endline "You are being charged $100";
+          print_typed_string "You are being charged $100";
           charge player 100
       | FreeParking ->
-          print_endline "You receive $100";
+          print_typed_string "You receive $100";
           pay player 100
       | CommunityChest c ->
-          print_endline "Unlocking your Community Chest Card.....";
+          print_typed_string "Unlocking your Community Chest Card.....";
           let res = unlock_comm_chest_card player property playerlst in
           find_player res player
       | _ -> player
@@ -220,7 +220,7 @@ let handle_chance (player : player) (ch : Chance.t) property oldpos newpos
     move_to new_player dest)
   else if ctype = "Chance: Get out of Jail Free" then (
     let num_get_out_of_jail_free_cards = player.get_out_cards in
-    print_endline "You have earned a Get out of Jail Free Card! ";
+    print_typed_string "You have earned a Get out of Jail Free Card! ";
     print_endline
       ("You now have "
       ^ string_of_int (num_get_out_of_jail_free_cards + 1)

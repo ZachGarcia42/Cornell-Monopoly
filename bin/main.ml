@@ -612,7 +612,7 @@ let rec one_turn (s : state) (player : player) plist =
     | p when in_jail p && has_goojf p -> handle_card p
     | p when in_jail p && turns_in_jail p < 3 && not doubles -> jail_turn p
     | p when in_jail p && turns_in_jail p >= 3 && not doubles ->
-        print_endline "You were charged $50 bail to leave jail.";
+        print_typed_string "You were charged $50 bail to leave jail.";
         move_to (leave_jail (charge p 50)) roll_position
     | _ -> move_to player roll_position
   in
