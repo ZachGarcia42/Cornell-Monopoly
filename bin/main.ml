@@ -122,8 +122,8 @@ let rec make_space (size : int) (space : string) =
     beginning of their turn, including what they rolled, how much money they
     have, their new position, and if they're on a property, how much that
     property costs. *)
-let inform_player (s : state) (player : player) (current_tile : Tile.tile)
-    (roll : int) : unit =
+let inform_player (s : state) (player : player) (playerlst : player list)
+    (current_tile : Tile.tile) (roll : int) : unit =
   print_typed_string
     ("You take the pair of dice in your hands, take a deep breath, then cast \
       them onto the table. Your heart hangs in your throat as you wait for the \
@@ -208,29 +208,24 @@ let inform_player (s : state) (player : player) (current_tile : Tile.tile)
         ("|" ^ color_spacer_one ^ "Color: "
         ^ Property.string_of_set (Property.color p)
         ^ color_spacer_two ^ "|");
-      if is_property_owned p (s |> player_list) then (
+      if is_property_owned p playerlst then (
         let owner_spacer_one =
           make_space
-            ((50 - String.length ("Owner: " ^ find_owner p (s |> player_list)))
-            / 2)
+            ((50 - String.length ("Owner: " ^ find_owner p playerlst)) / 2)
             spacer
         in
         let owner_spacer_two =
-          if
-            String.length ("Owner: " ^ find_owner p (s |> player_list)) mod 2
-            = 0
-          then owner_spacer_one
+          if String.length ("Owner: " ^ find_owner p playerlst) mod 2 = 0 then
+            owner_spacer_one
           else
             make_space
-              ((50 - String.length ("Owner: " ^ find_owner p (s |> player_list)))
-               / 2
+              (((50 - String.length ("Owner: " ^ find_owner p playerlst)) / 2)
               + 1)
               spacer
         in
         print_endline
-          ("|" ^ owner_spacer_one ^ "Owner: "
-          ^ find_owner p (s |> player_list)
-          ^ owner_spacer_two ^ "|");
+          ("|" ^ owner_spacer_one ^ "Owner: " ^ find_owner p playerlst
+         ^ owner_spacer_two ^ "|");
         print_endline bottom)
       else
         let owner_spacer_one =
@@ -695,7 +690,7 @@ let rec one_turn (s : state) (player : player) plist =
 
   let current_tile = List.nth Board.board new_position in
 
-  inform_player s updated_player current_tile roll;
+  inform_player s updated_player plist current_tile roll;
 
   (* print_standings (print_player_standings plist); *)
   display_board Board.board new_position;
