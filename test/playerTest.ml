@@ -21,6 +21,11 @@ let player_test (name : string) expected_output input : test =
 let int_test (name : string) expected_output input : test =
   name >:: fun _ -> assert_equal expected_output input ~printer:string_of_int
 
+let identity s = s
+
+let string_test (name : string) expected_output input : test =
+  name >:: fun _ -> assert_equal expected_output input ~printer:identity
+
 let zach = init_player "Zach" 1500
 let players = [ zach ]
 let boardwalk = init_property "Boardwalk" Blue 400 39
@@ -126,9 +131,10 @@ let tests =
     player_test "pay luxury tax" 1400 (cash (pay_tax zach LuxuryTax));
     player_test "pay no tax" 1500 (cash (pay_tax zach (Property boardwalk)));
     player_test "list no properties" "" (string_list_properties zach);
-    player_test "list one properties" " | Boardwalk"
+    string_test "list one properties" " | Boardwalk (initial value: $400) "
       (string_list_properties (buy_property zach boardwalk));
-    player_test "list two properties" " | Boardwalk | Park Place"
+    string_test "list two properties"
+      " | Boardwalk (initial value: $400)  | Park Place (initial value: $380) "
       (string_list_properties
          (buy_property (buy_property zach park_place) boardwalk));
     player_test "none prop" None (player_name_to_property zach "Boardwalk");
