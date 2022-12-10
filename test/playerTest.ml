@@ -93,7 +93,7 @@ let tests =
       (cash (handle_chance zach chance_adv (Chance chance_adv) 0 0 []));
     player_test "chance adv does nothing the second time" 1500
       (handle_chance
-         (handle_chance zach chance_adv (Chance chance_adv) 0 0 []) 
+         (handle_chance zach chance_adv (Chance chance_adv) 0 0 [])
          chance_adv (Chance chance_adv) 0 0 []
       |> cash);
     player_test "chance goojf adds a card" 1
@@ -102,7 +102,7 @@ let tests =
       (cash (handle_chance zach chance_mm (Chance chance_mm) 0 0 []));
     player_test "chance pay takes 100" 1400
       (cash (handle_chance zach chance_pay (Chance chance_pay) 0 0 []));
-    int_test "chance move moves" 4
+    int_test "chance move moves" 37
       (location (handle_chance zach chance_move (Chance chance_move) 0 0 []));
     player_test "not cc does nothing" players
       (unlock_comm_chest_card zach (Property boardwalk) players);
@@ -112,17 +112,17 @@ let tests =
          (handle_cc zach players cc_move (CommunityChest cc_move))
          cc_move (CommunityChest cc_move));
     player_test "cc go pays 200" 1700
-      (cash (List.nth (handle_cc zach players cc_go (CommunityChest cc_go) ) 0));
+      (cash (List.nth (handle_cc zach players cc_go (CommunityChest cc_go)) 0));
     player_test "cc doc charges 50" 1450
       (cash
-         (List.nth (handle_cc zach players cc_doc (CommunityChest cc_doc) ) 0));
+         (List.nth (handle_cc zach players cc_doc (CommunityChest cc_doc)) 0));
     player_test "cc bday pays 0" 1500
       (cash
-         (List.nth (handle_cc zach players cc_bday (CommunityChest cc_bday) ) 0));
+         (List.nth (handle_cc zach players cc_bday (CommunityChest cc_bday)) 0));
     player_test "cc goojf adds a card" 1
       (cards
          (List.nth
-            (handle_cc zach players cc_goojf (CommunityChest cc_goojf) )
+            (handle_cc zach players cc_goojf (CommunityChest cc_goojf))
             0));
     player_test "pay income tax" 1300 (cash (pay_tax zach IncomeTax));
     player_test "pay luxury tax" 1400 (cash (pay_tax zach LuxuryTax));
