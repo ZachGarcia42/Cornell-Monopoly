@@ -424,16 +424,30 @@ let print_player_standings (players : player list) =
   let rankings = get_pl standings_list in
   rankings
 
+(* gets the number of properties belonging to the player specified *)
+let rec get_num_properties (player_name : string) (players : player list) =
+  match players with
+  | [] -> 0
+  | h :: t ->
+      if Player.name h = player_name then List.length (Player.properties h)
+      else get_num_properties player_name t
+
 (** [print_standings lst cashlst turn] prints the players standings*)
-let rec print_standings lst (cashlst : (string * int) list) (turn : int) =
+let rec print_standings lst (cashlst : (string * int) list)
+    (playerlst : player list) (turn : int) =
   print_endline " ----- LEADERBOARD ----- ";
+  print_endline "Top Cornellians by cash";
   if turn <> 1 then
     for i = 0 to List.length lst - 1 do
+      let asset_quantity = get_num_properties (List.nth lst i) playerlst in
       print_endline
         ("Rank "
         ^ string_of_int (i + 1)
         ^ " : " ^ List.nth lst i ^ " has " ^ "$"
-        ^ string_of_int (List.assoc (List.nth lst i) cashlst))
+        ^ string_of_int (List.assoc (List.nth lst i) cashlst)
+        ^ " ("
+        ^ string_of_int asset_quantity
+        ^ " properties)")
     done
   else print_endline "<not calculated for the first round of the game>"
 
@@ -798,11 +812,7 @@ let rec take_turns (s : state) plist : state =
             let third_state = take_turns tail_player_list_state plist in
             let total_player_list = p :: player_list third_state in
             init_state total_player_list
-              (State.purchased_properties third_state)
-            (* | p, new_s, m -> if Player.cash p < 0 then init_state
-               (player_list (take_turns (init_state t new_s m))) new_s m else
-               init_state (p :: player_list (take_turns (init_state t new_s m)))
-               new_s m) *))
+              (State.purchased_properties third_state))
 
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
@@ -817,7 +827,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
   print_standings
     (print_player_standings playerlst)
     (cash_to_players playerlst)
-    turn;
+    playerlst turn;
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game in
   if end_conditions updated_playerlst then

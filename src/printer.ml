@@ -1,6 +1,8 @@
+let super_slow = 0.1
 let slow = 0.05
 let med = 0.025
 let fast = 0.01
+let super_fast = 0.05
 
 (* flag that toggles type printing. If you're playing the game as normal, set to
    false. If you're debugging and just want to see the output faster, set to
