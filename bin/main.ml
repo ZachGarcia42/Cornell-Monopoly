@@ -572,7 +572,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
 
         prompt_next_action s current_tile playernow playerlst;
         prompt_if_not_jailed current_tile;
-        !match_input_helper current_tile s new_position new_player playernow
+        !match_input_helper current_tile s new_position playernow playernow
           playerlst)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
