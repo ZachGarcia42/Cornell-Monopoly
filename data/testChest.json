@@ -1,0 +1,10 @@
+{
+  "cards": [
+    {
+      "name": "Bank error in your favor! Collect $200",
+      "tile": "Current",
+      "price": 200,
+      "source": "Bank"
+    }
+  ]
+}
