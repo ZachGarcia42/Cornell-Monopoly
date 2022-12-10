@@ -1,3 +1,5 @@
+(** Handles some user input and board functions*)
+
 val board : Tile.tile list
 (** The game board containing all monopoly squares in the current game*)
 

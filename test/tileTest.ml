@@ -9,7 +9,8 @@ open Board
 (* For testing our tile implementation, we achieved 100% coverage using glass
    box and black box OUnit tests, so no manual testing was required. However,
    our play testing also inherently tests these functions since they are an
-   integral part of Monopoly. *)
+   integral part of Monopoly. The combination of these approaches demonstrates
+   the correctness of this module.*)
 
 let boardwalk = Property (init_property "Boardwalk" Blue 400 39)
 let go = Go
