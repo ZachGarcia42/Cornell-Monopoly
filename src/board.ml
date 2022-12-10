@@ -7,7 +7,7 @@ open Chest
 (** [draw_card cards] is a random element in [cards] *)
 let draw_card cards =
   let idx = Random.int (List.length cards) in
-  List.nth cards idx
+  List.nth cards 0
 
 (** [data_dir_prefix] is the path to the data directory *)
 let data_dir_prefix = "data" ^ Filename.dir_sep
