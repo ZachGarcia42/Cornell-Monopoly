@@ -10,8 +10,8 @@ open Tile
 
 let board = Board.board
 let identity s = s
-let gotojailpos = get_pos board (tileName GoToJail) 0
-let jailpos = get_pos board (tileName JustVisiting) 0
+let gotojailpos = get_pos board (tile_name GoToJail) 0
+let jailpos = get_pos board (tile_name JustVisiting) 0
 
 let square_landed_test (name : string) expected_output board init_pos dice_roll
     : test =

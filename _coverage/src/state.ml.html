@@ -171,10 +171,10 @@ type state = {
 
 let player_list state = <span data-count="10">s</span>tate.players
 let purchased_properties state = <span data-count="10">s</span>tate.purchased_properties
-let money_jar state = <span data-count="10">s</span>tate.money_jar
+let money_jar state = <span data-count="15">s</span>tate.money_jar
 
 let init_state (players : player list) props money : state =
-  <span data-count="20">{</span> players; purchased_properties = props; money_jar = money }
+  <span data-count="25">{</span> players; purchased_properties = props; money_jar = money }
 
 let check_properties state location =
   <span data-count="25">m</span>atch List.nth board location with
@@ -184,7 +184,7 @@ let check_properties state location =
 (** [add_properties purchased location] adds the property at index [location] to
     the list of purchased properties. *)
 let add_properties (purchased : int list) (location : int) =
-  <span data-count="5">l</span>ocation :: purchased
+  <span data-count="15">l</span>ocation :: purchased
 
 (**[remove_properties purchased property] removes the property [property] from
    the list of purchased properties*)

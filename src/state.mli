@@ -11,10 +11,7 @@ val player_list : state -> Player.player list
 val purchased_properties : state -> int list
 (** [purchased_properties s] is [s.purchased_properties]*)
 
-val money_jar : state -> int
-(** [money_jar s] is [s.money_jar]*)
-
-val init_state : Player.player list -> int list -> int -> state
+val init_state : Player.player list -> int list -> state
 (** [init_state players props money] is the state containing [players], [props],
     and money*)
 

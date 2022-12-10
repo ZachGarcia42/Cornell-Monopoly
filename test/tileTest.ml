@@ -29,9 +29,8 @@ let fp = FreeParking
 let jail = GoToJail
 let lt = LuxuryTax
 
-
 let name_test (name : string) expected_output input =
-  name >:: fun _ -> assert_equal expected_output (tileName input)
+  name >:: fun _ -> assert_equal expected_output (tile_name input)
 
 let price_test (name : string) exp input =
   name >:: fun _ -> assert_equal exp (get_price input)
@@ -59,6 +58,6 @@ let tests =
     pos_test "chance" 7 "Chance";
     pos_test "just visiting" 10 "Just Visiting";
     ("empty board" >:: fun _ -> assert_equal 0 (get_pos [] "Just Visiting" 0));
-    pos_test "Go" 0 "Go"; 
-    pos_test "Gates hall" 39 "Gates Hall"
+    pos_test "Go" 0 "Go";
+    pos_test "Gates hall" 39 "Gates Hall";
   ]

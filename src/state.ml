@@ -11,15 +11,13 @@ let starting_money = 1500
 type state = {
   players : player list;
   purchased_properties : int list;
-  money_jar : int;
 }
 
 let player_list state = state.players
 let purchased_properties state = state.purchased_properties
-let money_jar state = state.money_jar
 
-let init_state (players : player list) props money : state =
-  { players; purchased_properties = props; money_jar = money }
+let init_state (players : player list) props : state =
+  { players; purchased_properties = props }
 
 let check_properties state location =
   match List.nth board location with
@@ -38,7 +36,6 @@ let remove_properties state property =
     (List.filter
        (fun p -> if p = property then false else true)
        (purchased_properties state))
-    (money_jar state)
 
 (** [check_player_properties prop properties] is true iff one of the properties
     matches [prop]. *)

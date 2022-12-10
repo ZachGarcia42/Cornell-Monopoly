@@ -1,3 +1,4 @@
+(** The type representing a single monopoly board tile*)
 type tile =
   | Property of Property.t
   | Go
@@ -9,7 +10,8 @@ type tile =
   | GoToJail
   | LuxuryTax
 
-let tileName = function
+(** [tile_name t] is the name of [t]*)
+let tile_name = function
   | Property p -> Property.name p
   | Go -> "Go"
   | CommunityChest h -> "Community Chest"
@@ -20,6 +22,7 @@ let tileName = function
   | GoToJail -> "Go To Jail"
   | LuxuryTax -> "Luxury Tax"
 
+(** [get_price t] is the price of [t]*)
 let get_price = function
   | Property p -> Property.price p
   | IncomeTax -> -200
@@ -28,9 +31,11 @@ let get_price = function
   | CommunityChest h -> Chest.payment h
   | _ -> 0
 
+(** [get_pos board dest acc] is the index of the tile with name [dest] in
+    [board] *)
 let rec get_pos board dest acc =
   match board with
   | [] -> acc
   | h :: t ->
-      let sq = tileName h in
+      let sq = tile_name h in
       if sq = dest then acc else get_pos t dest (acc + 1)

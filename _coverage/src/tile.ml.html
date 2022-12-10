@@ -111,15 +111,15 @@
   | LuxuryTax
 
 let tileName = function
-  | <span data-count="1554">P</span>roperty p -&gt; Property.name p
-  | <span data-count="193">G</span>o -&gt; "Go"
-  | <span data-count="244">C</span>ommunityChest h -&gt; "Community Chest"
-  | <span data-count="158">I</span>ncomeTax -&gt; "Income Tax"
-  | <span data-count="198">C</span>hance c -&gt; "Chance"
-  | <span data-count="97">J</span>ustVisiting -&gt; "Just Visiting"
-  | <span data-count="51">F</span>reeParking -&gt; "Free Parking"
-  | <span data-count="101">G</span>oToJail -&gt; "Go To Jail"
-  | <span data-count="2">L</span>uxuryTax -&gt; "Luxury Tax"
+  | <span data-count="1582">P</span>roperty p -&gt; Property.name p
+  | <span data-count="195">G</span>o -&gt; "Go"
+  | <span data-count="247">C</span>ommunityChest h -&gt; "Community Chest"
+  | <span data-count="159">I</span>ncomeTax -&gt; "Income Tax"
+  | <span data-count="201">C</span>hance c -&gt; "Chance"
+  | <span data-count="98">J</span>ustVisiting -&gt; "Just Visiting"
+  | <span data-count="52">F</span>reeParking -&gt; "Free Parking"
+  | <span data-count="102">G</span>oToJail -&gt; "Go To Jail"
+  | <span data-count="3">L</span>uxuryTax -&gt; "Luxury Tax"
 
 let get_price = function
   | <span data-count="1">P</span>roperty p -&gt; Property.price p
@@ -130,11 +130,11 @@ let get_price = function
   | <span data-count="1">_</span> -&gt; 0
 
 let rec get_pos board dest acc =
-  <span data-count="2480">m</span>atch board with
+  <span data-count="2521">m</span>atch board with
   | <span data-count="1">[</span>] -&gt; acc
-  | <span data-count="2479">h</span> :: t -&gt;
+  | <span data-count="2520">h</span> :: t -&gt;
       let sq = tileName h in
-      <span data-count="2479">i</span>f sq = dest then <span data-count="192">a</span>cc else <span data-count="2287">g</span>et_pos t dest (acc + 1)
+      <span data-count="2520">i</span>f sq = dest then <span data-count="194">a</span>cc else <span data-count="2326">g</span>et_pos t dest (acc + 1)
 </code></pre>
       </div>
     </div>

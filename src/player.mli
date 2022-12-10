@@ -55,38 +55,50 @@ val has_property : player -> Property.t -> bool
     list and false otherwise*)
 
 val purchase_property : player -> Tile.tile -> player
-(** Purchases the property and updates the player's values*)
+(** [purchase_property player tile] is the updated player after purchasing
+    [tile]*)
 
 val buy_property : player -> Property.t -> player
-(** [buy_property player prop roll] is an updated player with prop added to the
+(** [buy_property player prop] is an updated player with prop added to the
     property list and the cost of prop subtracted from their cash*)
 
 val sell_property : player -> Property.t -> player
-(** [buy_property player prop roll] is an updated player with prop subtracted
-    from the property list and half the cost of prop added from their cash*)
+(** [sell_property player prop] is an updated player with prop subtracted from
+    the property list and half the cost of prop added to their cash*)
 
 val net_worth : player -> int
 (** [net_worth player] is the cash value plus property value of this player*)
 
 val add_get_out_card : player -> player
-(* [add_get_out_card player] adds another get_out card*)
+(** [add_get_out_card player] adds another get_out card to [player]*)
 
-val unlock_chance_card : player -> Tile.tile -> player
-(* [unlock_chance_card player property] unlocks a chance card and updates the
-   player's status*)
+val handle_chance :
+  player -> Chance.t -> Tile.tile -> int -> int -> player list -> player
+(** [handle_chance player c property oldpos newpos playerlst] is a new player
+    with the effects of [c]*)
 
-val unlock_comm_chest_card : player -> Tile.tile -> player list -> player
-(* [unlock_comm_card player property] unlocks a community chest card and updates
-   the player's status*)
+val unlock_chance_card :
+  player -> Tile.tile -> int -> int -> player list -> player
+(** [unlock_chance_card player property old_position new_position playerlst]
+    picks a random chance card and calls [handle_chance] if [property] is a
+    chance tile*)
+
+val handle_cc : player -> player list -> Chest.t -> Tile.tile -> player list
+(** [handle_cc player playerlst chest property] is a new list of players updated
+    with the effects of [chest] on [player]*)
+
+val unlock_comm_chest_card : player -> Tile.tile -> player list -> player list
+(** [unlock_comm_card player property playerlst] unlocks a community chest card
+    and updates the [player]'s status using [handle_cc]*)
 
 val pay_tax : player -> Tile.tile -> player
-(* [unlock_comm_card player property] pays a tax for a player*)
+(** [pay_tax player property] pays a tax for [player] based on the [property]*)
 
 val string_list_properties : player -> string
-(**[string_list_properties player] converts the list of player properties into a
-   string*)
+(** [string_list_properties player] converts the list of [player]'s properties
+    into a string*)
 
 val player_name_to_property : player -> string -> Property.t option
-(*[player_name player str] matches a string [str] to a property that player
-  [player] has purchased. Returns None if [str] is not the name of a player's
-  property.*)
+(** [player_name_to_property player str] matches a string, [str], to a property
+    that player [player] has purchased. Returns None if [str] is not the name of
+    a player's property.*)

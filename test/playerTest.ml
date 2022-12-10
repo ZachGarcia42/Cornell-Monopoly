@@ -12,7 +12,11 @@ open Property
 let player_test (name : string) expected_output input : test =
   name >:: fun _ -> assert_equal expected_output input
 
+let int_test (name : string) expected_output input : test =
+  name >:: fun _ -> assert_equal expected_output input ~printer:string_of_int
+
 let zach = init_player "Zach" 1500
+let players = [ zach ]
 let boardwalk = init_property "Boardwalk" Blue 400 39
 let park_place = init_property "Park Place" Blue 380 37
 
@@ -80,41 +84,46 @@ let tests =
          (sell_property (buy_property zach boardwalk) boardwalk)
          boardwalk);
     player_test "not chance does nothing" zach
-      (unlock_chance_card zach (Property boardwalk));
+      (unlock_chance_card zach (Property boardwalk) 0 0 []);
     player_test "chance pays money" 1700
-      (cash (unlock_chance_card zach (Chance chance_go)));
+      (cash (handle_chance zach chance_go (Chance chance_go) 0 0 []));
     player_test "chance does nothing" zach
-      (unlock_chance_card zach (Chance chance_blank));
+      (handle_chance zach chance_blank (Chance chance_blank) 0 0 []);
     player_test "chance adv does not pass go" 1500
-      (cash (unlock_chance_card zach (Chance chance_adv)));
+      (cash (handle_chance zach chance_adv (Chance chance_adv) 0 0 []));
     player_test "chance adv does nothing the second time" 1500
-      (unlock_chance_card
-         (unlock_chance_card zach (Chance chance_adv))
-         (Chance chance_adv)
+      (handle_chance
+         (handle_chance zach chance_adv (Chance chance_adv) 0 0 [])
+         chance_adv (Chance chance_adv) 0 0 []
       |> cash);
     player_test "chance goojf adds a card" 1
-      (cards (unlock_chance_card zach (Chance chance_goojf)));
+      (cards (handle_chance zach chance_goojf (Chance chance_goojf) 0 0 []));
     player_test "chance mm adds 200" 1700
-      (cash (unlock_chance_card zach (Chance chance_mm)));
+      (cash (handle_chance zach chance_mm (Chance chance_mm) 0 0 []));
     player_test "chance pay takes 100" 1400
-      (cash (unlock_chance_card zach (Chance chance_pay)));
-    player_test "chance move moves" 4
-      (location (unlock_chance_card zach (Chance chance_move)));
-    player_test "not cc does nothing" zach
-      (unlock_comm_chest_card zach (Property boardwalk) []);
+      (cash (handle_chance zach chance_pay (Chance chance_pay) 0 0 []));
+    int_test "chance move moves" 37
+      (location (handle_chance zach chance_move (Chance chance_move) 0 0 []));
+    player_test "not cc does nothing" players
+      (unlock_comm_chest_card zach (Property boardwalk) players);
     player_test "cc move does nothing"
-      (unlock_comm_chest_card zach (CommunityChest cc_move))
-      (unlock_comm_chest_card
-         (unlock_comm_chest_card zach (CommunityChest cc_move) [])
-         (CommunityChest cc_move));
+      (handle_cc zach players cc_move (CommunityChest cc_move))
+      (handle_cc zach
+         (handle_cc zach players cc_move (CommunityChest cc_move))
+         cc_move (CommunityChest cc_move));
     player_test "cc go pays 200" 1700
-      (cash (unlock_comm_chest_card zach (CommunityChest cc_go) []));
+      (cash (List.nth (handle_cc zach players cc_go (CommunityChest cc_go)) 0));
     player_test "cc doc charges 50" 1450
-      (cash (unlock_comm_chest_card zach (CommunityChest cc_doc) []));
-    player_test "cc bday pays 0" 1510
-      (cash (unlock_comm_chest_card zach (CommunityChest cc_bday) []));
+      (cash
+         (List.nth (handle_cc zach players cc_doc (CommunityChest cc_doc)) 0));
+    player_test "cc bday pays 0" 1500
+      (cash
+         (List.nth (handle_cc zach players cc_bday (CommunityChest cc_bday)) 0));
     player_test "cc goojf adds a card" 1
-      (cards (unlock_comm_chest_card zach (CommunityChest cc_goojf) []));
+      (cards
+         (List.nth
+            (handle_cc zach players cc_goojf (CommunityChest cc_goojf))
+            0));
     player_test "pay income tax" 1300 (cash (pay_tax zach IncomeTax));
     player_test "pay luxury tax" 1400 (cash (pay_tax zach LuxuryTax));
     player_test "pay no tax" 1500 (cash (pay_tax zach (Property boardwalk)));

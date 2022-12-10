@@ -1,6 +1,7 @@
 Our project only depends on the libraries already on the default cs3110 fall, 2022 switch
 run opam update
 run opam upgrade
-should have ANSITerminal, if not run opam install ANSITerminal
-should have OUnit2, if not run opam install OUnit2
+You should have ANSITerminal, if not, run opam install ANSITerminal
+You should have OUnit2, if not, run opam install OUnit2
+You should have Yojson, if not, run opam install Yojson
 Then run make build followed by make play

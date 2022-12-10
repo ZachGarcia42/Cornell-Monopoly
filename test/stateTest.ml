@@ -15,24 +15,21 @@ let boardwalk_t = init_property "Boardwalk" Blue 400 39
 let boardwalk = Property boardwalk_t
 let player2 = purchase_property zach boardwalk
 let players = [ zach; player2 ]
-let default_state = init_state players [] 0
-let state_2 = init_state players [ 39; 37 ] 0
-
-let state_3 = init_state players [3; 5] 1000
-
+let default_state = init_state players []
+let state_2 = init_state players [ 39; 37 ]
+let state_3 = init_state players [ 3; 5 ]
 let go = Go
 let it = IncomeTax
 let fp = FreeParking
 let lt = LuxuryTax
 let test (name : string) exp act = name >:: fun _ -> assert_equal exp act
 
-
 let test_purchase (name : string) exp tile =
   test name exp (purchase_property (List.hd players) tile |> cash)
 
 let tests =
   [
-    test "player list" players (init_state players [] 0 |> player_list);
+    test "player list" players (init_state players [] |> player_list);
     test_purchase "purchase luxury tax" 1400 lt;
     test_purchase "purchase income tax" 1300 it;
     test_purchase "purchase go" 1500 go;
@@ -40,10 +37,8 @@ let tests =
     test_purchase "purchase free parking" 1500 fp;
     test "no purchased properties" [] (purchased_properties default_state);
     test "add property" [ 39 ] (add_properties [] 39);
-    test "cannot add same property" [39] (add_properties [] 39);
-    test "can add different property" [24; 39] (add_properties [39] 24);
-    test "money jar empty" 0 (money_jar default_state);
-    test "money jar not empty" 1000 (money_jar state_3);
+    test "cannot add same property" [ 39 ] (add_properties [] 39);
+    test "can add different property" [ 24; 39 ] (add_properties [ 39 ] 24);
     test "check_properties boardwalk" true (check_properties state_2 39);
     test "check_properties empty list" false (check_properties default_state 39);
     test "check_properties not in list" false (check_properties state_2 3);
@@ -54,5 +49,4 @@ let tests =
     test "no players can't own" false (is_property_owned boardwalk_t []);
     test "find owner of boardwalk" "Zach" (find_owner boardwalk_t players);
     test "no one is owner" "No one" (find_owner boardwalk_t []);
-    
   ]
