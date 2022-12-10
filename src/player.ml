@@ -100,12 +100,12 @@ let rec collect_money_from_other_players player playerlist num_players amt =
   match playerlist with
   | [] -> []
   | h :: t ->
-      if h = player then
-        pay player ((num_players - 1) * 10)
+      if name h = name player then
+        pay h ((num_players - 1) * 10)
         :: collect_money_from_other_players player t num_players amt
       else
-        let new_player = charge h amt in
-        new_player :: collect_money_from_other_players player t num_players amt
+        charge h amt
+        :: collect_money_from_other_players player t num_players amt
 
 let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
     (property : Tile.tile) =
@@ -114,7 +114,7 @@ let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
     List.map
       (fun p ->
         if name p = name player then
-          { player with get_out_cards = player.get_out_cards + 1 }
+          { p with get_out_cards = p.get_out_cards + 1 }
         else p)
       playerlst
   else if Chest.name ch = "It is your birthday! Collect $10 from every player"

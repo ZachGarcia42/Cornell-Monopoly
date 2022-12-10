@@ -20,6 +20,7 @@ let command_list =
     "Press H at any time for help";
   ]
 
+(** [display_commands cmdlist] prints the commands in [cmdlist]*)
 let display_commands (cmdlist : string list) =
   for i = 0 to List.length cmdlist - 1 do
     print_endline (List.nth cmdlist i)
@@ -48,11 +49,15 @@ let rec property_int_list properties =
   | [] -> []
   | h :: t -> index h :: property_int_list t
 
+(** [replace_player player updated_player state] replaces [updated_player] with
+    [player] in [state]*)
 let replace_player player updated_player s =
   List.map
     (fun p -> if Player.name p = Player.name updated_player then player else p)
     (State.player_list s)
 
+(** [display_board board pos] prints a representation of the the tiles in
+    [board] immediately surrounding [pos]*)
 let display_board (board : Tile.tile list) (pos : int) =
   print_endline "";
   print_endline
@@ -347,6 +352,8 @@ let prompt_next_action state tile player playerlst =
 (*| _ -> print_typed_string "Enter 'Q' to quit the game, or do nothing (enter
   any other key)." *)
 
+(** [prompt_if_not_jailed t] prompts the user with commands if [t] is not a
+    [GoToJail] tile*)
 let prompt_if_not_jailed current_tile =
   match current_tile with
   | GoToJail -> ()
@@ -359,8 +366,12 @@ let prompt_if_not_jailed current_tile =
 (**[has_goojf p] is true iff p has at least one get out of jail free card*)
 let has_goojf player = cards player > 0
 
+(** [yes_no_helper s] is [yes_no_input s] after mutable reassignment to allow
+    recursion*)
 let yes_no_helper = ref (fun s -> true)
 
+(** [yes_no_input s] recursively calls itself until a valid yes/no response is
+    received*)
 let yes_no_input s =
   match Monopoly.parse_user_input s with
   | "Y" | "YES" -> true
@@ -371,17 +382,20 @@ let yes_no_input s =
 
 let x = yes_no_helper := yes_no_input
 
+(** [rev_sort_assoc_list lst] is a reversed, sorted form of [lst]*)
 let rev_sort_assoc_list lst =
   List.rev
     (List.sort
        (fun x y -> if snd x > snd y then 1 else if snd x < snd y then -1 else 0)
        lst)
 
+(** [get_pl lst] returns a list of players from a standings list [lst]*)
 let rec get_pl lst =
   match lst with
   | [] -> []
   | h :: t -> fst h :: get_pl t
 
+(** [cash_to_players players] is a standings list generated from [players]*)
 let rec cash_to_players players =
   match players with
   | [] -> []
@@ -393,6 +407,7 @@ let print_player_standings (players : player list) =
   let rankings = get_pl standings_list in
   rankings
 
+(** [print_standings lst cashlst turn] prints the players standings*)
 let rec print_standings lst (cashlst : (string * int) list) (turn : int) =
   print_endline " ----- LEADERBOARD ----- ";
   if turn <> 1 then
@@ -430,8 +445,8 @@ let reconstruct_state (updated_player : player)
   in
   (updated_player, init_state new_players_list purchased_properties)
 
+(** If player is on another player's property, pays that player. *)
 let check_rent current_tile players new_player s =
-  (* If player is on another player's property, pays that player. *)
   match current_tile with
   | Property p ->
       (* Returns the owner of property [p]. Returns the first player in the list
@@ -484,6 +499,7 @@ let check_rent current_tile players new_player s =
       print_endline ("End of turn for " ^ Player.name new_player);
       reconstruct_state new_player (purchased_properties s) s
 
+(** [match_input_helper] is [match_input] after mutable reassignment*)
 let match_input_helper =
   ref
     (fun
@@ -494,6 +510,8 @@ let match_input_helper =
       (playerlst : player list)
     -> (new_player, s))
 
+(**[match_input t s pos player playerlst] ensures well formed user input and
+   handles that input*)
 let match_input (current_tile : tile) (s : state) (new_position : int)
     (new_player : player) (playerlst : player list) =
   match Monopoly.parse_user_input (read_line ()) with
