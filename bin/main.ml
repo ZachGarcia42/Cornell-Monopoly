@@ -562,6 +562,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
         print_typed_string "Sorry, you currently don't own any properties";
         reconstruct_state new_player (purchased_properties s) s)
   | "H" | "HELP" ->
+      print_endline "";
       print_endline
         "Hello! Here's a brief overview of how the game works: At the \
          beginning of each turn, we roll a pair of die for you and advance \
@@ -572,6 +573,7 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
          you must enter exactly what's prompted in most cases, although you \
          will still be charged for rent, taxes, and other things regardless of \
          what you enter (so tax evasion isn't possible)! Hope this helps!";
+      print_endline "";
       prompt_next_action s current_tile updated_player playerlst;
       prompt_if_not_jailed current_tile;
       !match_input_helper current_tile s new_position new_player updated_player
