@@ -732,11 +732,6 @@ let rec one_turn (s : state) (player : player) plist =
         in
         replace_player updated_player player s
     | Property p ->
-        print_endline (string_of_bool (is_property_owned p plist));
-
-        print_endline
-          (string_of_bool (Player.name updated_player <> find_owner p plist));
-
         if
           is_property_owned p plist
           && Player.name updated_player <> find_owner p plist
