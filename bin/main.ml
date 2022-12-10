@@ -50,7 +50,7 @@ let rec property_int_list properties =
 
 let replace_player player updated_player s =
   List.map
-    (fun p -> if p = updated_player then player else p)
+    (fun p -> if Player.name p = Player.name updated_player then player else p)
     (State.player_list s)
 
 let display_board (board : Tile.tile list) (pos : int) =
