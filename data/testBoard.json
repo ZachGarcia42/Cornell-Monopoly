@@ -2,9 +2,6 @@
   "tiles": [
     {
       "type": "CommunityChest"
-    },
-    {
-      "type": "Go"
     }
   ]
 }
