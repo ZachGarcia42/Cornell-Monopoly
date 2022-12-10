@@ -7,6 +7,19 @@ open Board
 open Property
 open Printer
 
+(** [read_lines name] returns the content of file [name] as a string list*)
+let read_lines name : string list =
+  let ic = open_in name in
+  let try_read () = try Some (input_line ic) with End_of_file -> None in
+  let rec loop acc =
+    match try_read () with
+    | Some s -> loop (s :: acc)
+    | None ->
+        close_in ic;
+        List.rev acc
+  in
+  loop []
+
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
 let end_conditions playerlist =
@@ -880,73 +893,7 @@ let rec main () =
         print_endline "";
         main ()
     | "no" | "n" ->
-        print_endline "";
-        print_endline "";
-        print_endline "Thank you for playing Cornellopoly! Have a great day!";
-        print_endline "";
-        print_endline "";
-
-        print_endline "     ████              ████      ";
-        print_endline "     ██    ██          ██    ██   ";
-        print_endline "   ██      ██        ██      ██    ";
-        print_endline "   ██        ██      ██      ██    ";
-        print_endline "   ██        ██    ██        ██    ";
-        print_endline "     ██      ██    ██        ██    ";
-        print_endline "     ██      ██    ██      ██      ";
-        print_endline "     ██      ██  ██        ██      ";
-        print_endline "     ██      ██  ██      ██        ";
-        print_endline "       ██    ██  ██      ██        ";
-        print_endline "       ██    ██  ██    ████        ";
-        print_endline "       ██      ██    ██    ██      ";
-        print_endline "       ██          ██      ██      ";
-        print_endline "       ██████      ██      ██████  ";
-        print_endline "     ██      ██  ██        ██    ██";
-        print_endline "   ██          ████████    ██    ██";
-        print_endline " ██                    ████    ██  ";
-        print_endline " ██                    ██      ██  ";
-        print_endline " ██      ██          ██      ██    ";
-        print_endline " ██    ██████████████  ██████      ";
-        print_endline "   ██          ██          ██      ";
-        print_endline "   ██          ██          ██      ";
-        print_endline "     ██      ██          ██        ";
-        print_endline "       ████            ██          ";
-        print_endline "           ████████████            ";
-        print_endline "";
-        print_endline "";
-        print_endline "        █████             █████";
-        print_endline "    ████████████       ████████████";
-        print_endline "  ████▓▓▓▓▓▓▓▓▓▓██   ███▓▓▓▓▓▓▓▓▓████";
-        print_endline " ███▓▓▓▓▓▓▓▓▓▓▓▓▓██ ██▓▓▓▓▓▓▓▓▓▓▓▓▓███";
-        print_endline "███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓███▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓███";
-        print_endline "██▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓██";
-        print_endline "██▓▓▓▓▓▓▓▓▓                  ▓▓▓▓▓▓▓▓██";
-        print_endline "██▓▓▓▓▓▓▓ ██   ████ █  █ █████ ▓▓▓▓▓▓██";
-        print_endline "██▓▓▓▓▓▓▓ ██   █  █ █  █ ██    ▓▓▓▓▓▓██";
-        print_endline "███▓▓▓▓▓▓ ██   █  █ █  █ █████ ▓▓▓▓▓▓██";
-        print_endline "███▓▓▓▓▓▓ ██   █  █ █  █ ██    ▓▓▓▓▓▓██";
-        print_endline " ███▓▓▓▓▓ ████ ████ ████ █████ ▓▓▓▓███";
-        print_endline "   ███▓▓▓▓▓                  ▓▓▓▓▓▓███";
-        print_endline "    ████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓████";
-        print_endline "     ████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓████";
-        print_endline "       ████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓█████";
-        print_endline "          ████▓▓▓▓▓▓▓▓▓▓▓▓████";
-        print_endline "             ███▓▓▓▓▓▓▓████";
-        print_endline "               ███▓▓▓███";
-        print_endline "                 ██▓██";
-        print_endline "                  ███";
-        print_endline "";
-        print_endline "";
-        print_endline "██████████████ ████████   ████████   ██████████████ ";
-        print_endline "██░░░░░░░░░░██ ██░░░░██   ██░░░░██   ██░░░░░░░░░░██ ";
-        print_endline "██████████░░██ ████░░██   ████░░██   ██░░██████░░██ ";
-        print_endline "        ██░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██████████░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██░░░░░░░░░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██████████░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "        ██░░██   ██░░██     ██░░██   ██░░██  ██░░██ ";
-        print_endline "██████████░░██ ████░░████ ████░░████ ██░░██████░░██ ";
-        print_endline "██░░░░░░░░░░██ ██░░░░░░██ ██░░░░░░██ ██░░░░░░░░░░██ ";
-        print_endline "██████████████ ██████████ ██████████ ██████████████ ";
+        display_commands (read_lines "data/endArt.txt");
 
         exit 0
     | _ ->
