@@ -1,7 +1,17 @@
 {
   "tiles": [
     {
-      "type": "CommunityChest"
+      "type": "Go"
+    },
+    {
+      "type": "Property",
+      "name": "Low Rise 7",
+      "color": "Brown",
+      "price": 60,
+      "pos": 1
+    },
+    {
+      "type": "GoToJail"
     }
   ]
 }

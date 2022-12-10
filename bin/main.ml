@@ -661,7 +661,9 @@ let rec one_turn (s : state) (player : player) plist =
 
   let updated_player =
     match player with
-    | p when in_jail p && doubles -> leave_jail p
+    | p when in_jail p && doubles ->
+        print_typed_string "You rolled doubles and can leave jail!";
+        leave_jail p
     | p when in_jail p && has_goojf p -> handle_card p
     | p when in_jail p && turns_in_jail p < 3 && not doubles -> jail_turn p
     | p when in_jail p && turns_in_jail p >= 3 && not doubles ->
