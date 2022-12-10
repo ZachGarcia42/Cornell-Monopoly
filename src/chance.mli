@@ -1,5 +1,5 @@
 type t
-(* The abstract type representing a Chance Card*)
+(** The abstract type representing a Chance Card*)
 
 val init_chance : string -> int -> string -> string -> int -> t
 (** [init_chance name price command] is the initial state of a chance card. *)
