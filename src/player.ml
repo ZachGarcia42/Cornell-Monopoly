@@ -117,7 +117,6 @@ let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
           { player with get_out_cards = player.get_out_cards + 1 }
         else p)
       playerlst
-
   else if Chest.name ch = "It is your birthday! Collect $10 from every player"
   then
     let num_players = List.length playerlst in
@@ -125,21 +124,8 @@ let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
       collect_money_from_other_players player playerlst num_players 10
     in
     updated_players
-
-  else if Chest.name ch = "Advance to Go! Collect $200" then
-
-    let player_to_go = move_to player 0 in 
-    let player_paid = pay player_to_go 200 in 
-    List.map (fun p -> if (name p) = (name player_paid) then player_paid else p) playerlst
-
-  else if 
-    (Chest.name ch = "Bank error in your favor! Collect $200" || Chest.name ch = 
-     "Doctor's Fees! Pay $50") then 
-    let price = Chest.payment ch in 
-    let player_paid = pay player price in 
-    List.map (fun p -> if (name p) = (name player_paid) then player_paid else p) playerlst
-    (* let dest = Chest.destination ch in
-    print_endline dest;
+  else
+    let dest = Chest.destination ch in
     if dest <> "Current" then (
       let new_pos = get_pos board dest 0 in
       print_typed_string ("You have advanced to " ^ dest);
@@ -167,10 +153,6 @@ let handle_cc (player : player) (playerlst : player list) (ch : Chest.t)
         List.map
           (fun p -> if name p = name player then pay player payment else p)
           playerlst
-
-        *)
-    else 
-      playerlst
 
 let unlock_comm_chest_card (player : player) property (playerlst : player list)
     : player list =
