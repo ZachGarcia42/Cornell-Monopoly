@@ -391,15 +391,17 @@ let print_player_standings (players : player list) =
   let rankings = get_pl standings_list in
   rankings
 
-let rec print_standings lst (cashlst : (string * int) list) =
+let rec print_standings lst (cashlst : (string * int) list) (turn : int) =
   print_endline " ----- LEADERBOARD ----- ";
-  for i = 0 to List.length lst - 1 do
-    print_endline
-      ("Rank "
-      ^ string_of_int (i + 1)
-      ^ " : " ^ List.nth lst i ^ " has " ^ "$"
-      ^ string_of_int (List.assoc (List.nth lst i) cashlst))
-  done
+  if turn <> 1 then
+    for i = 0 to List.length lst - 1 do
+      print_endline
+        ("Rank "
+        ^ string_of_int (i + 1)
+        ^ " : " ^ List.nth lst i ^ " has " ^ "$"
+        ^ string_of_int (List.assoc (List.nth lst i) cashlst))
+    done
+  else print_endline "<not calculated for the first round of the game>"
 
 (**[handle_card p] represents the player after they choose whether to use a get
    out of jail free card or not*)
@@ -544,24 +546,32 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
             && has_property new_player (Option.get propholder)
           then begin
             print_endline
-              (inp ^ " sold t. = End of turn for " ^ Player.name new_player);
+              (inp ^ " was sold successfully at Martha's Auction. "
+             ^ Player.name new_player ^ ", you can attempt another action.");
 
             (* ignore (remove_properties s (index (Option.get propholder))); *)
             sell_property new_player (Option.get propholder)
           end
           else begin
             print_endline
-              ("Invalid Selection. End of turn for " ^ Player.name new_player);
+              ("Invalid Selection. " ^ Player.name new_player
+             ^ ", please attempt a new action.");
             new_player
           end
         in
-        (* print_endline (string_of_int (location new_player)); print_endline
-           (string_of_int (index (Option.get propholder)))*)
-        reconstruct_state playernow (purchased_properties s) s)
+
+        prompt_next_action s current_tile playernow playerlst;
+        prompt_if_not_jailed current_tile;
+        !match_input_helper current_tile s new_position new_player playernow
+          playerlst)
       else (
         print_typed_string "Sorry, you currently don't own any properties";
-        reconstruct_state new_player (purchased_properties s) s)
-  | "H" | "HELP" ->
+
+        prompt_next_action s current_tile updated_player playerlst;
+        prompt_if_not_jailed current_tile;
+        !match_input_helper current_tile s new_position new_player
+          updated_player playerlst)
+  | "H" ->
       print_endline
         "Hello! Here's a brief overview of how the game works: At the \
          beginning of each turn, we roll a pair of die for you and advance \
@@ -571,7 +581,9 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
          to enter your next action based on what square you're on. Note that \
          you must enter exactly what's prompted in most cases, although you \
          will still be charged for rent, taxes, and other things regardless of \
-         what you enter (so tax evasion isn't possible)! Hope this helps!";
+         what you enter (so tax evasion isn't possible)! We also maintain a \
+         leaderboard (printed out at the beginning of each round) that's based \
+         on how much cash players have. Hope this helps!";
       prompt_next_action s current_tile updated_player playerlst;
       prompt_if_not_jailed current_tile;
       !match_input_helper current_tile s new_position new_player updated_player
@@ -761,7 +773,10 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     ("=======================Starting turn number " ^ string_of_int turn
    ^ " for all players=======================");
   print_endline "";
-  print_standings (print_player_standings playerlst) (cash_to_players playerlst);
+  print_standings
+    (print_player_standings playerlst)
+    (cash_to_players playerlst)
+    turn;
   let updated_game = take_turns game playerlst in
   let updated_playerlst = State.player_list updated_game in
   if end_conditions updated_playerlst then
