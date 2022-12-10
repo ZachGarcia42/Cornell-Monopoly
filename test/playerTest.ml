@@ -43,11 +43,6 @@ let chance_goojf =
 
 let cc_go = init_chest "Advance to Go! Collect $200" "Go" 200 "Bank"
 let cc_doc = init_chest "Doctor's Fees! Pay $50" "Current" ~-50 "Bank"
-
-let cc_bday =
-  init_chest "It is your birthday! Collect $10 from every player" "Current" 10
-    "All Players"
-
 let cc_move = init_chest "" "Income Tax" 0 "Bank"
 let cc_goojf = init_chest "Get out of Jail Free Card earned" "Current" 0 "Bank"
 
@@ -122,9 +117,6 @@ let tests =
     player_test "cc doc charges 50" 1450
       (cash
          (List.nth (handle_cc zach players cc_doc (CommunityChest cc_doc)) 0));
-    player_test "cc bday pays 0" 1500
-      (cash
-         (List.nth (handle_cc zach players cc_bday (CommunityChest cc_bday)) 0));
     player_test "cc goojf adds a card" 1
       (cards
          (List.nth

@@ -598,7 +598,9 @@ let match_input (current_tile : tile) (s : state) (new_position : int)
   | _ -> check_rent current_tile playerlst new_player s
 
 (** [reconstruct_state_players s players] is the state [s] but with an updated
-    players list [players]*)
+    players list [players]. Note that state contains a subset of the actual
+    players list and players is the full list, so this should only be used in
+    extreme situations. *)
 let reconstruct_state_players (s : state) (players : player list) : state =
   let purchased_props = State.purchased_properties s in
   init_state players purchased_props
@@ -724,11 +726,7 @@ let rec one_turn (s : state) (player : player) plist =
 
   match_input_helper := match_input;
 
-  (* reconstructed state with new players as sometimes birthdays doesn't update
-     all players' accounts*)
-  match_input current_tile
-    (reconstruct_state_players s new_players)
-    new_position new_player new_players
+  match_input current_tile s new_position new_player new_players
 
 (** Removes player [p] from [players] *)
 let rec remove_player (p : player) (players : player list) =
