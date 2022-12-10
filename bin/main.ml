@@ -726,6 +726,8 @@ let rec one_turn (s : state) (player : player) plist =
 
   match_input_helper := match_input;
 
+  (* reconstructed state with new players as sometimes birthdays doesn't update
+     all players' accounts*)
   match_input current_tile
     (reconstruct_state_players s new_players)
     new_position new_player updated_player new_players
