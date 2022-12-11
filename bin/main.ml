@@ -7,6 +7,11 @@ open Board
 open Property
 open Printer
 
+let rotate_players s =
+  match State.player_list s with
+  | h :: t -> init_state (t @ [ h ]) (State.purchased_properties s)
+  | [] -> s
+
 (** [update_player p plist] is a new player list with [p] instead of the old
     entry in [plist]*)
 let update_player p plist =
@@ -31,8 +36,7 @@ let to_one_string lst : string = List.fold_left (fun a b -> a ^ "\n" ^ b) "" lst
 
 (** [end_conditions] is true if at least one of the game-ending conditions is
     true, false otherwise. (PLACEHOLDER) *)
-let end_conditions playerlist =
-  if List.length playerlist = 1 then true else false
+let end_conditions playerlist = List.length playerlist <= 1
 
 let command_list =
   [
@@ -479,13 +483,14 @@ let reconstruct_state (updated_player : player)
 
 (** If player is on another player's property, pays that player. *)
 let check_rent current_tile players new_player s =
+  print_endline "In check_rent";
   match current_tile with
   | Property p ->
       (* Returns the owner of property [p]. Returns the first player in the list
          of players if the owner isn't found (should never happen) *)
       let rec find_owner p players =
         match players with
-        | [] -> List.nth players 0
+        | [] -> failwith "no owner found"
         | h :: t -> if Player.has_property h p then h else find_owner p t
       in
 
@@ -510,22 +515,28 @@ let check_rent current_tile players new_player s =
       in
 
       if is_property_owned p (player_list s) then (
+        print_endline "property is owned";
         let property_price = Property.price p in
         let property_owner = find_owner p (player_list s) in
-        if Player.name property_owner <> Player.name new_player then
+        if Player.name property_owner <> Player.name new_player then (
+          print_endline "player names not equal";
           print_endline
             (Player.name property_owner ^ " was paid "
             ^ string_of_int property_price
             ^ " for rent!");
 
-        print_endline ("End of turn for " ^ Player.name new_player);
+          print_endline ("End of turn for " ^ Player.name new_player);
+          print_endline "1";
 
-        ( new_player,
-          state_with_paid_player
-            (snd (reconstruct_state new_player (purchased_properties s) s))
-            property_owner property_price ))
+          ( new_player,
+            state_with_paid_player
+              (snd (reconstruct_state new_player (purchased_properties s) s))
+              property_owner property_price ))
+        else reconstruct_state new_player (purchased_properties s) s)
       else (
         print_endline ("End of turn for " ^ Player.name new_player);
+        print_endline "2";
+        print_endline (string_of_int (Player.cash new_player));
         reconstruct_state new_player (purchased_properties s) s)
   | _ ->
       print_endline ("End of turn for " ^ Player.name new_player);
@@ -743,6 +754,8 @@ let rec one_turn (s : state) (player : player) plist =
           let rent = Tile.get_price rentable_tile in
           let player_paid = charge updated_player rent in
 
+          (* let owner = List.find (fun p' -> Player.has_property p' p) plist in *)
+          (* let paid_owner = pay owner rent in *)
           if Player.cash player < 0 then
             print_typed_string
               (Player.name player_paid
@@ -752,6 +765,7 @@ let rec one_turn (s : state) (player : player) plist =
           let updated_player_position =
             Player.move_to player_paid (location updated_player)
           in
+          (* update_player paid_owner *)
           replace_player updated_player_position player s)
         else if is_property_owned p (player_list s) then (
           print_typed_string
@@ -795,30 +809,66 @@ let trimmed_state (p : player) (state : state) =
 
 (** [take_turns players] represents the new player states after each player
     takes one turn*)
-let rec take_turns (s : state) plist : state =
-  match s |> player_list with
-  | [] -> init_state [] []
-  | h :: t -> (
-      match one_turn s h plist with
-      | p, new_state ->
-          if Player.cash p < 0 then begin
-            print_typed_string
-              (Player.name p
-             ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
-                to be too much for them!");
-            let newer_state = trimmed_state p new_state in
-            init_state
-              (player_list (take_turns newer_state (update_player p plist)))
-              (State.purchased_properties newer_state)
-          end
-          else
-            let tail_player_list_state = remove_player_from_state p new_state in
-            let third_state =
-              take_turns tail_player_list_state (update_player p plist)
-            in
-            let total_player_list = p :: player_list third_state in
-            init_state total_player_list
-              (State.purchased_properties third_state))
+let rec take_turns (s : state) plist counter turn : state =
+  if counter >= List.length plist then begin
+    print_endline "";
+    print_endline "";
+    print_endline
+      ("=======================Starting turn number "
+      ^ string_of_int (turn + 2)
+      ^ " for all players=======================");
+    print_endline "";
+    print_standings
+      (print_player_standings (State.player_list s))
+      (cash_to_players (State.player_list s))
+      plist (turn + 2);
+    match s |> player_list with
+    | [] -> init_state [] []
+    | [ h ] -> s
+    | h :: t -> (
+        match one_turn s h plist with
+        | p, new_state ->
+            if Player.cash p < 0 then begin
+              print_typed_string
+                (Player.name p
+               ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+                  to be too much for them!");
+              let newer_state = trimmed_state p new_state in
+              init_state
+                (player_list
+                   (take_turns newer_state (update_player p plist) 1 (turn + 1)))
+                (State.purchased_properties newer_state)
+            end
+            else
+              let next_state = rotate_players new_state in
+              take_turns next_state (update_player p plist) 1 (turn + 1))
+  end
+  else
+    match s |> player_list with
+    | [] -> init_state [] []
+    | [ h ] -> s
+    | h :: t -> (
+        match one_turn s h plist with
+        | p, new_state ->
+            if Player.cash p < 0 then begin
+              print_typed_string
+                (Player.name p
+               ^ " has gone bankrupt, Cornell's\n\
+                 \   overwhelming costs have proved  to be too much for them!");
+              let newer_state = trimmed_state p new_state in
+              init_state
+                (player_list
+                   (take_turns newer_state (update_player p plist) (counter + 1)
+                      turn))
+                (State.purchased_properties newer_state)
+            end
+            else
+              let next_state = rotate_players new_state in
+              take_turns next_state (update_player p plist) (counter + 1) turn)
+(* let tail_player_list_state = remove_player_from_state p new_state in let
+   third_state = take_turns new_state (update_player p plist) in let
+   total_player_list = p :: player_list third_state in init_state
+   total_player_list (State.purchased_properties third_state)) *)
 
 (** [game_loop players turn] repeatedly rotates through players' turns until the
     game ends, where [turn] represents which round of turns the game is on. The
@@ -834,7 +884,7 @@ let rec game_loop (game : state) (turn : int) purchased playerlst =
     (print_player_standings playerlst)
     (cash_to_players playerlst)
     playerlst turn;
-  let updated_game = take_turns game playerlst in
+  let updated_game = take_turns game playerlst 0 0 in
   let updated_playerlst = State.player_list updated_game in
   if end_conditions updated_playerlst then
     ignore
