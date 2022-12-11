@@ -483,7 +483,6 @@ let reconstruct_state (updated_player : player)
 
 (** If player is on another player's property, pays that player. *)
 let check_rent current_tile players new_player s =
-  print_endline "In check_rent";
   match current_tile with
   | Property p ->
       (* Returns the owner of property [p]. Returns the first player in the list
@@ -514,28 +513,24 @@ let check_rent current_tile players new_player s =
         init_state new_players_list (State.purchased_properties state)
       in
 
-      if is_property_owned p (player_list s) then (
-        print_endline "property is owned";
+      if is_property_owned p (player_list s) then
         let property_price = Property.price p in
         let property_owner = find_owner p (player_list s) in
         if Player.name property_owner <> Player.name new_player then (
-          print_endline "player names not equal";
           print_endline
             (Player.name property_owner ^ " was paid "
             ^ string_of_int property_price
             ^ " for rent!");
 
           print_endline ("End of turn for " ^ Player.name new_player);
-          print_endline "1";
 
           ( new_player,
             state_with_paid_player
               (snd (reconstruct_state new_player (purchased_properties s) s))
               property_owner property_price ))
-        else reconstruct_state new_player (purchased_properties s) s)
+        else reconstruct_state new_player (purchased_properties s) s
       else (
         print_endline ("End of turn for " ^ Player.name new_player);
-        print_endline "2";
         print_endline (string_of_int (Player.cash new_player));
         reconstruct_state new_player (purchased_properties s) s)
   | _ ->
