@@ -531,7 +531,6 @@ let check_rent current_tile players new_player s =
         else reconstruct_state new_player (purchased_properties s) s
       else (
         print_endline ("End of turn for " ^ Player.name new_player);
-        print_endline (string_of_int (Player.cash new_player));
         reconstruct_state new_player (purchased_properties s) s)
   | _ ->
       print_endline ("End of turn for " ^ Player.name new_player);
@@ -754,7 +753,7 @@ let rec one_turn (s : state) (player : player) plist =
           if Player.cash player < 0 then
             print_typed_string
               (Player.name player_paid
-             ^ " has gone bankrupt, Cornell's overwhelming costs have proved \
+             ^ " has gone bankrupt, Cornell's overwhelming costs have proven \
                 to be too much for them!")
           else print_typed_string ("End of turn for " ^ Player.name player_paid);
           let updated_player_position =
@@ -831,7 +830,7 @@ let rec take_turns (s : state) plist counter turn : state =
               let newer_state = trimmed_state p new_state in
               init_state
                 (player_list
-                   (take_turns newer_state (update_player p plist) 1 (turn + 1)))
+                   (take_turns newer_state (remove_player p plist) 0 (turn + 1)))
                 (State.purchased_properties newer_state)
             end
             else
@@ -853,8 +852,7 @@ let rec take_turns (s : state) plist counter turn : state =
               let newer_state = trimmed_state p new_state in
               init_state
                 (player_list
-                   (take_turns newer_state (update_player p plist) (counter + 1)
-                      turn))
+                   (take_turns newer_state (remove_player p plist) counter turn))
                 (State.purchased_properties newer_state)
             end
             else
