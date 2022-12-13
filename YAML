@@ -26,11 +26,8 @@ desc: >
   This project is an online version of the famous game, Monopoly, themed around
   Cornell locations, landmarks, and inside jokes. The interface shows the user
   the entire board, their location on the board, and relevant features of the
-  board (houses, cards, property ownership). The user will choose possible
-  actions such as rolling dice, building houses, and paying tax. The user will
+  board (prices, property ownership). The user will choose possible
+  actions such as rolling dice, selling properties, and paying tax. The user will
   be able to move their piece around the board, view property details, and view
   community chest style cards. After the user's turn, other players will take
-  their turn. We could also implement basic AI opponents. Playing against
-  Computer players, the user(s) will see what the computer chooses to do in real
-  time. All of this interface will be created using a terminal library. As a
-  stretch goal we might implement a GUI at the end of the project.
+  their turn. All of this interface will be created using a terminal library.
