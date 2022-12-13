@@ -796,7 +796,7 @@ let trimmed_state (p : player) (state : state) =
   let new_player_list = remove_player p old_player_list in
   let purchased_props =
     List.filter
-      (fun a -> List.mem a (property_int_list (properties p)))
+      (fun a -> not (List.mem a (property_int_list (properties p))))
       (State.purchased_properties state)
   in
   init_state new_player_list purchased_props
