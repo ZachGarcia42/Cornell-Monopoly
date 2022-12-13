@@ -17,5 +17,6 @@ let tests =
     test "destination test" "Current" (destination (List.nth cards 1));
     test "payment test" ~-50 (payment (List.nth cards 1));
     test "payment test" 200 (payment (List.nth cards 0));
+    test "payment source test" "Bank" (payment_source (List.nth cards 0));
     test "name test" "Doctor's Fees! Pay $50" (name (List.nth cards 1));
   ]

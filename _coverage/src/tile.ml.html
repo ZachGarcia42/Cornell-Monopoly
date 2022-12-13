@@ -129,19 +129,19 @@ type tile =
 
 (** [tile_name t] is the name of [t]*)
 let tile_name = function
-  | <span data-count="1001">P</span>roperty p -&gt; Property.name p
-  | <span data-count="118">G</span>o -&gt; "Go"
-  | <span data-count="152">C</span>ommunityChest h -&gt; "Community Chest"
-  | <span data-count="93">I</span>ncomeTax -&gt; "Income Tax"
-  | <span data-count="121">C</span>hance c -&gt; "Chance"
-  | <span data-count="62">J</span>ustVisiting -&gt; "Just Visiting"
-  | <span data-count="34">F</span>reeParking -&gt; "Free Parking"
-  | <span data-count="66">G</span>oToJail -&gt; "Go To Jail"
+  | <span data-count="1567">P</span>roperty p -&gt; Property.name p
+  | <span data-count="190">G</span>o -&gt; "Go"
+  | <span data-count="242">C</span>ommunityChest h -&gt; "Community Chest"
+  | <span data-count="149">I</span>ncomeTax -&gt; "Income Tax"
+  | <span data-count="191">C</span>hance c -&gt; "Chance"
+  | <span data-count="98">J</span>ustVisiting -&gt; "Just Visiting"
+  | <span data-count="52">F</span>reeParking -&gt; "Free Parking"
+  | <span data-count="102">G</span>oToJail -&gt; "Go To Jail"
   | <span data-count="3">L</span>uxuryTax -&gt; "Luxury Tax"
 
 (** [get_price t] is the price of [t]*)
 let get_price = function
-  | <span data-count="13">P</span>roperty p -&gt; Property.price p
+  | <span data-count="21">P</span>roperty p -&gt; Property.price p
   | <span data-count="1">I</span>ncomeTax -&gt; -200
   | <span data-count="1">L</span>uxuryTax -&gt; -100
   | <span data-count="1">C</span>hance c -&gt; Chance.price c
@@ -151,11 +151,11 @@ let get_price = function
 (** [get_pos board dest acc] is the index of the tile with name [dest] in
     [board] *)
 let rec get_pos board dest acc =
-  <span data-count="1575">m</span>atch board with
+  <span data-count="2481">m</span>atch board with
   | <span data-count="1">[</span>] -&gt; acc
-  | <span data-count="1574">h</span> :: t -&gt;
+  | <span data-count="2480">h</span> :: t -&gt;
       let sq = tile_name h in
-      <span data-count="1574">i</span>f sq = dest then <span data-count="117">a</span>cc else <span data-count="1457">g</span>et_pos t dest (acc + 1)
+      <span data-count="2480">i</span>f sq = dest then <span data-count="189">a</span>cc else <span data-count="2291">g</span>et_pos t dest (acc + 1)
 </code></pre>
       </div>
     </div>

@@ -180,70 +180,70 @@ open Chest
 
 (** [draw_card cards] is a random element in [cards] *)
 let draw_card cards =
-  <span data-count="18">l</span>et idx = Random.int (List.lengt<span data-count="18">h</span> cards) in
-  <span data-count="18">L</span>ist.nth cards idx
+  <span data-count="30">l</span>et idx = Random.int (List.lengt<span data-count="30">h</span> cards) in
+  <span data-count="30">L</span>ist.nth cards idx
 
 (** [data_dir_prefix] is the path to the data directory *)
 let data_dir_prefix = "data" ^ Filename.dir_sep
 
 (** [tiles] is a Yojson representation of the game board *)
-let tiles = Yojson.Basic.from_fil<span data-count="3">e</span> (data_dir_prefix ^ "board.json")
+let tiles = Yojson.Basic.from_fil<span data-count="5">e</span> (data_dir_prefix ^ "board.json")
 
 (** [chance_cards] is a Yojson representation of the Chance cards*)
-let chance_cards = Yojson.Basic.from_fil<span data-count="3">e</span> (data_dir_prefix ^ "chance.json")
+let chance_cards = Yojson.Basic.from_fil<span data-count="5">e</span> (data_dir_prefix ^ "chance.json")
 
 (** [chest_cards] is a Yojson representation of the Community Chest cards*)
-let chest_cards = Yojson.Basic.from_fil<span data-count="3">e</span> (data_dir_prefix ^ "chest.json")
+let chest_cards = Yojson.Basic.from_fil<span data-count="5">e</span> (data_dir_prefix ^ "chest.json")
 
 (** [retr_list j s f] is an OCaml list that represents the elements stored in
     [s] of the Yojson structure, [j], after [f] has been applied to them *)
-let retr_list j s f = <span data-count="9">j</span> |&gt; member s |&gt; <span data-count="9">t</span>o_list |&gt; <span data-count="9">L</span>ist.map f
+let retr_list j s f = <span data-count="15">j</span> |&gt; member s |&gt; <span data-count="15">t</span>o_list |&gt; <span data-count="15">L</span>ist.map f
 
 (** [yojson_string j s] is a string representation of the data stored at [s] in
     [j] *)
-let yojson_string j s = <span data-count="405">j</span> |&gt; member s |&gt; <span data-count="405">t</span>o_string
+let yojson_string j s = <span data-count="675">j</span> |&gt; member s |&gt; <span data-count="675">t</span>o_string
 
 (** [yojson_int j s] is an integer representation of the data stored at [s] in
     [j] *)
-let yojson_int j s = <span data-count="234">j</span> |&gt; member s |&gt; <span data-count="234">t</span>o_int
+let yojson_int j s = <span data-count="390">j</span> |&gt; member s |&gt; <span data-count="390">t</span>o_int
 
 (** [to_chance j] is the single [Chance.t] card represented by [j]*)
 let to_chance j =
-  <span data-count="27">i</span>nit_chance (yojson_strin<span data-count="27">g</span> j "name") (yojson_in<span data-count="27">t</span> j "price")
-    (yojson_strin<span data-count="27">g</span> j "command")
-    (yojson_strin<span data-count="27">g</span> j "tile") (yojson_in<span data-count="27">t</span> j "movement")
+  <span data-count="45">i</span>nit_chance (yojson_strin<span data-count="45">g</span> j "name") (yojson_in<span data-count="45">t</span> j "price")
+    (yojson_strin<span data-count="45">g</span> j "command")
+    (yojson_strin<span data-count="45">g</span> j "tile") (yojson_in<span data-count="45">t</span> j "movement")
 
 (** [chance_commands] is the list of all [Chance.t] cards*)
-let chance_commands = retr_lis<span data-count="3">t</span> chance_cards "cards" to_chance
+let chance_commands = retr_lis<span data-count="5">t</span> chance_cards "cards" to_chance
 
 (** [to_chest j] is the single [Chest.t] card represented by [j]*)
 let to_chest j =
-  <span data-count="12">i</span>nit_chest (yojson_strin<span data-count="12">g</span> j "name") (yojson_strin<span data-count="12">g</span> j "tile")
-    (yojson_in<span data-count="12">t</span> j "price") (yojson_strin<span data-count="12">g</span> j "source")
+  <span data-count="20">i</span>nit_chest (yojson_strin<span data-count="20">g</span> j "name") (yojson_strin<span data-count="20">g</span> j "tile")
+    (yojson_in<span data-count="20">t</span> j "price") (yojson_strin<span data-count="20">g</span> j "source")
 
 (** [community_chest_commands] is the list of all [Chest.t] cards*)
-let community_chest_commands = retr_lis<span data-count="3">t</span> chest_cards "cards" to_chest
+let community_chest_commands = retr_lis<span data-count="5">t</span> chest_cards "cards" to_chest
 
 (** [to_prop j] is the single [Tile.tile] represented by [j]*)
 let to_prop j : Tile.tile =
-  <span data-count="120">m</span>atch yojson_string j "type" with
-  | <span data-count="3">"</span>Go" -&gt; Go
-  | <span data-count="3">"</span>IncomeTax" -&gt; IncomeTax
-  | <span data-count="3">"</span>LuxuryTax" -&gt; LuxuryTax
-  | <span data-count="3">"</span>GoToJail" -&gt; GoToJail
-  | <span data-count="3">"</span>JustVisiting" -&gt; JustVisiting
-  | <span data-count="3">"</span>FreeParking" -&gt; FreeParking
-  | <span data-count="9">"</span>CommunityChest" -&gt; CommunityChest (draw_car<span data-count="9">d</span> community_chest_commands)
-  | <span data-count="9">"</span>Chance" -&gt; Chance (draw_car<span data-count="9">d</span> chance_commands)
-  | <span data-count="84">"</span>Property" -&gt;
+  <span data-count="200">m</span>atch yojson_string j "type" with
+  | <span data-count="5">"</span>Go" -&gt; Go
+  | <span data-count="5">"</span>IncomeTax" -&gt; IncomeTax
+  | <span data-count="5">"</span>LuxuryTax" -&gt; LuxuryTax
+  | <span data-count="5">"</span>GoToJail" -&gt; GoToJail
+  | <span data-count="5">"</span>JustVisiting" -&gt; JustVisiting
+  | <span data-count="5">"</span>FreeParking" -&gt; FreeParking
+  | <span data-count="15">"</span>CommunityChest" -&gt; CommunityChest (draw_car<span data-count="15">d</span> community_chest_commands)
+  | <span data-count="15">"</span>Chance" -&gt; Chance (draw_car<span data-count="15">d</span> chance_commands)
+  | <span data-count="140">"</span>Property" -&gt;
       Property
-        (Property.init_propert<span data-count="84">y</span> (yojson_strin<span data-count="84">g</span> j "name")
-           (Property.set_of_strin<span data-count="84">g</span> (yojson_strin<span data-count="84">g</span> j "color"))
-           (yojson_in<span data-count="84">t</span> j "price") (yojson_in<span data-count="84">t</span> j "pos"))
+        (Property.init_propert<span data-count="140">y</span> (yojson_strin<span data-count="140">g</span> j "name")
+           (Property.set_of_strin<span data-count="140">g</span> (yojson_strin<span data-count="140">g</span> j "color"))
+           (yojson_in<span data-count="140">t</span> j "price") (yojson_in<span data-count="140">t</span> j "pos"))
   | <span data-count="0">s</span> -&gt; failwith ("Parsing error" ^ s)
 
 (** [board] is the list of all [Tile.tile] tiles on the board*)
-let board : Tile.tile list = retr_lis<span data-count="3">t</span> tiles "tiles" to_prop
+let board : Tile.tile list = retr_lis<span data-count="5">t</span> tiles "tiles" to_prop
 </code></pre>
       </div>
     </div>
