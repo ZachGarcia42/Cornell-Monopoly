@@ -94,10 +94,10 @@ let board = Board.board
 (* Accounts for the fact that positions may need to wrap around to the beginning
    of the board again*)
 let rec convert (new_pos : int) (square_list_length : int) =
-  <span data-count="14">i</span>f new_pos &gt;= 0 &amp;&amp; <span data-count="10">n</span>ew_pos &lt; square_list_length then <span data-count="8">n</span>ew_pos
-  else <span data-count="6">i</span>f new_pos &gt;= square_list_length then
+  <span data-count="18">i</span>f new_pos &gt;= 0 &amp;&amp; <span data-count="12">n</span>ew_pos &lt; square_list_length then <span data-count="10">n</span>ew_pos
+  else <span data-count="8">i</span>f new_pos &gt;= square_list_length then
     <span data-count="2">c</span>onvert (new_pos - square_list_length) square_list_length
-  else <span data-count="4">c</span>onvert (new_pos + square_list_length) square_list_length
+  else <span data-count="6">c</span>onvert (new_pos + square_list_length) square_list_length
 
 (* init_pos is the initial position in the board where they are at. fin_pos is
    the roll on the dice that they got*)
@@ -108,15 +108,15 @@ let square_landed board init_pos dice_roll =
 
 (* Parses the user's input properly*)
 let parse_user_input (input : string) : string =
-  <span data-count="12">l</span>et upperc_input = String.uppercase_ascii input in
-  <span data-count="12">l</span>et new_str = String.trim upperc_input in
-  <span data-count="12">n</span>ew_str
+  <span data-count="18">l</span>et upperc_input = String.uppercase_ascii input in
+  <span data-count="18">l</span>et new_str = String.trim upperc_input in
+  <span data-count="18">n</span>ew_str
 
 (* Returns whether a player passed Go or not*)
 let player_passed_go (init_pos : int) (fin_pos : int) =
-  <span data-count="29">l</span>et gotojail = Tile.get_pos board (tile_nam<span data-count="29">e</span> GoToJail) 0 in
-  <span data-count="29">i</span>f init_pos = gotojail then <span data-count="1">f</span>alse
-  else <span data-count="28">i</span>nit_pos &gt; 0 &amp;&amp; <span data-count="28">f</span>in_pos &gt;= 0 &amp;&amp; <span data-count="28">i</span>nit_pos &gt; fin_pos
+  <span data-count="45">l</span>et gotojail = Tile.get_pos board (tile_nam<span data-count="45">e</span> GoToJail) 0 in
+  <span data-count="45">i</span>f init_pos = gotojail then <span data-count="1">f</span>alse
+  else <span data-count="44">i</span>nit_pos &gt; 0 &amp;&amp; <span data-count="44">f</span>in_pos &gt;= 0 &amp;&amp; <span data-count="44">i</span>nit_pos &gt; fin_pos
 </code></pre>
       </div>
     </div>

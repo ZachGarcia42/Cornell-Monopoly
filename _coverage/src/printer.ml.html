@@ -18,7 +18,7 @@
       <h2>84.62%</h2>
     </div>
     <div id="navbar">
-      <span class="some-visited" style="bottom:33.33%"></span>
+      <span class="some-visited" style="bottom:30.43%"></span>
     </div>
     <div id="report">
       <div id="lines-layer">
@@ -32,18 +32,20 @@
 <a id="L7"></a><span > </span>
 <a id="L8"></a><span > </span>
 <a id="L9"></a><span > </span>
-<a id="L10"></a><span class="visited"> </span>
-<a id="L11"></a><span class="visited"> </span>
+<a id="L10"></a><span > </span>
+<a id="L11"></a><span > </span>
 <a id="L12"></a><span class="visited"> </span>
-<a id="L13"></a><span > </span>
-<a id="L14"></a><span class="some-visited"> </span>
+<a id="L13"></a><span class="visited"> </span>
+<a id="L14"></a><span class="visited"> </span>
 <a id="L15"></a><span > </span>
-<a id="L16"></a><span class="visited"> </span>
+<a id="L16"></a><span class="some-visited"> </span>
 <a id="L17"></a><span > </span>
-<a id="L18"></a><span > </span>
-<a id="L19"></a><span class="visited"> </span>
-<a id="L20"></a><span class="visited"> </span>
+<a id="L18"></a><span class="visited"> </span>
+<a id="L19"></a><span > </span>
+<a id="L20"></a><span > </span>
 <a id="L21"></a><span class="visited"> </span>
+<a id="L22"></a><span class="visited"> </span>
+<a id="L23"></a><span class="visited"> </span>
 </pre>
       </div>
       <div id="text-layer">
@@ -69,28 +71,32 @@
 <a href="#L19">19</a>
 <a href="#L20">20</a>
 <a href="#L21">21</a>
+<a href="#L22">22</a>
+<a href="#L23">23</a>
 </pre>
-<pre><code class="ocaml">let slow = 0.05
+<pre><code class="ocaml">let super_slow = 0.1
+let slow = 0.05
 let med = 0.025
 let fast = 0.01
+let super_fast = 0.05
 
 (* flag that toggles type printing. If you're playing the game as normal, set to
    false. If you're debugging and just want to see the output faster, set to
    true. *)
 let debugging = true
 
-let rec print_chars ?speed:(setting = <span data-count="2451">m</span>ed) = function
-  | <span data-count="45">[</span>] -&gt; ()
-  | <span data-count="2406">h</span> :: t -&gt;
+let rec print_chars ?speed:(setting = <span data-count="4085">m</span>ed) = function
+  | <span data-count="75">[</span>] -&gt; ()
+  | <span data-count="4010">h</span> :: t -&gt;
       print_char h;
-      <span data-count="2406">i</span>f debugging then <span data-count="2406">U</span>nix.sleep<span data-count="2406">f</span> 0. else <span data-count="0">U</span>nix.sleep<span data-count="0">f</span> setting;
+      <span data-count="4010">i</span>f debugging then <span data-count="4010">U</span>nix.sleep<span data-count="4010">f</span> 0. else <span data-count="0">U</span>nix.sleep<span data-count="0">f</span> setting;
       flush stdout;
-      <span data-count="2406">p</span>rint_chars t
+      <span data-count="4010">p</span>rint_chars t
 
 let print_typed_string (s : string) =
-  <span data-count="45">l</span>et char_list = List.of_seq (String.to_se<span data-count="45">q</span> s) in
-  <span data-count="45">p</span>rint_chars char_list;
-  <span data-count="45">p</span>rint_endline ""
+  <span data-count="75">l</span>et char_list = List.of_seq (String.to_se<span data-count="75">q</span> s) in
+  <span data-count="75">p</span>rint_chars char_list;
+  <span data-count="75">p</span>rint_endline ""
 </code></pre>
       </div>
     </div>
