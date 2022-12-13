@@ -2,6 +2,11 @@ open OUnit2
 open Game
 open Chest
 
+(* For testing our community chest implementation, we achieved 100% coverage using glass
+   box and black box OUnit tests, so no manual testing was required. However,
+   our play testing also inherently tests these functions since they are an
+   integral part of Monopoly. *)
+
 let cards =
   [
     init_chest "Advance to Go! Collect $200" "Go" 200 "Bank";
